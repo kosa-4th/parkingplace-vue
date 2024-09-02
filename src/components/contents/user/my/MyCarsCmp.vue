@@ -1,7 +1,6 @@
 <template>
   <div>
-    <h3>UserCmp</h3>
-    <router-view></router-view>
+    <h3>MyCarsCmp</h3>
   </div>
 </template>
 

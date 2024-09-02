@@ -1,6 +1,6 @@
 <template>
   <main>
-    <h3>ContentCmp</h3>
+    <router-view></router-view>
   </main>
 </template>
 

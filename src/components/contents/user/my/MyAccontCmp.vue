@@ -1,8 +1,5 @@
 <template>
-  <div>
-    <h3>UserCmp</h3>
-    <router-view></router-view>
-  </div>
+  <div>MyAccountCmp</div>
 </template>
 
 <script>
