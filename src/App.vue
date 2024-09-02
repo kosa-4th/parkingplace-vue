@@ -6,11 +6,18 @@ import FooterCmp from './components/footer/FooterCmp.vue'
 </script>
 
 <template>
-  <div>
+  <div id="app">
     <header-cmp></header-cmp>
     <content-cmp></content-cmp>
     <footer-cmp></footer-cmp>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+</style>
