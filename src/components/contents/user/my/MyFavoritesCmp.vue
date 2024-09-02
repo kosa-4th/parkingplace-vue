@@ -1,7 +1,6 @@
 <template>
   <div>
-    <h3>ContentCmp</h3>
-    <router-view></router-view>
+    <h3>MyFavoritesCmp</h3>
   </div>
 </template>
 

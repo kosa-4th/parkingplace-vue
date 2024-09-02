@@ -8,10 +8,12 @@
 </template>
 
 <script>
-import SearchCmp from '../user-map/SearchCmp.vue'
 import LotPreviewCmp from './LotPreviewCmp.vue'
 import RecommendLotsCmp from './RecommendLotsCmp.vue'
-export default {}
+import SearchCmp from './SearchCmp.vue'
+export default {
+  components: { SearchCmp, LotPreviewCmp, RecommendLotsCmp }
+}
 </script>
 LotPreviewCmp
 
