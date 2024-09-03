@@ -11,7 +11,19 @@ export default {}
 <style>
 main {
   flex: 1;
-  padding-top: 70px; /* 헤더 높이만큼 패딩 추가 */
-  padding-bottom: 70px; /* 푸터 높이만큼 패딩 추가 */
+  margin: auto;
+  margin-top: 50px; /* 헤더 높이만큼 마진 추가 */
+}
+
+@media (orientation: landscape) {
+  main {
+    width: 800px;
+  }
+}
+
+@media (orientation: portrait) {
+  main {
+    width: 100%;
+  }
 }
 </style>

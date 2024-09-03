@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar bg-light fixed-top" >
+  <nav class="navbar bg-light fixed-top">
     <div class="container-fluid">
       <button class="navbar-toggler" type="button" @click="toggleSidebar">
         <span class="navbar-toggler-icon"></span>
@@ -7,19 +7,18 @@
 
       <!-- 로고 클릭 시 홈으로 이동 -->
       <router-link to="/" class="navbar-brand position-absolute start-50 translate-middle-x">
-        <img src="@/assets/img/logo.png" style="height: 30px;" alt="Parking Place">
+        <img src="@/assets/img/logo.png" style="height: 25px" alt="Parking Place" />
       </router-link>
       <!-- 알림 버튼 -->
-      
+
       <div class="d-flex">
         <a href="#" class="nav-link text-dark">
-          <img src="@/assets/img/bell.svg" style="width: 30px; height: 30px; margin-right: 15px">
+          <img src="@/assets/img/bell.svg" style="width: 20px; height: 20px; margin-right: 15px" />
         </a>
       </div>
 
-
       <!-- 사이드바 메뉴 -->
-      <div :class="['sidebar', { 'active': isSidebarOpen }]">
+      <div :class="['sidebar', { active: isSidebarOpen }]">
         <div class="sidebar-header">
           <button class="btn-close" @click="toggleSidebar"></button>
         </div>
@@ -57,33 +56,44 @@ export default {
     return {
       isSidebarOpen: false,
       isLoggedIn: true,
-      username: '테스트',
-    };
+      username: '테스트'
+    }
   },
   mounted() {
-    console.log("mounted: isLoggedIn =", this.isLoggedIn);
-    console.log("mounted: userName =", this.username);
+    console.log('mounted: isLoggedIn =', this.isLoggedIn)
+    console.log('mounted: userName =', this.username)
   },
   methods: {
     toggleSidebar() {
-      this.isSidebarOpen = !this.isSidebarOpen;
+      this.isSidebarOpen = !this.isSidebarOpen
     },
     login() {
-      this.isLoggedIn = true;
-      this.username = '테스트'; // 실제 앱에서는 로그인 API로부터 사용자 이름을 받아오겠죠.
-      console.log("Login: isLoggedIn =", this.isLoggedIn);
-      console.log("Login: username =", this.username);
+      this.isLoggedIn = true
+      this.username = '테스트' // 실제 앱에서는 로그인 API로부터 사용자 이름을 받아오겠죠.
+      console.log('Login: isLoggedIn =', this.isLoggedIn)
+      console.log('Login: username =', this.username)
     },
     logout() {
-      this.isLoggedIn = false;
-      this.username = '';
-      console.log("Logout: isLoggedIn =", this.isLoggedIn);
-      console.log("Logout: username =", this.username);
-    },
-  },
-};
+      this.isLoggedIn = false
+      this.username = ''
+      console.log('Logout: isLoggedIn =', this.isLoggedIn)
+      console.log('Logout: username =', this.username)
+    }
+  }
+}
 </script>
 <style scoped>
+.navbar {
+  height: 50px;
+}
+.navbar-toggler-icon {
+  width: 20px;
+  height: 20px;
+}
+.navbar-brand,
+.navbar-nav .nav-link {
+  line-height: 1;
+}
 
 /* 사이드바 스타일 */
 .sidebar {
@@ -100,7 +110,6 @@ export default {
 .sidebar.active {
   left: 0;
   background-color: #d8d7d7;
-
 }
 
 .sidebar-header {

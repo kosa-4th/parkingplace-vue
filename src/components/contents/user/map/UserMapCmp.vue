@@ -1,20 +1,215 @@
+<!-- 
+ 담당자: 양건모
+ 시작 일자: 2024.09.02
+ 설명 : 주차장 지도 컴포넌트
+ ---------------------
+ 2024.09.02 양건모 | 지도 표시 구현
+ 2024.09.03 양건모 | 지도 스크립트 호출 코드 위치 변경
+ 2024.09.03 양건모 | 장소 검색 구현
+ -->
+
 <template>
-  <div>
-    <h3>UserMapCmp</h3>
-    <search-cmp></search-cmp>
-    <lot-preview-cmp></lot-preview-cmp>
-    <recommend-lots-cmp></recommend-lots-cmp>
+  <div id="map-container">
+    <div id="search">
+      <div id="search-bar">
+        <form onsubmit="return false;">
+          <input
+            id="search-input"
+            type="search"
+            class="form-control form-control-dark"
+            placeholder="장소 검색"
+            aria-label="Search"
+            autocomplete="off"
+            @input="searchBox"
+          />
+        </form>
+        <button id="search-btn" type="button" @click="clearResult" v-if="showResult">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#9A64E8"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            width="24"
+            height="24"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div id="place-list" v-if="showResult">
+        <ul class="list-unstyled mb-0" v-for="item in placeArray" :key="item">
+          <a class="dropdown-item" href="#" @click="setLocation(item)">
+            <li>
+              <div class="d-flex align-items-center gap-2 py-2">
+                <div>{{ item.place_name }}</div>
+              </div>
+              <div class="small">{{ item.address_name }}</div>
+            </li>
+            <hr />
+          </a>
+        </ul>
+        <div id="no-result" v-if="placeArray.length == 0">
+          <span>검색 결과가 없습니다</span>
+        </div>
+      </div>
+    </div>
+    <div id="map"></div>
   </div>
 </template>
 
 <script>
-import LotPreviewCmp from './LotPreviewCmp.vue'
-import RecommendLotsCmp from './RecommendLotsCmp.vue'
-import SearchCmp from './SearchCmp.vue'
 export default {
-  components: { SearchCmp, LotPreviewCmp, RecommendLotsCmp }
+  data() {
+    return {
+      keyword: '',
+      placeArray: [],
+      map: null,
+      showResult: false
+    }
+  },
+  mounted() {
+    kakao.maps.load(() => {
+      var container = document.getElementById('map')
+      var options = {
+        center: new kakao.maps.LatLng(33.450701, 126.570667),
+        level: 3
+      }
+
+      this.map = new kakao.maps.Map(container, options)
+    })
+  },
+  methods: {
+    searchBox: function (e) {
+      console.log(this.placeArray.length)
+      this.showResult = true
+      this.keyword = e.target.value
+      this.placeArray = []
+
+      const places = new kakao.maps.services.Places()
+
+      let callback = (result, status) => {
+        if (status === kakao.maps.services.Status.OK) {
+          this.placeArray = this.placeArray.concat(result)
+        }
+      }
+
+      places.keywordSearch(this.keyword, callback)
+    },
+    clearResult: function () {
+      this.keyword = ''
+      this.showResult = false
+      document.getElementById('search-input').value = null
+    },
+    setLocation: function (item) {
+      var moveLatLon = new kakao.maps.LatLng(item.y, item.x)
+      this.map.panTo(moveLatLon)
+    }
+  }
 }
 </script>
-LotPreviewCmp
 
-<style></style>
+<style scoped>
+#map-container {
+  width: 100%;
+  position: relative;
+}
+
+#search {
+  width: 95%;
+  height: 0;
+  position: absolute;
+  top: 20px;
+  left: 0;
+  z-index: 100;
+  transform: translateX(2.5%);
+}
+
+#search-bar {
+  height: 44px;
+  background-color: white;
+  border: 2px solid #9a64e8;
+  border-radius: 20px;
+}
+
+#search-input {
+  width: 82%;
+  margin-left: 2%;
+  height: 40px;
+  float: left;
+  border: 0;
+  background-color: transparent;
+  border-radius: 2%;
+  outline: none !important;
+  box-shadow: none !important;
+
+  -webkit-box-shadow: 0 0 0 30px #fff inset;
+  -webkit-text-fill-color: #a1a1a1;
+  &::-webkit-search-decoration,
+  &::-webkit-search-cancel-button,
+  &::-webkit-search-results-button,
+  &::-webkit-search-results-decoration {
+    display: none;
+  }
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+#search-btn {
+  width: 10%;
+  height: 40px;
+  margin-right: 2%;
+  float: right;
+  border: 0;
+  border-radius: 20px;
+  background-color: transparent;
+  text-align: right;
+}
+
+#map {
+  width: 100%;
+  height: calc(100dvh - 45px);
+  margin: auto;
+}
+
+#place-list {
+  overscroll-behavior: none;
+  max-height: 265px;
+  width: 90%;
+  margin: auto;
+  overflow: scroll;
+  -ms-overflow-style: auto;
+  background-color: #ffffffe6;
+}
+
+#place-list li,
+span {
+  margin-left: 10px;
+  text-overflow: clip;
+}
+
+#place-list::-webkit-scrollbar {
+  display: none;
+}
+
+#no-result {
+  width: 100%;
+  height: 50px;
+  text-align: center;
+  padding-top: 10px;
+}
+
+hr {
+  margin: 0;
+  padding: 0;
+  margin-top: 10px;
+}
+</style>

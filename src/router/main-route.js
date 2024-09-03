@@ -1,3 +1,11 @@
+/* 
+ 담당자: 양건모
+ 시작 일자: 2024.09.02
+ 설명 : 기본 라우터
+ ---------------------
+ 2024.09.02 양건모 | 라우터 작성, 등록
+ */
+
 import OwnerCmp from '@/components/contents/owner/OwnerCmp.vue'
 import OwnerIncomeCmp from '@/components/contents/owner/OwnerIncomeCmp.vue'
 import OwnerLotCmp from '@/components/contents/owner/OwnerLotCmp.vue'
