@@ -12,7 +12,7 @@ export default defineConfig({
     }
   },
   build: {
-    outDir: '../parkingplace/src/main/resources/static'
+    outDir: '../parkingplace-spring/src/main/resources/static'
   },
   server: {
     proxy: {
