@@ -1,3 +1,10 @@
+<!--
+ 담당자: 김경민
+ 시작 일자: 2024.09.02
+ 설명 : 메인 푸터 작성
+ ---------------------
+ 2024.09.02 김경민 : 메인 푸터 작성-->
+
 <template>
   <footer class="footer bg-light mt-auto">
     <div class="container">
