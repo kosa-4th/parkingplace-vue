@@ -1,9 +1,5 @@
 <template>
   <div>
-    <!-- <h3>UserCmp</h3> -->
-    <!-- <p>userComp</p>
-    <p>Welcome, {{ username }}!</p>
-    <p>Your email: {{ email }}</p> -->
     <router-view></router-view>
   </div>
 </template>

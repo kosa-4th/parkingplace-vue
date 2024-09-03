@@ -6,6 +6,7 @@
  2024.09.02 양건모 | 지도 표시 구현
  2024.09.03 양건모 | 지도 스크립트 호출 코드 위치 변경
  2024.09.03 양건모 | 장소 검색 구현
+ 2024.09.04 양건모 | 검색을 통해 장소 선택 시 마커 생성
  -->
 
 <template>
@@ -68,7 +69,9 @@ export default {
       keyword: '',
       placeArray: [],
       map: null,
-      showResult: false
+      showResult: false,
+      searchResultMarker: null,
+      aroundMarkers: []
     }
   },
   mounted() {
@@ -80,11 +83,11 @@ export default {
       }
 
       this.map = new kakao.maps.Map(container, options)
+      this.map.setMaxLevel(4)
     })
   },
   methods: {
     searchBox: function (e) {
-      console.log(this.placeArray.length)
       this.showResult = true
       this.keyword = e.target.value
       this.placeArray = []
@@ -105,8 +108,17 @@ export default {
       document.getElementById('search-input').value = null
     },
     setLocation: function (item) {
+      //위치 이동
       var moveLatLon = new kakao.maps.LatLng(item.y, item.x)
+      this.map.setLevel(2)
       this.map.panTo(moveLatLon)
+
+      //마커 생성
+      if (this.searchResultMarker != null) {
+        this.searchResultMarker.setMap(null)
+      }
+      this.searchResultMarker = new kakao.maps.Marker({ position: moveLatLon })
+      this.searchResultMarker.setMap(this.map)
     }
   }
 }
@@ -176,7 +188,7 @@ input:-webkit-autofill:active {
 
 #map {
   width: 100%;
-  height: calc(100dvh - 45px);
+  height: calc(100dvh - 50px);
   margin: auto;
 }
 
