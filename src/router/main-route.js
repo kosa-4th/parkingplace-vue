@@ -49,7 +49,8 @@ export default [
         props: true
       },
       {
-        path: 'reservation/{lotid}?',
+        // path: 'reservation/{lotid}?',
+        path: 'reservation',
         component: ReservationCmp,
         props: true
       },
