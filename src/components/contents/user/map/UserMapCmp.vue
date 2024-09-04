@@ -46,7 +46,9 @@
           <a class="dropdown-item" href="#" @click="setLocation(item)">
             <li>
               <div class="d-flex align-items-center gap-2 py-2">
-                <div>{{ item.place_name }}</div>
+                <div>
+                  <b>{{ item.place_name }}</b>
+                </div>
               </div>
               <div class="small">{{ item.address_name }}</div>
             </li>
@@ -71,6 +73,7 @@ export default {
       map: null,
       showResult: false,
       searchResultMarker: null,
+      searchResultName: null,
       aroundMarkers: []
     }
   },
@@ -108,17 +111,30 @@ export default {
       document.getElementById('search-input').value = null
     },
     setLocation: function (item) {
-      //위치 이동
-      var moveLatLon = new kakao.maps.LatLng(item.y, item.x)
-      this.map.setLevel(2)
-      this.map.panTo(moveLatLon)
-
-      //마커 생성
+      //기존 마커 삭제
       if (this.searchResultMarker != null) {
         this.searchResultMarker.setMap(null)
+        this.searchResultName.setMap(null)
       }
+
+      //위치, 지도 정보 설정
+      var moveLatLon = new kakao.maps.LatLng(item.y, item.x)
+      this.map.setLevel(2)
+
+      //마커 생성
       this.searchResultMarker = new kakao.maps.Marker({ position: moveLatLon })
+      const overlay = `<div class='overlay'>${item.place_name}</div>`
+      this.searchResultName = new kakao.maps.CustomOverlay({
+        position: moveLatLon,
+        content: overlay
+      })
+
+      //마커 출력
+      this.searchResultName.setMap(this.map)
       this.searchResultMarker.setMap(this.map)
+
+      //해당 위치로 이동
+      this.map.panTo(moveLatLon)
     }
   }
 }
@@ -159,7 +175,6 @@ export default {
   box-shadow: none !important;
 
   -webkit-box-shadow: 0 0 0 30px #fff inset;
-  -webkit-text-fill-color: #a1a1a1;
   &::-webkit-search-decoration,
   &::-webkit-search-cancel-button,
   &::-webkit-search-results-button,
