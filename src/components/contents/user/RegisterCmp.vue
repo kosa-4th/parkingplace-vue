@@ -1,53 +1,8 @@
 <template>
-  <!-- <div class="singup">
-    <div>
-      <h3>회원가입</h3>
-    </div>
-    <div class="signup-info">
-      <div class="name">
-        <span class="label">이름</span>
-        <input class="input-box" type="text" v-model="user.name" placeholder="홍길동">
-      </div>
-      <div class="email">
-        <span class="label">이메일</span>
-        <div>
-          <input class="input-box" type="text" v-model="user.email" placeholder="example@example.com">
-          <button class="auth-btn auth-email-btn">인증 메일 발송</button>
-        </div>
-      </div>
-      <div class="auth-num">
-        <span class="label">인증번호 입력</span>
-        <div>
-          <input class="input-box" type="text">
-          <button class="auth-btn auth-confrim-btn">인증하기</button>
-        </div>
-      </div>
-      <div class="car-info">
-        <div>
-          <span>차량번호 등록</span>
-          <input type="text" placeholder="123가4567">
-        </div>
-        <div>
-          <span>차량 종류</span>
-          <div>
-            <select name="select-car">
-              <option value="">--</option>
-              <option value="1">경차</option>
-            </select>
-          </div>
-        </div>
-        <div class="password-first">
-          <span>비밀번호(8자 이상)</span>
-          <input type="password" v-model="user.password" placeholder="(8~20자리 이상의 영문 대소문자, 숫자, 특수문자 조합)">
-        </div>
-        <div>
-          <span>비밀번호 확인</span>
-          <input type="password" placeholder="**********">
-        </div>
-      </div>
-      <button @click="submitForm">회원가입</button>
-    </div>
-  </div> -->
+  <!-- 
+    작성자: 오지수
+    회원가입 페이지
+  -->
   <div class="signup-container">
     <h2>회원가입</h2>
     <form @submit.prevent="handleSignup">
@@ -95,6 +50,15 @@
       </div>
       <button type="submit" class="signup-button">회원가입</button>
     </form>
+
+      <ConfirmModal
+      v-if="modal.isModalVisible"
+      :title="modal.modalTitle"
+      :message="modal.modalMessage"
+      :path="modal.modalPath"
+      @close="modal.handleModalClose"
+      />
+
     <button @click="signupWithGoogle" class="google-signup-button">구글 계정으로 로그인</button>
   </div>
 </template>
@@ -102,6 +66,7 @@
 <script setup>
 import { reactive } from 'vue';
 import axios from 'axios';
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
 const user = reactive({
   name: "",
@@ -109,21 +74,43 @@ const user = reactive({
   password: "",
 });
 
+
+const modal = reactive({
+  isModalVisible: false,
+  modalTitle: '',
+  modalMessage: '',
+  modalPath: ''
+})
+
 const handleSignup = async () => {
   try {
     const response = await axios.post("http://localhost:8080/api/users", user);
     console.log(response.data);
     if (response.data.message === "success") {
-      alert("회원가입이 완료되었습니다.");
+      // alert("회원가입이 완료되었습니다.");
+      modal.modalTitle = 'info';
+      modal.modalMessage = '회원가입이 성공적으로 완료되었습니다!!!!!!!!!!!!!!!!!!!!!!!!!!!!';
+      modal.modalPath = '/';
+      modal.isModalVisible = true;
     }
   } catch (error) {
     console.error(error);
     if (error.response && error.response.data.message) {
-      alert(error.response.data.message);
+      modal.modalTitle = 'ERROR';
+      modal.modalMessage = error.response.data.message;
+      modal.modalPath = '';
+      modal.isModalVisible = true;
     } else {
-      alert(error.response.data[0].message);
+      modal.modalTitle = 'ERROR';
+      modal.modalMessage = error.response.data[0].message;
+      modal.modalPath = '';
+      modal.isModalVisible = true;
     }
   }
+}
+
+modal.handleModalClose = () => {
+  modal.isModalVisible = false;
 }
 
 </script>
