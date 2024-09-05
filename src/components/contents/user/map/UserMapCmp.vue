@@ -7,6 +7,7 @@
  2024.09.03 양건모 | 지도 스크립트 호출 코드 위치 변경
  2024.09.03 양건모 | 장소 검색 구현
  2024.09.04 양건모 | 검색을 통해 장소 선택 시 마커 생성
+ 2024.09.05 양건모 | 현재 위치 근처의 주차장 마커 생성
  -->
 
 <template>
@@ -65,6 +66,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   data() {
     return {
@@ -74,19 +77,32 @@ export default {
       showResult: false,
       searchResultMarker: null,
       searchResultName: null,
-      aroundMarkers: []
+      lots: [],
+      lotsMarker: [],
+      lotsName: []
     }
   },
   mounted() {
     kakao.maps.load(() => {
       var container = document.getElementById('map')
       var options = {
-        center: new kakao.maps.LatLng(33.450701, 126.570667),
+        center: new kakao.maps.LatLng(37.583422, 126.999828),
         level: 3
       }
 
       this.map = new kakao.maps.Map(container, options)
       this.map.setMaxLevel(4)
+
+      //드래그 이벤트 등록
+      kakao.maps.event.addListener(this.map, 'dragend', () => {
+        this.createLots()
+      })
+      //휠 이벤트 등록
+      kakao.maps.event.addListener(this.map, 'zoom_changed', () => {
+        this.createLots()
+      })
+
+      this.createLots()
     })
   },
   methods: {
@@ -123,7 +139,7 @@ export default {
 
       //마커 생성
       this.searchResultMarker = new kakao.maps.Marker({ position: moveLatLon })
-      const overlay = `<div class='overlay'>${item.place_name}</div>`
+      const overlay = `<div class='overlay' style='border: 1.5px solid gray'>${item.place_name}</div>`
       this.searchResultName = new kakao.maps.CustomOverlay({
         position: moveLatLon,
         content: overlay
@@ -135,6 +151,61 @@ export default {
 
       //해당 위치로 이동
       this.map.panTo(moveLatLon)
+    },
+    createLots() {
+      const bound = this.map.getBounds()
+      console.log(bound.qa)
+
+      axios({
+        method: 'get',
+        url: '/api/parkinglots',
+        params: {
+          minLat: bound.qa,
+          maxLat: bound.pa,
+          minLon: bound.ha,
+          maxLon: bound.oa
+        }
+      })
+        .then((response) => {
+          this.lots = response.data.lots
+
+          // //기존 마커 삭제
+          if (this.lotsMarker.length > 0) {
+            this.lotsMarker.map((item) => {
+              item.setMap(null)
+            })
+          }
+
+          // //기존 오버레이 삭제
+          if (this.lotsName.length > 0) {
+            this.lotsName.map((item) => {
+              item.setMap(null)
+            })
+          }
+
+          this.lotsMarker = []
+          this.lotsName = []
+
+          //마커 생성
+          this.lots.map((item) => {
+            var latLon = new kakao.maps.LatLng(item.latitude, item.longitude)
+            const marker = new kakao.maps.Marker({ position: latLon })
+            const overlay = `<div class='overlay'>${item.name}</div>`
+            const markerName = new kakao.maps.CustomOverlay({
+              position: latLon,
+              content: overlay
+            })
+
+            marker.setMap(this.map)
+            markerName.setMap(this.map)
+
+            this.lotsMarker.push(marker)
+            this.lotsName.push(markerName)
+          })
+        })
+        .catch(function (e) {
+          console.error(e)
+        })
     }
   }
 }
