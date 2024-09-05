@@ -1,4 +1,8 @@
 <template>
+  <!-- 
+    작성자: 오지수
+    로그인 페이지 
+  -->
   <div class="login-container">
     <h2>로그인</h2>
     <form @submit.prevent="handleLogin">
