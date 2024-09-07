@@ -8,6 +8,7 @@
  2024.09.03 양건모 | 장소 검색 구현
  2024.09.04 양건모 | 검색을 통해 장소 선택 시 마커 생성
  2024.09.05 양건모 | 현재 위치 근처의 주차장 마커 생성
+ 2024.09.07 양건모 | 마커 생성 api url 변경
  -->
 
 <template>
@@ -158,7 +159,7 @@ export default {
 
       axios({
         method: 'get',
-        url: '/api/parkinglots',
+        url: '/api/parkinglots/list',
         params: {
           minLat: bound.qa,
           maxLat: bound.pa,
