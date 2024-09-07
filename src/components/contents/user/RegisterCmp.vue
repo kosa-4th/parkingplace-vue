@@ -13,12 +13,12 @@
       <div class="input-group email-group">
         <label for="email">이메일</label>
         <input type="email" id="email" v-model="user.email" placeholder="example@example.com" required>
-        <button type="button" class="send-email-button">인증 메일 발송</button>
+        <button type="button" class="send-email-button" @click="sendVerification">인증 메일 발송</button>
       </div>
       <div class="input-group">
         <label for="verification-code">인증번호 입력</label>
-        <input type="text" id="verification-code" placeholder="인증번호 입력" />
-        <button type="button" class="verify-button">인증하기</button>
+        <input type="text" id="verification-code" v-model="user.code" placeholder="인증번호 입력" />
+        <button type="button" class="verify-button" @click="verifyCode">인증하기</button>
       </div>
       <div class="input-group">
         <label for="car-number">차량번호 등록</label>
@@ -64,13 +64,16 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { ref, reactive } from 'vue';
 import axios from 'axios';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
+
+const verification = ref(false);
 
 const user = reactive({
   name: "",
   email: "",
+  code: "",
   password: "",
 });
 
@@ -80,31 +83,60 @@ const modal = reactive({
   modalTitle: '',
   modalMessage: '',
   modalPath: ''
-})
+});
+
+const sendVerification = async () => {
+  try {
+    const response = await axios.post("http://localhost:8080/api/auth/verification", {
+      email: user.email
+    });
+    console.log(response.data);
+    alert("인증 메일이 발송되었습니다.");
+  } catch (error) {
+    alert("에러");
+  }
+}
+
+const verifyCode = async () => {
+  try {
+    const response = await axios.post("http://localhost:8080/api/auth/verify", {
+      email: user.email,
+      code: user.code
+    });
+    verification.value = true;
+    alert(response.data.message);
+  } catch (error) {
+    alert("에러");
+  }
+}
 
 const handleSignup = async () => {
-  try {
-    const response = await axios.post("http://localhost:8080/api/open/users", user);
-    console.log(response.data);
-    if (response.data.message === "success") {
-      // alert("회원가입이 완료되었습니다.");
-      modal.modalTitle = 'info';
-      modal.modalMessage = '회원가입이 성공적으로 완료되었습니다!!!!!!!!!!!!!!!!!!!!!!!!!!!!';
-      modal.modalPath = '/';
-      modal.isModalVisible = true;
-    }
-  } catch (error) {
-    console.error(error);
-    if (error.response && error.response.data.message) {
-      modal.modalTitle = 'ERROR';
-      modal.modalMessage = error.response.data.message;
-      modal.modalPath = '';
-      modal.isModalVisible = true;
-    } else {
-      modal.modalTitle = 'ERROR';
-      modal.modalMessage = error.response.data[0].message;
-      modal.modalPath = '';
-      modal.isModalVisible = true;
+  if (!verification.value) {
+    alert("메일 인증이 필요합니다.");
+  } else {
+    try {
+      const response = await axios.post("http://localhost:8080/api/open/users", user);
+      console.log(response.data);
+      if (response.data.message === "success") {
+        // alert("회원가입이 완료되었습니다.");
+        modal.modalTitle = 'info';
+        modal.modalMessage = '회원가입이 성공적으로 완료되었습니다!!!!!!!!!!!!!!!!!!!!!!!!!!!!';
+        modal.modalPath = '/';
+        modal.isModalVisible = true;
+      }
+    } catch (error) {
+      console.error(error);
+      if (error.response && error.response.data.message) {
+        modal.modalTitle = 'ERROR';
+        modal.modalMessage = error.response.data.message;
+        modal.modalPath = '';
+        modal.isModalVisible = true;
+      } else {
+        modal.modalTitle = 'ERROR';
+        modal.modalMessage = error.response.data[0].message;
+        modal.modalPath = '';
+        modal.isModalVisible = true;
+      }
     }
   }
 }
