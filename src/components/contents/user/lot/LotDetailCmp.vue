@@ -52,7 +52,7 @@ const hasImages = computed(() => images.value.length > 0);
 const getParkingLotDetails = async () => {
   try {
     
-    const response = await axios.get(`http://localhost:8080/api/open/parkinglots/${parkinglotId}`);
+    const response = await axios.get(`http://localhost:8080/api/parkinglots/${parkinglotId}`);
     console.log(response.data);
     parkingLotDetail.value = response.data;
   } catch (error) {

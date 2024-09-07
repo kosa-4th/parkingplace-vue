@@ -46,7 +46,7 @@ const autoResize = (event) => {
 
 const getReviews = async () => {
   try {
-    const response = await axios.get(`http://localhost:8080/api/open/parkinglots/${parkinglotId}/reviews`);
+    const response = await axios.get(`http://localhost:8080/api/parkinglots/${parkinglotId}/reviews`);
     console.log(response.data)
   } catch {
     console.log("리뷰 가져오기 에러");
