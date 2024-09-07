@@ -59,7 +59,7 @@ const registerReview = async () => {
     console.log("로그인");
     console.log(`token ${token}`)
     
-    const response = await axios.post(`http://localhost:8080/api/protected/parkinglots/${parkinglotId}/reviews`,
+    const response = await axios.post(`http://localhost:8080/api/parkinglots/${parkinglotId}/reviews/protected`,
       {newReview : newReview.value},
       {headers: {
         Authorization: `Bearer ${token}`,
