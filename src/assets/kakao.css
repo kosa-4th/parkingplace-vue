@@ -1,0 +1,6 @@
+.overlay {
+  background-color: white;
+  border: 1.5px solid #9a64e8;
+  border-radius: 5px;
+  transform: translateY(20px);
+}
