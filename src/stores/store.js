@@ -34,5 +34,10 @@ export const AuthStore = defineStore('userAuth', {
 
             localStorage.removeItem("authStore");
         }
+    },
+    getters: {
+        isLoggedIn: (state) => {
+            return !!state.token;
+        }
     }
 })

@@ -84,7 +84,7 @@ const modal = reactive({
 
 const handleSignup = async () => {
   try {
-    const response = await axios.post("http://localhost:8080/api/users", user);
+    const response = await axios.post("http://localhost:8080/api/open/users", user);
     console.log(response.data);
     if (response.data.message === "success") {
       // alert("회원가입이 완료되었습니다.");
