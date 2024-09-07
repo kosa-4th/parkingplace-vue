@@ -55,7 +55,7 @@ export function logout() {
 async function refreshToken() {
     const authStore = AuthStore();
     try {
-        const response = await axios.post("http://localhost:8080/api/open/users/refresh", {
+        const response = await axios.post("http://localhost:8080/api/users/refresh", {
             refreshToken: authStore.refreshToken
         });
 
