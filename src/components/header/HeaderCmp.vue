@@ -38,7 +38,7 @@
               <li><a href="#">내 차량 관리</a></li>
               <li><a href="#">즐겨찾기한 주차장</a></li>
               <li><a href="#">내 리뷰</a></li>
-              <li><a href="#" @click="logout">로그아웃</a></li>
+              <li><a href="#" @click="HandelLogout">로그아웃</a></li>
             </ul>
           </div>
           <!-- 비로그인 상태일 때 -->
@@ -46,7 +46,7 @@
             <p>로그인이 필요합니다</p>
             <ul class="list-unstyled">
               <li><a href="#">회원가입</a></li>
-              <li><a href="#" @click="login">로그인</a></li>
+              <li><a href="#" @click="handleLogin">로그인</a></li>
             </ul>
           </div>
         </div>
@@ -57,38 +57,43 @@
   </nav>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      isSidebarOpen: false,
-      isLoggedIn: true,
-      username: '테스트'
-    }
-  },
-  mounted() {
-    console.log('mounted: isLoggedIn =', this.isLoggedIn)
-    console.log('mounted: userName =', this.username)
-  },
-  methods: {
-    toggleSidebar() {
-      this.isSidebarOpen = !this.isSidebarOpen
-    },
-    login() {
-      this.isLoggedIn = true
-      this.username = '테스트' // 실제 앱에서는 로그인 API로부터 사용자 이름을 받아오겠죠.
-      console.log('Login: isLoggedIn =', this.isLoggedIn)
-      console.log('Login: username =', this.username)
-    },
-    logout() {
-      this.isLoggedIn = false
-      this.username = ''
-      console.log('Logout: isLoggedIn =', this.isLoggedIn)
-      console.log('Logout: username =', this.username)
-    }
-  }
+<script setup>
+import { ref, onMounted, watchEffect } from 'vue';
+import { AuthStore } from '@/stores/store';
+import { useRouter } from 'vue-router';
+import { logout } from '@/service/authService';
+
+const isSidebarOpen = ref(false);
+const isLoggedIn = ref(false);
+const username = ref('');
+
+const router = useRouter();
+const authStore = AuthStore();
+
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
 }
+
+const handleLogin = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+  router.push("/login");
+}
+
+const HandelLogout = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+  logout();
+}
+
+watchEffect(() => {
+  isLoggedIn.value = authStore.isLoggedIn;
+})
+
+onMounted(() => {
+  isLoggedIn.value = authStore.isLoggedIn;
+})
+
 </script>
+
 <style scoped>
 .navbar {
   height: 50px;

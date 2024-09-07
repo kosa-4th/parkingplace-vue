@@ -32,9 +32,6 @@ export async function  signIn(user) {
             const authStore = AuthStore();
             authStore.setAuthData({username, email, token:accessToken, refreshToken, auth});
 
-            // JWT 토큰을 localStroage에 저장
-            localStorage.setItem("token", accessToken);
-            localStorage.setItem("refreshToken", refreshToken);
         }
 
         return true;
@@ -93,7 +90,7 @@ axios.interceptors.request.use(
         let token = authStore.token;
 
         // 특정 URL 패턴에 대해서만 JWT를 포함
-        if (config.url.includes('/api/protected')) {
+        if (config.url.startsWith('/api/') && config.url.endsWith('/protected')) {
             const tokenExpiration = getTokenExpiration(token);
             const now = Date.now();
 
