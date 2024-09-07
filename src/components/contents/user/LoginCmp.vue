@@ -27,6 +27,15 @@
         <a href="#" class="find-password">비밀번호 찾기</a>
       </div>
     </form>
+
+    <ConfirmModal
+      v-if="modal.isModalVisible"
+      :title="modal.modalTitle"
+      :message="modal.modalMessage"
+      :path="modal.modalPath"
+      @close="modal.handleModalClose"
+      />
+
     <!-- 소셜 로그인 -->
     <button class="google-login-button">
       구글 계정으로 로그인
@@ -40,6 +49,7 @@
 <script setup>
 import { reactive } from 'vue';
 import { signIn } from '@/service/authService';
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
 const user = reactive({
   email: "",
@@ -48,11 +58,22 @@ const user = reactive({
   // authLogin: false
 });
 
+const modal = reactive({
+  isModalVisible: false,
+  modalTitle: '',
+  modalMessage: '',
+  modalPath: ''
+})
+
 const handleLogin = async () => {
   try {
     const success = await signIn(user);
     if (success) {
       console.log("login successful");
+      modal.modalTitle = "Info";
+      modal.modalMessage = "로그인이 완료되었습니다.";
+      modal.modalPath = "/";
+      modal.isModalVisible = true;
     } else {
       console.error("login failed");
     }

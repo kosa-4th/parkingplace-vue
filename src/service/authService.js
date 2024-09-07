@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 // 로그인
 export async function  signIn(user) {
     try {
-        const response = await axios.post("http://localhost:8080/api/users/authorize", 
+        const response = await axios.post("http://localhost:8080/api/open/users/authorize", 
             {
             email:user.email, 
             password:user.password, 
@@ -55,12 +55,18 @@ export function logout() {
 async function refreshToken() {
     const authStore = AuthStore();
     try {
-        const response = await axios.post("http://localhost:8080/api/users/refresh", {
+        const response = await axios.post("http://localhost:8080/api/open/users/refresh", {
             refreshToken: authStore.refreshToken
         });
 
         const { accessToken } = response.data;
-        authStore.setAuthData({ token:accessToken, refreshToken: authStore.refreshToken });
+        authStore.setAuthData({ 
+            username: authStore.username,
+            email: authStore.email,
+            token:accessToken, 
+            refreshToken: authStore.refreshToken,
+            auth: authStore.auth,    
+        });
 
         // 갱신된 Access Token을 LocalStrage에 저장
         localStorage.setItem('token', accessToken);
@@ -87,17 +93,21 @@ axios.interceptors.request.use(
         let token = authStore.token;
 
         // 특정 URL 패턴에 대해서만 JWT를 포함
-        if (config.url.includes('/api/auth')) {
+        if (config.url.includes('/api/protected')) {
             const tokenExpiration = getTokenExpiration(token);
             const now = Date.now();
 
-            // 토큰이 만료되었거나 만료시간이 임박한 경우
+            //토큰 만료시간 확인 및 갱신 필요 여부 판단
             if (tokenExpiration && tokenExpiration <= now) {
-                token = await refreshToken(); // 토큰 갱신
+                token = await refreshToken();
             }
 
+            // 갱신된 토큰이 있다면 Authorization 헤더에 추가
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
+            } else {
+                authStore.clearAuthData();
+                return Promise.reject(new Error("유효한 토큰이 아닙니다."))
             }
         }
         return config;

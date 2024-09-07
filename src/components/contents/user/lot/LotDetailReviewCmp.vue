@@ -1,20 +1,20 @@
 <template>
   <!-- 작성자: 오지수
       주차장 상세 페이지: 리뷰 -->
-  <div>
-    <h3>LotDetailReviewCmp</h3>
-  </div>
 
   <div class="review-detail">
     <div class="review-input">
-      <input type="text" placeholder="리뷰를 작성해주세요." />
-      <button class="submit-btn">리뷰 등록</button>
+      <textarea
+        placeholder="리뷰를 작성해주세요."
+        v-model="newReview"
+        @input="autoResize($event)"></textarea>
+      <button class="submit-btn" @click="registerReview">리뷰 등록</button>
     </div>
 
     <!-- 리뷰목록 -->
     <div class="review-item">
       <p><strong>작성자</strong> | 2024-03-14</p>
-      <p>리뷰입니다~</p>
+      <textarea>리뷰입니다~</textarea>
       <div class="review-actions">
         <button class="edit-btn">수정</button>
         <button class="delete-btn">삭제</button>
@@ -27,10 +27,70 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue';
+import { AuthStore } from '@/stores/store';
+import { useRoute } from 'vue-router';
+import axios from 'axios';
+const authStore = AuthStore();
+const route = useRoute();
+const token = authStore.token;
+const newReview = ref('');
+
+const parkinglotId = route.params.lotId;
+
+const autoResize = (event) => {
+  const textarea = event.target;
+  textarea.style.height = 'auto';
+  textarea.style.height = textarea.scrollHeight + 'px';
+}
+
+const getReviews = async () => {
+  try {
+    const response = await axios.get(`http://localhost:8080/api/open/parkinglots/${parkinglotId}/reviews`);
+    console.log(response.data)
+  } catch {
+    console.log("리뷰 가져오기 에러");
+  }
+}
+
+
+const registerReview = async () => {
+  if (authStore.isLoggedIn) {
+    console.log("로그인");
+    console.log(`token ${token}`)
+    
+    const response = await axios.post(`http://localhost:8080/api/protected/parkinglots/${parkinglotId}/reviews`,
+      {newReview : newReview.value},
+      {headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }}
+    );
+    console.log(response.data);
+  } else {
+    // 로그인되지 않음
+    alert("로그인 후 이용해주세요");
+  }
+}
+
+onMounted(() => {
+  getReviews();
+})
 
 </script>
 
 <style scoped>
+textarea {
+  height: 80px;
+  resize: none;
+  overflow: hidden;
+  width: 100%;
+}
+
+textarea.editable {
+  border: 1px solid #669900;
+}
+
 .review-detail {
   display: flex;
   flex-direction: column;
@@ -43,7 +103,7 @@
   gap: 10px;
 }
 
-.review-input input {
+.review-input textarea {
   flex-grow: 1;
   padding: 10px;
   border: 1px solid #ddd;
@@ -64,7 +124,8 @@
   border-bottom: 1px solid #ddd;
 }
 
-.review-item p {
+.review-item textarea {
+  width: 80%;
   margin: 5px 0;
 }
 
