@@ -4,12 +4,14 @@
     설명 : 주차장 예약 컴포넌트
     ---------------------
     2024.09.03 김경민 | 피그마를 확인 후 DatePicker
-    2022.09.07 김경민 | 시간선택 및 전체적인 디자인
+    2024.09.07 김경민 | 시간선택 및 전체적인 디자인
+    2024.09.08 김경민 | 로그인 시 사용자의 등록된 차량과 주차장정보 불러오기
+
 -->
 <template>
-  <div class = "container">
+  <div class="container">
     <!-- 전역으로 등록된 DatePicker 사용 -->
-    <h3>{{ parkingLotName }}</h3>
+    <h3>{{ parkingLotInfo.name }}</h3>
     <!-- 각각 기능 설명-->
     <!-- 선택된 날짜를 selectedDate에 바인딩 -->
     <!-- 오늘 이후의 날짜만 선택 가능 -->
@@ -17,18 +19,18 @@
     <!-- 날짜 형식을 yyyy-MM-dd로 설정 -->
     <!-- 시간 선택 기능 비활성화 -->
     <div class="row">
-      <div class = "col-md-12">
+      <div class="col-md-12">
         <!-- 차량 번호 선택 -->
         <select v-model="selectedCarNumber" class="form-control">
-          <option value="" disabled>차량 번호 선택</option>
-          <option v-for="option in carOptions" :key="option" :value="option">
-            {{ option }}
+          <option disabled value="">차량 번호 선택</option>
+          <option v-for="(carData, index) in userCars" :key="index" :value="carData.plateNumber">
+            차량번호 - {{ carData.plateNumber }}
           </option>
         </select>
       </div>
     </div>
     <div class="row">
-      <div class = "col-md-12">
+      <div class="col-md-12">
         <DatePicker
           locale="ko"
           v-model="selectedDate"
@@ -117,19 +119,19 @@
     </div>
 
     <div class="row">
-      <div class = "col-md-3">
+      <div class="col-md-3">
         <label>입차일자</label>
         <Strong>{{ formattedSelectedDate }}</Strong>
       </div>
-      <div class = "col-md-3">
+      <div class="col-md-3">
         <label>총 주차시간</label>
         <Strong>{{ totalTime }}</Strong>
       </div>
-      <div class = "col-md-3">
+      <div class="col-md-3">
         <label>입차시간</label>
         <Strong>{{ selectedEntranceTime }}</Strong>
       </div>
-      <div class = "col-md-3">
+      <div class="col-md-3">
         <label>출차시간</label>
         <Strong>{{ selectedExitTime }}</Strong>
       </div>
@@ -137,7 +139,6 @@
     </div>
 
     <div class="row">
-
       <!-- 부가서비스 선택 -->
       <div class="col-md-6">
         <label>부가서비스</label>
@@ -145,19 +146,19 @@
           <input
             class="form-check-input"
             type="checkbox"
-            id="washService"
-            v-model="services.wash"
-          />
-          <label class="form-check-label" for="washService">세차</label>
+            id="wash"
+            v-model="parkingLotInfo.wash"
+            :disabled="parkingLotInfo.wash !== 'Y'" />
+          <label class="form-check-label" for="wash">세차</label>
         </div>
         <div class="form-check form-check-inline">
           <input
             class="form-check-input"
             type="checkbox"
-            id="maintenanceService"
-            v-model="services.maintenance"
-          />
-          <label class="form-check-label" for="maintenanceService">기본차량정비</label>
+            id="maintenance"
+            v-model="parkingLotInfo.maintenance"
+            :disabled="parkingLotInfo.maintenance !== 'Y'" />
+          <label class="form-check-label" for="maintenance">기본차량정비</label>
         </div>
       </div>
     </div>
@@ -172,28 +173,31 @@
   </div>
 </template>
 <script>
+import axios from 'axios'
+
 export default {
   data() {
     return {
-      parkingLotName : "테스트주차장",
-
       selectedCarNumber: '',  // 선택된 차량 번호
-      carOptions: ['123가 4567', '987나 1234', '456다 7890'],  // 차량 번호 옵션들
-      services: {
-        wash: false,  // 세차 여부
-        maintenance: true,  // 기본차량정비 여부
+      userCars: [],  // 차량 번호 옵션들
+      parkingLotInfo: {
+        name: '',
+        wash: '',  // 세차 여부
+        maintenance: '',  // 기본차량정비 여부
+        weekdaysOpenTime :'',
+        weekendOpenTime : '',
+        weekdaysCloseTime : '',
+        weekendCloseTime : '',
       },
-
-
       today: new Date(),
       maxDate: new Date(new Date().setDate(new Date().getDate() + 30)), // 30일 후까지 선택 가능
-      selectedDate : null,
+      selectedDate: null,
 
-      entanceDateTime : '',
-      extitDateTime : '',
-      selectedEntranceTime : '',
-      selectedExitTime : '',
-      totalTime : '00:00',
+      entanceDateTime: '',
+      extitDateTime: '',
+      selectedEntranceTime: '',
+      selectedExitTime: '',
+      totalTime: '00:00',
 
       // 입차 시간 관련 데이터
       entranceBusinessStartTime: 14, // 영업 시작 시간 (14시)
@@ -211,16 +215,40 @@ export default {
       selectedExitHour: null,
       selectedExitMinute: null,
       totalReservationTime: 0,
+
       options: [1, 2, 3], // 선택 박스에 표시될 옵션들
-      selectedOption: null,
-    };
+      selectedOption: null
+    }
   },
   created() {
-    this.generateEntranceAvailableHours();
-    this.generateExitAvailableHours();
+    this.generateEntranceAvailableHours()
+    this.generateExitAvailableHours()
   },
-
+  mounted() {
+    this.getReservationLotData()
+  },
   methods: {
+    //axios를 통한 데이터 가져오기
+    async getReservationLotData() {
+      try {
+        //const responseReservationLotData = await axios.get('http://localhost:8080/api/parkingLots/{parkingLotId}/reservation',{
+        const responseReservationLotData = await axios.get('http://localhost:8080/api/parkingLots/reservation', {
+          params: {
+            // 실제로 할 떄 변경해야함.
+            parkingLotId: 1, //this.$route.params.parkingLotId;
+            userEmail: 'test@test.com' //이건 물어보기!!
+          }
+        })
+        this.parkingLotInfo = responseReservationLotData.data.parkingLotInfo;
+        this.userCars = responseReservationLotData.data.userCars;
+      } catch (error) {
+        console.log()
+      } finally {
+        console.log('')
+      }
+    },
+
+
     // 입차 가능한 시간 생성
     generateEntranceAvailableHours() {
       this.entranceAvailableHours = Array.from(
@@ -351,11 +379,12 @@ export default {
     }
   },
   watch: {
+    //날짜 선택에 따른
     selectedEntranceTime() {
-      this.calculateTotalTime();
+      this.calculateTotalTime()
     },
     selectedExitTime() {
-      this.calculateTotalTime();
+      this.calculateTotalTime()
     }
   },
   computed: {
@@ -363,10 +392,10 @@ export default {
     formattedSelectedDate() {
       return this.selectedDate
         ? this.selectedDate.toISOString().split('T')[0]
-        : '';
-    },
-  },
-};
+        : ''
+    }
+  }
+}
 </script>
 <style scoped>
 
@@ -375,7 +404,7 @@ export default {
   height: 20px;
   margin-bottom: 6px;
   margin-left: 6%;
-  margin-right : 6%;
+  margin-right: 6%;
   border-radius: 50%;
   border: 1px solid hsl(265, 74%, 65%);
   background-color: white;
@@ -422,16 +451,17 @@ export default {
   margin-top: 10px; /* 위쪽 여백 */
   background-color: white; /* 배경색 */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 그림자 */
-  margin-left : 10px;
-  margin-right : 10px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
+
 /* DatePicker 버튼을 보라색으로 스타일링 */
 .datepicker-btn {
   background-color: #9A64E8 !important; /* 보라색 배경 */
-  color: white !important;              /* 글자색을 흰색으로 변경 */
-  border-radius: 4px;                   /* 둥근 모서리 */
-  border: none;                         /* 테두리 제거 */
-  padding: 10px 20px;                   /* 버튼 패딩 조정 */
+  color: white !important; /* 글자색을 흰색으로 변경 */
+  border-radius: 4px; /* 둥근 모서리 */
+  border: none; /* 테두리 제거 */
+  padding: 10px 20px; /* 버튼 패딩 조정 */
 }
 
 .datepicker-btn:hover {
@@ -442,9 +472,11 @@ export default {
   outline: none;
   box-shadow: 0 0 0 2px rgba(154, 100, 232, 0.5); /* focus 시 보라색 그림자 */
 }
+
 .form-check-input {
   margin-right: 5px;
 }
+
 .form-check-label {
   margin-right: 20px;
 }
