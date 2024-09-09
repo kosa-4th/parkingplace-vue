@@ -37,18 +37,19 @@
       />
 
     <!-- 소셜 로그인 -->
-    <button class="google-login-button">
+    <button class="google-login-button" @click="handleGoogleLogin">
       구글 계정으로 로그인
     </button>
     <p class="sign-up">
-      아직 계정이 없으신가요? <a href="#" class="sign-up-link">간편 가입하기</a>
+      아직 계정이 없으신가요? <router-link to="/register" class="sign-up-link">간편 가입하기</router-link>
     </p>
   </div>
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { reactive, onMounted } from 'vue';
 import { signIn } from '@/service/authService';
+import axios from 'axios';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
 const user = reactive({
@@ -80,6 +81,18 @@ const handleLogin = async () => {
   } catch (error) {
     console.error("Error during login");
   }
+}
+
+// 구글 로그인 처리 함수
+const handleGoogleLogin = () => {
+  // Google OAuth  로그인 창 띄우기
+  const clientId = '1088898736830-18dd892tdheuuaqdimgq4cecn7164edk.apps.googleusercontent.com'; // Google 클라이언트 ID
+  const redirectUri = "http://localhost:5173/login"; 
+  const scope = 'openid email profile';
+
+  const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=id_token&scope=${scope}&include_granted_scopes=true`;
+  // Google 로그인 페이지로 리디렉션
+  window.location.href = googleLoginUrl;
 }
 
 </script>

@@ -87,7 +87,7 @@ const autoResize = (event) => {
 //리뷰 불러오기
 const getReviews = async () => {
   try {
-    const response = await axios.get(`http://localhost:8080/api/parkinglots/${parkinglotId}/reviews`, {
+    const response = await axios.get(`/api/parkinglots/${parkinglotId}/reviews`, {
       params: {
         page: page.value - 1,
         size: size
@@ -110,7 +110,7 @@ const getReviews = async () => {
 const registerReview = async () => {
   if (authStore.isLoggedIn) {
     
-    const response = await axios.post(`http://localhost:8080/api/parkinglots/${parkinglotId}/reviews/protected`,
+    const response = await axios.post(`/api/parkinglots/${parkinglotId}/reviews/protected`,
       {newReview : newReview.value},
       {headers: {
         Authorization: `Bearer ${token}`,
@@ -140,7 +140,7 @@ const isReviewOwner = (review) => {
 const deleteReview = async (reviewid) => {
   if (authStore.isLoggedIn) {
     console.log(reviewid);
-    const response = await axios.delete(`http://localhost:8080/api/parkinglots/${parkinglotId}/reviews/${reviewid}/protected`,
+    const response = await axios.delete(`/api/parkinglots/${parkinglotId}/reviews/${reviewid}/protected`,
     {headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -170,7 +170,7 @@ const cancelEdit = (review) => {
 const saveReview = async (review) => {
   console.log()
   try {
-    const response = await axios.put(`http://localhost:8080/api/parkinglots/${parkinglotId}/reviews/${review.id}/protected`,
+    const response = await axios.put(`/api/parkinglots/${parkinglotId}/reviews/${review.id}/protected`,
       {newReview: editingReview.value},
       {headers: {Authorization: `Bearer ${token}`}}
     );

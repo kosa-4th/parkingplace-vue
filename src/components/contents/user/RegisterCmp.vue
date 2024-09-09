@@ -22,14 +22,14 @@
       </div>
       <div class="input-group">
         <label for="car-number">차량번호 등록</label>
-        <input type="text" id="car-number" placeholder="123가4567" required>
+        <input type="text" id="car-number" v-model="user.carNum" placeholder="123가4567" required>
       </div>
       <div class="input-group">
         <label for="car-type">차량 종류</label>
-        <select id="car-type" required>
-          <option disabled value="">차량 종류 선택</option>
-          <option>승용차</option>
-          <option>트럭</option>
+        <select v-model="user.selectedCar" id="car-type" required>
+          <option v-for="(carType, index) in carTypes" :key="index" :value="carType.carType">
+          {{ carType.carType }}
+          </option>
         </select>
       </div>
       <div class="input-group">
@@ -64,7 +64,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import axios from 'axios';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
@@ -75,6 +75,8 @@ const user = reactive({
   email: "",
   code: "",
   password: "",
+  selectedCar: "",
+  carNum: ""
 });
 
 
@@ -85,9 +87,21 @@ const modal = reactive({
   modalPath: ''
 });
 
+const carTypes = ref([]);
+
+const getCarTypes = async () => {
+  try {
+    const response = await axios.get("/api/users");
+    carTypes.value = response.data;
+    user.selectedCar = carTypes.value[0].carType;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 const sendVerification = async () => {
   try {
-    const response = await axios.post("http://localhost:8080/api/auth/verification", {
+    const response = await axios.post("/api/auth/verification", {
       email: user.email
     });
     console.log(response.data);
@@ -99,7 +113,7 @@ const sendVerification = async () => {
 
 const verifyCode = async () => {
   try {
-    const response = await axios.post("http://localhost:8080/api/auth/verify", {
+    const response = await axios.post("/api/auth/verify", {
       email: user.email,
       code: user.code
     });
@@ -115,7 +129,7 @@ const handleSignup = async () => {
     alert("메일 인증이 필요합니다.");
   } else {
     try {
-      const response = await axios.post("http://localhost:8080/api/open/users", user);
+      const response = await axios.post("/api/users", user);
       console.log(response.data);
       if (response.data.message === "success") {
         // alert("회원가입이 완료되었습니다.");
@@ -145,6 +159,9 @@ modal.handleModalClose = () => {
   modal.isModalVisible = false;
 }
 
+onMounted(() => {
+  getCarTypes();
+})
 </script>
 
 <style scoped>

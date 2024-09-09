@@ -45,7 +45,7 @@
           <div v-else>
             <p>로그인이 필요합니다</p>
             <ul class="list-unstyled">
-              <li><a href="#">회원가입</a></li>
+              <li><a href="#" @click="handelSignup">회원가입</a></li>
               <li><a href="#" @click="handleLogin">로그인</a></li>
             </ul>
           </div>
@@ -77,6 +77,11 @@ const toggleSidebar = () => {
 const handleLogin = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
   router.push("/login");
+}
+
+const handelSignup = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+  router.push("/register");
 }
 
 const HandelLogout = () => {

@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 // 로그인
 export async function  signIn(user) {
     try {
-        const response = await axios.post("http://localhost:8080/api/open/users/authorize", 
+        const response = await axios.post("/api/users/authorize", 
             {
             email:user.email, 
             password:user.password, 
