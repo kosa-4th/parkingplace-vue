@@ -64,7 +64,12 @@
       </div>
     </div>
     <div id="map"></div>
-    <lot-preview-cmp></lot-preview-cmp>
+    <lot-preview-cmp
+      v-if="selectedLot"
+      :lotInfo="selectedLot"
+      :visible="showLotPreview"
+      @close="closeLotPreview"
+    ></lot-preview-cmp>
   </div>
 </template>
 
@@ -229,6 +234,19 @@ export default {
     markerClickEvent: function (marker) {
       console.log('클릭한 마커 : ' + marker)
       console.log('해당 마커의 id는 : ' + this.markerAndIdMap.get(marker))
+
+      const selectedLot = {
+        lotId: this.markerAndIdMap.get(marker)
+      }
+
+      if (selectedLot) {
+        this.selectedLot = selectedLot
+        this.showLotPreview = true // 바텀 시트 표시
+      }
+    },
+    closeLotPreview() {
+      this.showLotPreview = false // 바텀 시트 닫기
+      this.selectedLot = null
     }
   }
 }
