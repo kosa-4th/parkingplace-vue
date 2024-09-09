@@ -190,16 +190,16 @@ export default {
             })
           }
 
-          //기존 오버레이 삭제
-          if (this.lotsName.length > 0) {
-            this.lotsName.map((item) => {
-              item.setMap(null)
-            })
-          }
+          // //기존 오버레이 삭제
+          // if (this.lotsName.length > 0) {
+          //   this.lotsName.map((item) => {
+          //     item.setMap(null)
+          //   })
+          // }
 
           this.markerAndIdMap = new Map()
           this.lotsMarker = []
-          this.lotsName = []
+          // this.lotsName = []
 
           //마커, 인포 윈도우 생성, id Mapping
           this.lots.forEach((item, index) => {
@@ -222,11 +222,11 @@ export default {
               this.markerClickEvent(marker)
             })
 
-            const overlay = `<div class='overlay'>${item.name}</div>`
-            const markerName = new kakao.maps.CustomOverlay({
-              position: latLon,
-              content: overlay
-            })
+            // const overlay = `<div class='overlay'>${item.name}</div>`
+            // const markerName = new kakao.maps.CustomOverlay({
+            //   position: latLon,
+            //   content: overlay
+            // })
 
             marker.setMap(this.map)
             //markerName.setMap(this.map)
