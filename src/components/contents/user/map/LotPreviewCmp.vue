@@ -1,3 +1,11 @@
+<!-- 
+ 담당자: 양건모
+ 시작 일자: 2024.09.09
+ 설명 : 주차장 프리뷰 컴포넌트
+ ---------------------
+ 2024.09.09 양건모 | 기능 구현
+ -->
+
 <template>
   <transition name="slide-up">
     <div v-if="visible" class="bottom-sheet">
@@ -52,7 +60,6 @@
           </div>
         </div>
       </div>
-      <!-- 상세보기 버튼을 하단에 고정 -->
       <div class="sheet-footer">
         <button id="to-detail" @click="toDetail">상세보기</button>
       </div>
