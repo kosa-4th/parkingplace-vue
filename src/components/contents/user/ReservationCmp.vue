@@ -5,7 +5,7 @@
     ---------------------
     2024.09.03 김경민 | 피그마를 확인 후 DatePicker
     2024.09.07 김경민 | 시간선택 및 전체적인 디자인
-    2024.09.08 김경민 | 로그인 시 사용자의 등록된 차량과 주차장정보 불러오기
+    2024.09.08 김경민 | 로그인 시 사용자의 등록된 차량과 주차장정보 불러오기 영업시간에 맞는 데이터 가져오기
 
 -->
 <template>
@@ -42,7 +42,7 @@
       </div>
     </div>
     <!-- 입차시간 -->
-    <div class="time-picker-container mt-2">
+    <div class="time-picker-container mt-2" v-if="selectedDate">
       <div class="row g-0">
         <h6>입차시간</h6>
         <div class="col-12 col-md-12 text-center">
@@ -80,7 +80,7 @@
     </div>
 
     <!-- 출차시간 -->
-    <div class="time-picker-container mt-2">
+    <div class="time-picker-container mt-2" v-if="selectedDate">
       <div class="row g-0">
         <h6>출차시간</h6>
         <div class="col-12 col-md-12 text-center">
@@ -118,7 +118,7 @@
       </div>
     </div>
 
-    <div class="row">
+    <div class="row" v-if="isTimeSelected">
       <div class="col-md-3">
         <label>입차일자</label>
         <Strong>{{ formattedSelectedDate }}</Strong>
@@ -138,38 +138,47 @@
 
     </div>
 
-    <div class="row">
+    <div class="row" v-if="isTimeSelected">
       <!-- 부가서비스 선택 -->
       <div class="col-md-6">
         <label>부가서비스</label>
-        <div class="form-check form-check-inline">
+        <div class="form-check form-check-inline"
+             v-if="parkingLotInfo.wash == 'Y' || parkingLotInfo.wash==true ||parkingLotInfo.wash ==false">
           <input
             class="form-check-input"
             type="checkbox"
             id="wash"
             v-model="parkingLotInfo.wash"
-            :disabled="parkingLotInfo.wash !== 'Y'" />
+          />
           <label class="form-check-label" for="wash">세차</label>
         </div>
-        <div class="form-check form-check-inline">
+        <div class="form-check form-check-inline"
+             v-if="parkingLotInfo.maintenance == 'Y'  || parkingLotInfo.maintenance==true ||parkingLotInfo.maintenance ==false">
           <input
             class="form-check-input"
             type="checkbox"
             id="maintenance"
             v-model="parkingLotInfo.maintenance"
-            :disabled="parkingLotInfo.maintenance !== 'Y'" />
+            :disabled="parkingLotInfo.maintenance == 'Y'" />
           <label class="form-check-label" for="maintenance">기본차량정비</label>
         </div>
       </div>
     </div>
 
-
-    <br>
-    <label>가격</label>
-
-    <button class="btn btn-primary" :disabled="totalReservationTime <= 0" @click="submitReservation">
-      예약하기
+    <button class="btn btn-primary" v-if="totalTime != 0" @click="getCheckingParkingAndTotalFee">
+      조회하기
     </button>
+    <br>
+    <div v-if="isTimeSelected" >
+    <label>가격</label> <h6>{{totalFee}}</h6>
+      <label>주차 여부</label>
+      <h6 v-if="available">이용할 수 있습니다.</h6>
+      <h6 v-else>이용할 수 없습니다.</h6>
+    </div>
+
+    <div v-if="available">
+      <button class="btn btn-primary" @click="reservationAndPayment">예약하기 및 결제하기</button>
+    </div>
   </div>
 </template>
 <script>
@@ -184,40 +193,48 @@ export default {
         name: '',
         wash: '',  // 세차 여부
         maintenance: '',  // 기본차량정비 여부
-        weekdaysOpenTime :'',
-        weekendOpenTime : '',
-        weekdaysCloseTime : '',
-        weekendCloseTime : '',
+        weekdaysOpenTime: '',
+        weekendOpenTime: '',
+        weekdaysCloseTime: '',
+        weekendCloseTime: ''
       },
+
+      //예약여부 버튼 클릭 활성화 후
+      available: null,
+      totalFee: 0,
+      parkingSpaceId: null,
+
+      paymentShowModal: false, // 모달 창을 위한 상태
+
+
+      //DatePicker 관련 변수
+      selectedDate: null,
       today: new Date(),
       maxDate: new Date(new Date().setDate(new Date().getDate() + 30)), // 30일 후까지 선택 가능
-      selectedDate: null,
 
-      entanceDateTime: '',
-      extitDateTime: '',
+      //주말여부
+      isWeekend: false,
+
+      //주차시간 계산, 입출차 시간 계산
+      totalTime: '',
       selectedEntranceTime: '',
       selectedExitTime: '',
-      totalTime: '00:00',
 
       // 입차 시간 관련 데이터
-      entranceBusinessStartTime: 14, // 영업 시작 시간 (14시)
-      entranceBusinessEndTime: 22, // 영업 종료 시간 (22시)
       entranceAvailableHours: [], // 입차 가능한 시간 배열
       entranceAvailableMinutes: [0, 30], // 입차 가능한 분 배열
       selectedEntranceHour: null,
       selectedEntranceMinute: null,
+      entranceDateTimeResult: '',
+      exitDateTimeResult: '',
 
       // 출차 시간 관련 데이터
-      exitBusinessStartTime: 14, // 영업 시작 시간 (14시)
-      exitBusinessEndTime: 22, // 영업 종료 시간 (22시)
       exitAvailableHours: [], // 출차 가능한 시간 배열
       exitAvailableMinutes: [0, 30], // 출차 가능한 분 배열
       selectedExitHour: null,
       selectedExitMinute: null,
-      totalReservationTime: 0,
+      totalReservationTime: 0
 
-      options: [1, 2, 3], // 선택 박스에 표시될 옵션들
-      selectedOption: null
     }
   },
   created() {
@@ -239,146 +256,251 @@ export default {
             userEmail: 'test@test.com' //이건 물어보기!!
           }
         })
-        this.parkingLotInfo = responseReservationLotData.data.parkingLotInfo;
-        this.userCars = responseReservationLotData.data.userCars;
+        this.parkingLotInfo = responseReservationLotData.data.parkingLotInfo
+        this.userCars = responseReservationLotData.data.userCars
       } catch (error) {
         console.log()
       } finally {
         console.log('')
       }
     },
+    getCheckingParkingAndTotalFee() {
+      const url = 'http://localhost:8080/api/parkingLots/reservation/parkingCheck'
+      const params = {
+        parkingLotId: 1, //this.$route.params.parkingLotId;
+        plateNumber: this.selectedCarNumber,
+        startTimeStr: this.entranceDateTimeResult,
+        endTimeStr: this.exitDateTimeResult,
+        wash: this.parkingLotInfo.wash,
+        maintenance: this.parkingLotInfo.maintenance
+      }
+// 세차 여부 조건 처리
+      if (this.parkingLotInfo.wash === 'Y') {
+        params.wash = true
+      } else if (this.parkingLotInfo.wash === 'N') {
+        params.wash = false
+      }
 
+// 정비 여부 조건 처리
+      if (this.parkingLotInfo.maintenance === 'Y') {
+        params.maintenance = true
+      } else if (this.parkingLotInfo.maintenance === 'N') {
+        params.maintenance = false
+      }
+
+      axios.get(url, { params })
+        .then(response => {
+          const data = response.data
+
+          this.available = data.available;
+          this.totalFee = data.totalFee;
+          this.parkingSpaceId = data.parkingSpaceId;
+        })
+        .catch(error => {
+          console.log('Error: ', error)
+        })
+    },
+    reservationAndPayment(){
+        const requestReservationDto = {
+          parkingLotId :1,
+          parkingSpaceId : this.parkingSpaceId,
+          userEmail : 'test@test.com',
+          plateNumber : this.selectedCarNumber,
+          startTime : this.entranceDateTimeResult,
+          endTime : this.exitDateTimeResult,
+          totalPrice :this.totalFee,
+          washService :this.parkingLotInfo.wash,
+          maintenanceService : this.parkingLotInfo.maintenance
+        };
+      // 세차 여부 조건 처리
+      if (this.parkingLotInfo.wash === 'Y') {
+        requestReservationDto.washService = true;
+        if(requestReservationDto.washService === true){
+          requestReservationDto.washService = 'Y';
+        }else{
+          requestReservationDto.washService = 'N';
+        }
+      } else if (this.parkingLotInfo.wash === 'N') {
+        requestReservationDto.wash = false;
+        if(requestReservationDto.washService === false){
+          requestReservationDto.washService = 'N';
+        }
+      }
+        axios.post('http://localhost:8080/api/parkingLots/reservation/reservation', requestReservationDto)
+          .then(response => {
+            const data =response.data;
+            if(data.reservationUuid != null){
+              this.paymentShowModal = true;
+              alert("결제 가능");
+            }else {
+              alert("예약 실패");
+            }
+          }).catch(error =>{
+            console.log('예약 요청 중 오류 발생:', error)
+        });
+     },
+
+    // 일요일: 0, 토요일: 6
+    checkIfWeekend(date) {
+      const day = new Date(date).getDay()
+      this.isWeekend = (day === 0 || day === 6)
+    },
+    // 주중/주말에 맞는 영업시간 설정
+    setBusinessHours() {
+      if (this.isWeekend) {
+        this.entranceAvailableHours = this.generateAvailableHours(this.parkingLotInfo.weekendOpenTime, this.parkingLotInfo.weekendCloseTime)
+        this.exitAvailableHours = this.generateAvailableHours(this.parkingLotInfo.weekendOpenTime, this.parkingLotInfo.weekendCloseTime)
+      } else {
+        this.entranceAvailableHours = this.generateAvailableHours(this.parkingLotInfo.weekdaysOpenTime, this.parkingLotInfo.weekdaysCloseTime)
+        this.exitAvailableHours = this.generateAvailableHours(this.parkingLotInfo.weekdaysOpenTime, this.parkingLotInfo.weekdaysCloseTime)
+      }
+    },
+    // 주어진 영업 시작 시간과 종료 시간에 맞는 시간 배열 생성
+    generateAvailableHours(openTime, closeTime) {
+      const startHour = parseInt(openTime.split(':')[0], 10)
+      const endHour = parseInt(closeTime.split(':')[0], 10)
+      return Array.from({ length: endHour - startHour + 1 }, (_, i) => (startHour + i).toString().padStart(2, '0'))
+    },
 
     // 입차 가능한 시간 생성
     generateEntranceAvailableHours() {
       this.entranceAvailableHours = Array.from(
         { length: this.entranceBusinessEndTime - this.entranceBusinessStartTime + 1 },
         (_, i) => (this.entranceBusinessStartTime + i).toString().padStart(2, '0')
-      );
+      )
     },
     // 출차 가능한 시간 생성
     generateExitAvailableHours() {
       this.exitAvailableHours = Array.from(
         { length: this.exitBusinessEndTime - this.exitBusinessStartTime + 1 },
         (_, i) => (this.exitBusinessStartTime + i).toString().padStart(2, '0')
-      );
+      )
     },
     selectEntranceHour(hour) {
-      this.selectedEntranceHour = hour;
+      this.selectedEntranceHour = hour
     },
     selectEntranceMinute(minute) {
-      this.selectedEntranceMinute = minute;
+      this.selectedEntranceMinute = minute
+    },
+    selectExitHour(hour) {
+      this.selectedExitHour = hour
+    },
+    selectExitMinute(minute) {
+      this.selectedExitMinute = minute
     },
 
     confirmEntranceTime() {
       // selectedEntranceHour, selectedEntranceMinute, entranceDate가 null이 아닌지 확인
+
       if (this.selectedEntranceHour !== null && this.selectedEntranceMinute !== null && this.selectedDate !== null) {
         // 선택한 날짜와 시간을 합쳐서 Date 객체로 변환
-        const selectedEntranceDate = new Date(this.selectedDate);
-        selectedEntranceDate.setHours(parseInt(this.selectedEntranceHour), parseInt(this.selectedEntranceMinute), 0, 0);
+        const selectedEntranceDate = new Date(this.selectedDate)
+        selectedEntranceDate.setHours(parseInt(this.selectedEntranceHour), parseInt(this.selectedEntranceMinute), 0, 0)
 
         // 유효한 Date 객체인지 확인
         if (isNaN(selectedEntranceDate.getTime())) {
-          alert('유효하지 않은 날짜입니다.');
-          return;
+          alert('유효하지 않은 날짜입니다.')
+          return
         }
 
         // 출차 시간과 비교
-        if (this.selectedExitHour !== null && this.selectedExitMinute !== null && this.exitDate !== null) {
-          const selectedExitDate = new Date(this.exitDate);
-          selectedExitDate.setHours(parseInt(this.selectedExitHour), parseInt(this.selectedExitMinute), 0, 0);
+        if (this.selectedExitHour !== null && this.selectedExitMinute !== null && this.selectedDate !== null) {
+          const selectedExitDate = new Date(this.selectedDate)
+          selectedExitDate.setHours(parseInt(this.selectedExitHour), parseInt(this.selectedExitMinute), 0, 0)
 
           if (selectedEntranceDate >= selectedExitDate) {
-            alert('입차 시간이 출차 시간보다 늦을 수 없습니다.');
-            return;
+            alert('입차 시간이 출차 시간보다 늦을 수 없습니다.')
+            return
           }
         }
 
         // 현재 시간과 비교
-        const now = new Date();
+        const now = new Date()
         if (selectedEntranceDate <= now) {
-          alert('입차 시간이 현재 시간보다 빠를 수 없습니다.');
-          return;
+          alert('입차 시간이 현재 시간보다 빠를 수 없습니다.')
+          return
         }
 
         // 정상적으로 선택된 시간을 저장하고, entranceDateTimeResult 생성
-        const formattedDate = selectedEntranceDate.toISOString().split('T')[0]; // 'yyyy-MM-dd' 형식으로 변환
-        const formattedTime = `${this.selectedEntranceHour.toString().padStart(2, '0')}:${this.selectedEntranceMinute.toString().padStart(2, '0')}`; // 'HH:mm' 형식으로 변환
-        this.entranceDateTimeResult = `${formattedDate} ${formattedTime}`; // 날짜와 시간을 결합하여 'yyyy-MM-dd HH:mm' 형식으로 저장
-        this.selectedEntranceTime = `${formattedTime}`;
-        alert(`입차 시간이 성공적으로 설정되었습니다: ${this.entranceDateTimeResult}`);
+        const formattedDate = this.formattedSelectedDate;
+        const formattedTime = `${this.selectedEntranceHour.toString().padStart(2, '0')}:${this.selectedEntranceMinute.toString().padStart(2, '0')}` // 'HH:mm' 형식으로 변환
+        this.entranceDateTimeResult = `${formattedDate} ${formattedTime}:00` // 날짜와 시간을 결합하여 'yyyy-MM-dd HH:mm:ss' 형식으로 저장
+        this.selectedEntranceTime = `${formattedTime}`
+        alert(`입차 시간이 성공적으로 설정되었습니다: ${this.entranceDateTimeResult}`)
       } else {
-        alert('입차 시간 및 날짜를 모두 선택해 주세요.');
+        alert('입차 시간 및 날짜를 모두 선택해 주세요.')
       }
     },
 
-    selectExitHour(hour) {
-      this.selectedExitHour = hour;
-    },
-    selectExitMinute(minute) {
-      this.selectedExitMinute = minute;
-    },
     confirmExitTime() {
       if (this.selectedExitHour !== null && this.selectedExitMinute !== null && this.selectedEntranceHour !== null && this.selectedEntranceMinute !== null && this.selectedDate !== null) {
         // 선택한 입차 및 출차 날짜와 시간을 결합
-        const selectedEntranceDate = new Date(this.selectedDate);
-        selectedEntranceDate.setHours(parseInt(this.selectedEntranceHour), parseInt(this.selectedEntranceMinute), 0, 0);
+        const selectedEntranceDate = new Date(this.selectedDate)
+        selectedEntranceDate.setHours(parseInt(this.selectedEntranceHour), parseInt(this.selectedEntranceMinute), 0, 0)
 
-        const selectedExitDate = new Date(this.selectedDate);
-        selectedExitDate.setHours(parseInt(this.selectedExitHour), parseInt(this.selectedExitMinute), 0, 0);
+        const selectedExitDate = new Date(this.selectedDate)
+        selectedExitDate.setHours(parseInt(this.selectedExitHour), parseInt(this.selectedExitMinute), 0, 0)
 
         // 입차 시간이 출차 시간보다 빠르면 경고
         if (selectedExitDate <= selectedEntranceDate) {
-          alert('출차 시간이 입차 시간보다 빠를 수 없습니다.');
-          this.selectedExitHour = null;
-          this.selectedExitMinute = null;
-          this.selectedExitTime = '';  // 초기화
+          alert('출차 시간이 입차 시간보다 빠를 수 없습니다.')
+          this.selectedExitHour = null
+          this.selectedExitMinute = null
+          this.selectedExitTime = ''  // 초기화
         } else {
           // 정상적으로 선택된 시간을 저장
-          const formattedExitTime = `${this.selectedExitHour.toString().padStart(2, '0')}:${this.selectedExitMinute.toString().padStart(2, '0')}`; // 'HH:mm' 형식으로 변환
-          this.selectedExitTime = formattedExitTime;
-          this.exitDateTimeResult = `${this.selectedDate.toISOString().split('T')[0]} ${formattedExitTime}`; // 'yyyy-MM-dd HH:mm' 형식으로 저장
-          alert(`출차 시간이 성공적으로 설정되었습니다: ${this.exitDateTimeResult}`);
+          const formattedDate = this.formattedSelectedDate;
+          const formattedTime = `${this.selectedExitHour.toString().padStart(2, '0')}:${this.selectedExitMinute.toString().padStart(2, '0')}` // 'HH:mm' 형식으로 변환
+          this.selectedExitTime = formattedTime
+          this.exitDateTimeResult =  `${formattedDate} ${formattedTime}:00`// 'yyyy-MM-dd HH:mm:ss' 형식으로 저장
+          alert(`출차 시간이 성공적으로 설정되었습니다: ${this.exitDateTimeResult}`)
         }
       } else {
-        alert('입차 시간 및 출차 시간을 모두 선택해 주세요.');
+        alert('입차 시간 및 출차 시간을 모두 선택해 주세요.')
       }
     },
     calculateTotalTime() {
       if (this.selectedEntranceTime && this.selectedExitTime) {
         // 시간 문자열을 분리하여 시간과 분으로 나눔
-        const [entranceHour, entranceMinute] = this.selectedEntranceTime.split(':').map(Number);
-        const [exitHour, exitMinute] = this.selectedExitTime.split(':').map(Number);
+        const [entranceHour, entranceMinute] = this.selectedEntranceTime.split(':').map(Number)
+        const [exitHour, exitMinute] = this.selectedExitTime.split(':').map(Number)
 
         // Date 객체를 사용하여 시간 차이 계산
-        const entranceDateTime = new Date();
-        entranceDateTime.setHours(entranceHour, entranceMinute, 0, 0);
-        const exitDateTime = new Date();
-        exitDateTime.setHours(exitHour, exitMinute, 0, 0);
+        const entranceDateTime = new Date()
+        entranceDateTime.setHours(entranceHour, entranceMinute, 0, 0)
+        const exitDateTime = new Date()
+        exitDateTime.setHours(exitHour, exitMinute, 0, 0)
 
         // 시간 차이를 밀리초로 계산
-        const diffInMs = exitDateTime - entranceDateTime;
+        const diffInMs = exitDateTime - entranceDateTime
 
         // 입차 시간이 출차 시간보다 빠를 경우 경고
         if (diffInMs <= 0) {
-          alert('출차 시간이 입차 시간보다 빠를 수 없습니다.');
-          this.totalTime = '00:00'; // 기본값
-          return;
+          alert('출차 시간이 입차 시간보다 빠를 수 없습니다.')
+          this.totalTime = '00:00' // 기본값
+          return
         }
 
         // 시간 차 계산
-        const diffInMinutes = Math.floor(diffInMs / 1000 / 60);
-        const hours = Math.floor(diffInMinutes / 60);
-        const minutes = diffInMinutes % 60;
+        const diffInMinutes = Math.floor(diffInMs / 1000 / 60)
+        const hours = Math.floor(diffInMinutes / 60)
+        const minutes = diffInMinutes % 60
 
         // 최종 주차 시간 출력
-        this.totalTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        this.totalTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
       } else {
-        this.totalTime = '00:00'; // 기본값
+        this.totalTime = '00:00' // 기본값
       }
     }
   },
   watch: {
+    // DatePicker로 선택된 날짜가 변경될 때마다 주중/주말 판단 및 영업 시간 설정
+    selectedDate(newDate) {
+      if (newDate) {
+        this.checkIfWeekend(newDate)  // 선택된 날짜를 기준으로 주중/주말 여부 판단
+        this.setBusinessHours()  // 영업 시간 설정
+      }
+    },
     //날짜 선택에 따른
     selectedEntranceTime() {
       this.calculateTotalTime()
@@ -393,6 +515,10 @@ export default {
       return this.selectedDate
         ? this.selectedDate.toISOString().split('T')[0]
         : ''
+    },
+    // 입차 시간과 출차 시간이 모두 선택되었을 때 활성화
+    isTimeSelected() {
+      return this.selectedEntranceHour !== null && this.selectedExitHour !== null
     }
   }
 }
@@ -481,3 +607,5 @@ export default {
   margin-right: 20px;
 }
 </style>
+<script setup>
+</script>
