@@ -10,6 +10,7 @@
  2024.09.05 양건모 | 현재 위치 근처의 주차장 마커 생성
  2024.09.07 양건모 | 마커 생성 api url 변경
  2024.09.08 양건모 | 마커-주차장id Mapping
+ 2024.09.09 양건모 | 주차장 구분에 따라 마커 다르게 생성
  -->
 
 <template>
@@ -189,22 +190,30 @@ export default {
             })
           }
 
-          //기존 오버레이 삭제
-          if (this.lotsName.length > 0) {
-            this.lotsName.map((item) => {
-              item.setMap(null)
-            })
-          }
+          // //기존 오버레이 삭제
+          // if (this.lotsName.length > 0) {
+          //   this.lotsName.map((item) => {
+          //     item.setMap(null)
+          //   })
+          // }
 
           this.markerAndIdMap = new Map()
           this.lotsMarker = []
-          this.lotsName = []
+          // this.lotsName = []
 
           //마커, 인포 윈도우 생성, id Mapping
           this.lots.forEach((item, index) => {
+            //마커 형태 구분
+            const imageSrc = item.hasUser
+              ? '/src/assets/img/basic-lot-marker.png'
+              : '/src/assets/img/marker-lot-no-owner.png'
+            const imageSize = new kakao.maps.Size(40, 40)
+            const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
+
             var latLon = new kakao.maps.LatLng(item.latitude, item.longitude)
             const marker = new kakao.maps.Marker({
               position: latLon,
+              image: markerImage,
               clickable: true
             })
 
@@ -213,18 +222,18 @@ export default {
               this.markerClickEvent(marker)
             })
 
-            const overlay = `<div class='overlay'>${item.name}</div>`
-            const markerName = new kakao.maps.CustomOverlay({
-              position: latLon,
-              content: overlay
-            })
+            // const overlay = `<div class='overlay'>${item.name}</div>`
+            // const markerName = new kakao.maps.CustomOverlay({
+            //   position: latLon,
+            //   content: overlay
+            // })
 
             marker.setMap(this.map)
-            markerName.setMap(this.map)
+            //markerName.setMap(this.map)
 
             this.markerAndIdMap.set(marker, item.id)
             this.lotsMarker.push(marker)
-            this.lotsName.push(markerName)
+            //this.lotsName.push(markerName)
           })
         })
         .catch(function (e) {

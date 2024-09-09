@@ -50,7 +50,7 @@ export default [
         path: 'lot/:lotId',
         component: LotDetailCmp,
         props: true,
-        redirect: to => `/lot/${to.params.lotId}/home`,
+        redirect: (to) => `/lot/${to.params.lotId}/home`,
         children: [
           {
             path: 'home',
@@ -67,8 +67,7 @@ export default [
         ]
       },
       {
-        // path: 'reservation/{lotid}?',
-        path: 'reservation',
+        path: 'reservation/:lotId',
         component: ReservationCmp,
         props: true
       },
