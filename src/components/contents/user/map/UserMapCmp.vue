@@ -9,6 +9,7 @@
  2024.09.04 양건모 | 검색을 통해 장소 선택 시 마커 생성
  2024.09.05 양건모 | 현재 위치 근처의 주차장 마커 생성
  2024.09.07 양건모 | 마커 생성 api url 변경
+ 2024.09.08 양건모 | 마커-주차장id Mapping
  -->
 
 <template>
@@ -63,13 +64,16 @@
       </div>
     </div>
     <div id="map"></div>
+    <lot-preview-cmp></lot-preview-cmp>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
+import LotPreviewCmp from './LotPreviewCmp.vue'
 
 export default {
+  components: { LotPreviewCmp },
   data() {
     return {
       keyword: '',
@@ -80,7 +84,9 @@ export default {
       searchResultName: null,
       lots: [],
       lotsMarker: [],
-      lotsName: []
+      lotsName: [],
+      markerAndIdMap: null,
+      selectedLot: null
     }
   },
   mounted() {
@@ -152,6 +158,7 @@ export default {
 
       //해당 위치로 이동
       this.map.panTo(moveLatLon)
+      this.createLots()
     },
     createLots() {
       const bound = this.map.getBounds()
@@ -170,27 +177,37 @@ export default {
         .then((response) => {
           this.lots = response.data.lots
 
-          // //기존 마커 삭제
+          //기존 마커 삭제
           if (this.lotsMarker.length > 0) {
             this.lotsMarker.map((item) => {
               item.setMap(null)
             })
           }
 
-          // //기존 오버레이 삭제
+          //기존 오버레이 삭제
           if (this.lotsName.length > 0) {
             this.lotsName.map((item) => {
               item.setMap(null)
             })
           }
 
+          this.markerAndIdMap = new Map()
           this.lotsMarker = []
           this.lotsName = []
 
-          //마커 생성
-          this.lots.map((item) => {
+          //마커, 인포 윈도우 생성, id Mapping
+          this.lots.forEach((item, index) => {
             var latLon = new kakao.maps.LatLng(item.latitude, item.longitude)
-            const marker = new kakao.maps.Marker({ position: latLon })
+            const marker = new kakao.maps.Marker({
+              position: latLon,
+              clickable: true
+            })
+
+            //마커 클릭 이벤트 등록
+            kakao.maps.event.addListener(marker, 'click', () => {
+              this.markerClickEvent(marker)
+            })
+
             const overlay = `<div class='overlay'>${item.name}</div>`
             const markerName = new kakao.maps.CustomOverlay({
               position: latLon,
@@ -200,6 +217,7 @@ export default {
             marker.setMap(this.map)
             markerName.setMap(this.map)
 
+            this.markerAndIdMap.set(marker, item.id)
             this.lotsMarker.push(marker)
             this.lotsName.push(markerName)
           })
@@ -207,6 +225,10 @@ export default {
         .catch(function (e) {
           console.error(e)
         })
+    },
+    markerClickEvent: function (marker) {
+      console.log('클릭한 마커 : ' + marker)
+      console.log('해당 마커의 id는 : ' + this.markerAndIdMap.get(marker))
     }
   }
 }
