@@ -2,7 +2,22 @@
   <transition name="slide-up">
     <div v-if="visible" class="bottom-sheet">
       <div class="sheet-header">
-        <span @click="hide">닫기</span>
+        <span @click="hide">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#9A64E8"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            width="24"
+            height="24"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </span>
       </div>
       <div class="sheet-content">
         <div class="info-box">
@@ -21,7 +36,9 @@
             </p>
           </div>
         </div>
+        <br />
         <div class="info-box">
+          <p class="lot-standard" style="text-align: center"><b>요금 안내</b></p>
           <div id="fee-box" v-for="space in currentLotInfo.parkingSpaces" :key="space">
             <p class="lot-standard">
               <b>{{ space.carType }}</b>
@@ -104,6 +121,18 @@ export default {
 </script>
 
 <style scoped>
+@media (orientation: landscape) {
+  .bottom-sheet {
+    max-width: 800px;
+  }
+}
+
+@media (orientation: portrait) {
+  .bottom-sheet {
+    width: 100%;
+  }
+}
+
 .bottom::-webkit-scrollbar {
   display: none;
 }
@@ -113,7 +142,7 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60dvh;
+  height: 60vh;
   background-color: white;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
@@ -121,7 +150,8 @@ export default {
   transition: transform 0.3s ease;
   z-index: 100;
   display: flex;
-  flex-direction: column; /* flexbox로 구성하여 콘텐츠 영역을 배치 */
+  flex-direction: column;
+  margin: auto;
 }
 
 .sheet-header {
@@ -129,6 +159,8 @@ export default {
   text-align: right;
   background-color: white;
   border-bottom: 1px solid #ddd;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -180,7 +212,7 @@ export default {
 }
 
 .lot-standard {
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .lot-small {
@@ -200,8 +232,12 @@ export default {
 #recent-review {
   width: 100%;
   height: 30px;
-  border-left: 5px solid #9a64e8;
-  border-right: 5px solid #9a64e8;
+  border-left: 2.5px solid #9a64e8;
+  border-right: 2.5px solid #9a64e8;
+}
+
+#recent-review > p {
+  padding-top: 3px;
 }
 
 p {
