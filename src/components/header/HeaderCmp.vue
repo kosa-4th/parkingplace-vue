@@ -31,11 +31,11 @@
         </div>
         <div class="sidebar-content">
           <div v-if="isLoggedIn">
-            <p>{{ username }} 님 안녕하세요!</p>
+            <p @click="handleAccount">{{ username }} 님 안녕하세요!</p>
             <!-- 로그인 상태일 때 -->
             <ul class="list-unstyled">
               <li><a href="#">내 예약 내역</a></li>
-              <li><a href="#">내 차량 관리</a></li>
+              <li><a href="#" @click="handleCar">내 차량 관리</a></li>
               <li><a href="#">즐겨찾기한 주차장</a></li>
               <li><a href="#">내 리뷰</a></li>
               <li><a href="#" @click="HandelLogout">로그아웃</a></li>
@@ -72,6 +72,16 @@ const authStore = AuthStore();
 
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
+}
+
+const handleAccount = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+  router.push("/my")
+}
+
+const handleCar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+  router.push("/my/cars")
 }
 
 const handleLogin = () => {

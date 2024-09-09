@@ -167,6 +167,7 @@ onMounted(() => {
 <style scoped>
 .signup-container {
   max-width: 600px;
+  width: 80%;
   margin: auto;
 }
 
