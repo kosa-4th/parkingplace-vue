@@ -2,6 +2,7 @@
   <!-- 
     작성자: 오지수
     주차장 상세 페이지: 홈 (주차장 상세 정보)
+    2024.09.09 양건모 | 에약하기 버튼 클릭시 예약하기 페이지로 이동
   -->
   <div class="home-detail">
     <!-- 주소 -->
@@ -37,19 +38,27 @@
     </div>
 
     <!-- 예약 버튼 -->
-    <button class="reservation-button">예약하기</button>
+    <button @click="toReservation()" class="reservation-button">예약하기</button>
   </div>
 </template>
 
 <script setup>
-import lib from '@/scripts/lib';
+import router from '@/router'
+import { useRoute } from 'vue-router'
+import lib from '@/scripts/lib'
+
+const route = useRoute()
 
 const props = defineProps({
   parkingLotDetail: {
     type: Object,
     required: true
   }
-});
+})
+
+const toReservation = function () {
+  router.push(`/reservation/${route.params.lotId}`)
+}
 </script>
 
 <style scoped>
