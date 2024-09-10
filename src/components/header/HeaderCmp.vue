@@ -126,8 +126,9 @@ onMounted(() => {
 .sidebar {
   position: fixed;
   top: 0;
-  left: -250px;
-  width: 250px;
+  left: -400px;
+  width: 100%;
+  max-width: 400px;
   height: 100%;
   background: #f8f9fa;
   z-index: 1050;

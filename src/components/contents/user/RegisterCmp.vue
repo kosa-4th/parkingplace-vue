@@ -4,54 +4,77 @@
     회원가입 페이지
   -->
   <div class="signup-container">
-    <h2>회원가입</h2>
+    <span class="title">회원가입</span>
     <form @submit.prevent="handleSignup">
+
       <div class="input-group">
         <label for="name">이름</label>
-        <input type="text" id="name" v-model="user.name" placeholder="홍길동" required>
+        <input class="input" type="text" id="name" v-model="user.name" placeholder="홍길동" required>
       </div>
-      <div class="input-group email-group">
+
+      <div class="input-group">
         <label for="email">이메일</label>
-        <input type="email" id="email" v-model="user.email" placeholder="example@example.com" required>
-        <button type="button" class="send-email-button" @click="sendVerification">인증 메일 발송</button>
+        <div>
+          <input class="input-with-btn" type="email" id="email" v-model="user.email" placeholder="example@example.com" required>
+          <button type="button" class="send-email-button" @click="sendVerification">인증메일 발송</button>
+        </div>
       </div>
+
       <div class="input-group">
         <label for="verification-code">인증번호 입력</label>
-        <input type="text" id="verification-code" v-model="user.code" placeholder="인증번호 입력" />
-        <button type="button" class="verify-button" @click="verifyCode">인증하기</button>
+        <div>
+          <input class="input-with-btn" type="text" id="verification-code" v-model="user.code" placeholder="인증번호 입력" />
+          <button type="button" class="verify-button" :class="{ 'verified': verification }" @click="verifyCode">인증하기</button>
+        </div>
       </div>
-      <div class="input-group">
-        <label for="car-number">차량번호 등록</label>
-        <input type="text" id="car-number" v-model="user.carNum" placeholder="123가4567" required>
+
+      <div class="input-group-opp">
+        <div>
+          <label for="car-number">차량번호 등록</label>
+          <input class="input" type="text" id="car-number" v-model="user.carNum" placeholder="123가4567" required>
+        </div>
+        <div>
+          <label for="car-type">차량 종류</label>
+          <select v-model="user.selectedCar" id="car-type" required>
+            <option v-for="(carType, index) in carTypes" :key="index" :value="carType.carType">
+            {{ carType.carType }}
+            </option>
+          </select>
+        </div>
       </div>
-      <div class="input-group">
-        <label for="car-type">차량 종류</label>
-        <select v-model="user.selectedCar" id="car-type" required>
-          <option v-for="(carType, index) in carTypes" :key="index" :value="carType.carType">
-          {{ carType.carType }}
-          </option>
-        </select>
-      </div>
+
       <div class="input-group">
         <label for="password">비밀번호</label>
-        <input type="password" id="password" v-model="user.password" placeholder="(8~20자 영문, 숫자, 특수문자 조합)" required/>
+        <input class="input" 
+              :class="{ 'valid' : passwordValid, 'invalid' : !passwordValid && user.password.length > 0}" 
+              type="password" 
+              id="password" 
+              v-model="user.password" 
+              placeholder="(8~20자 영문, 숫자, 특수문자 조합)" 
+              required
+        />
       </div>
       <div class="input-group">
         <label for="confirm-password">비밀번호 확인</label>
-        <input type="password" id="confirm-password" required/>
+        <input class="input" 
+              :class="{ 'match': confirmPasswordMatch, 'mismatch': !confirmPasswordMatch && user.confirmPassword.length > 0}" 
+              type="password" 
+              id="confirm-password" 
+              v-model="user.confirmPassword"
+              required
+        />
       </div>
       <div class="input-group">
-        <label for="terms">이용약관</label>
-        <button type="button" class="terms-button">이용약관 보기</button>
+        <div type="button" class="terms">이용약관</div>
       </div>
-      <div class="input-group">
-        <input type="checkbox" id="privacy-consent">
-        <label for="privacy-consent">[필수] 개인정보 수집 및 이용에 대한 동의</label>
+      <div class="check-group">
+        <input type="checkbox" id="privacy-consent" v-model="isChecked" required>
+        <label for="privacy-consent" @click="openPrivacyModal">[필수] 개인정보 수집 및 이용에 대한 동의</label>
       </div>
       <button type="submit" class="signup-button">회원가입</button>
     </form>
 
-      <ConfirmModal
+    <ConfirmModal
       v-if="modal.isModalVisible"
       :title="modal.modalTitle"
       :message="modal.modalMessage"
@@ -64,22 +87,30 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
+//비밀 번호 인증 여부
 const verification = ref(false);
+//이용 확인 체크 여부
+const isChecked = ref(false);
+//차량 종류
+const carTypes = ref([]);
 
+
+//회원가입 정보
 const user = reactive({
   name: "",
   email: "",
   code: "",
   password: "",
+  confirmPassword: "",
   selectedCar: "",
   carNum: ""
 });
 
-
+//모달 정보
 const modal = reactive({
   isModalVisible: false,
   modalTitle: '',
@@ -87,8 +118,7 @@ const modal = reactive({
   modalPath: ''
 });
 
-const carTypes = ref([]);
-
+// 차량 종류 가져오는 메서드 (페이지 로딩)
 const getCarTypes = async () => {
   try {
     const response = await axios.get("/api/users");
@@ -99,7 +129,16 @@ const getCarTypes = async () => {
   }
 }
 
+//메일 인증 요청
 const sendVerification = async () => {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+
+  if (!emailPattern.test(user.email)) {
+    alert("올바른 이메일을 입력해주세요.");
+    return;
+  }
+
+  alert("인증 메일이 요청되었습니다. 잠시만 기다려주세요.");
   try {
     const response = await axios.post("/api/auth/verification", {
       email: user.email
@@ -111,6 +150,7 @@ const sendVerification = async () => {
   }
 }
 
+//인증 확인
 const verifyCode = async () => {
   try {
     const response = await axios.post("/api/auth/verify", {
@@ -124,9 +164,32 @@ const verifyCode = async () => {
   }
 }
 
+// 비밀번호 규칙 확인
+const passwordValid = computed(() => {
+  const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+  return passwordPattern.test(user.password);
+})
+
+//비밀번호와 비밀번호 확인이 일치하는지 확인
+const confirmPasswordMatch = computed(() => {
+  return passwordValid.value && user.confirmPassword.length > 0 && user.password === user.confirmPassword;
+})
+
+watch(
+  () => [user.password, user.confirmPassword],
+  () => {
+    // computed 속성들이 자동으로 처리하므로 여기서는 수동 호출이 필요 없음
+  }
+);
+
+//회원가입
 const handleSignup = async () => {
   if (!verification.value) {
     alert("메일 인증이 필요합니다.");
+  } else if (!passwordValid.value) {
+    alert("비밀번호 조건을 충족해주세요.")
+  } else if (!confirmPasswordMatch.value){
+    alert("비밀번호가 일치하지 않습니다.")
   } else {
     try {
       const response = await axios.post("/api/users", user);
@@ -162,71 +225,186 @@ modal.handleModalClose = () => {
 onMounted(() => {
   getCarTypes();
 })
+
 </script>
 
 <style scoped>
+
 .signup-container {
   max-width: 600px;
   width: 80%;
-  margin: auto;
+  margin: 50px auto;
+}
+
+input {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  height: 40px;
+  width: 100%;
+}
+
+input:focus {
+  border-color: #9A64E8;
+  outline: none;
+}
+
+button {
+  border: none;
+  border-radius: 5px;
+  height: 40px;
+  width: 100%;
+}
+
+select {
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  height: 40px;
+  width: 100%;
+}
+
+select:focus {
+  border: 1px solid #9A64E8;
+  outline: none;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+
+.title {
+  display: block;
+  padding-bottom: 20px;
+  font-size: 22px;
+  font-weight: 700;
 }
 
 .input-group {
+  display: flex;
+  flex-direction: column;
   margin-bottom: 15px;
 }
 
-.input-group label {
-  display: block;
-  margin-bottom: 5px;
+.input-group > div {
+  display: flex;
+  flex-direction: row;
+}
+
+.input-group > div > button {
+  width: 100px;
+  font-size: 14px;
+  padding: 10px 2px;
+  border-radius: 0 5px 5px 0;
+  border: none;
+}
+
+.input-with-btn {
+  border-radius: 5px 0 0 5px;
+  width: calc(100% - 100px);
+}
+
+.send-email-button {  
+  background-color: #EB4E3D;
+  color: white;
+}
+
+.verify-button {
+  background-color: #757575;
+  color: white;
+}
+
+.input-group-opp {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+.input-group-opp > div {
+  width: calc(100% - 100px);
+}
+
+.terms {
+  background-color: #EBEBEB;
+  color:#9A64E8;
+  height: 40px;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.check-group input[type="checkbox"] {
+  width: auto;
+  height: auto;
+  margin-right: 10px;
+}
+
+.input-group label[for="privacy-consent"] {
+  display: inline-block;
+  vertical-align: middle;
   font-size: 14px;
 }
 
-.input-group input,
-.input-group select {
-  width: 100%;
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-.email-group {
+.check-group {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.send-email-button,
-.verify-button,
-.terms-button {
-  padding: 8px 10px;
-  margin-left: 10px;
-  background-color: #ccc;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  flex-direction: row;
 }
 
 .signup-button {
-  width: 100%;
-  padding: 10px;
+  padding: 10px auto;
   background-color: #a371ea;
   color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
+  font-size: 17px;
   cursor: pointer;
   margin-top: 15px;
+  margin-bottom: 15px;
 }
 
 .google-signup-button {
-  width: 100%;
-  padding: 10px;
-  background-color: #fff;
-  color: #333;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  background-color: white;
+  padding: 10px auto;
+  font-size: 17px;
   cursor: pointer;
-  margin-top: 15px;
 }
+
+/* buttons */
+.verified {
+  background-color: #76D672;
+}
+
+.valid {
+  border-color: #76D672;
+}
+
+.valid:focus {
+  border-color: #76D672;
+}
+
+.invalid {
+  border-color: #EB4E3D;
+}
+
+.invalid:focus {
+  border-color: #EB4E3D;
+}
+
+.match {
+  border-color:#76D672;
+}
+.match:focus {
+  border-color:#76D672;
+}
+
+.mismatch {
+  border-color: #EB4E3D;
+}
+.mismatch:focus {
+  border-color: #EB4E3D;
+}
+
+
 </style>

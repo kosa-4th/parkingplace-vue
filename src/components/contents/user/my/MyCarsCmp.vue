@@ -46,11 +46,7 @@ const selectedCar = ref('');
 
 const getData = async () => {
   try {
-    const response = await axios.get("/api/users/cars/protected", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const response = await axios.get("/api/users/cars/protected");
     console.log(response.data);
     myCars.value = response.data.myCars;
     carTypes.value = response.data.carTypes;
@@ -67,8 +63,6 @@ const removeCar = async (car) => {
   } else {
 
     const response = await axios.delete(`/api/users/cars/${car.id}/protected`, {
-      
-        
         data: {
           carType: car.carType,
           plateNumber: car.plateNumber
@@ -90,14 +84,10 @@ const registerCar = async () => {
     {
       carType: selectedCar.value,
       plateNumber: newCarNumber.value
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
     });
     console.log(response.data);
   } catch(error) {
+    alert(error.response.data);
     console.log(error.response.data);
   }
   getData();
