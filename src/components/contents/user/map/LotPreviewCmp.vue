@@ -5,6 +5,7 @@
  ---------------------
  2024.09.09 양건모 | 기능 구현
  2024.09.10 양건모 | 즐겨찾기 조회, 등록/해제
+ 2024.09.10 양건모 | api 명세 변경에 따른 axios 요청 url 변경
  -->
 
 <template>
@@ -142,7 +143,7 @@ export default {
     async getHasFavorite() {
       await axios({
         method: 'get',
-        url: '/api/protected/favorite/check',
+        url: '/api/favorites/check/protected',
         params: {
           parkingLotId: this.lotInfo.lotId
         },
@@ -161,7 +162,7 @@ export default {
     async toggleFavorite() {
       await axios({
         method: 'post',
-        url: '/api/protected/favorite/toggle',
+        url: '/api/favorites/toggle/protected',
         params: {
           parkingLotId: this.lotInfo.lotId
         },
