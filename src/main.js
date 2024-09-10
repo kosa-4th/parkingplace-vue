@@ -24,7 +24,9 @@ app.use(router)
 app.component('DatePicker', DatePicker);
 app.component('TimePicker', TimePicker);
 
+app.mount('#app')
+
 const authStore = AuthStore()
 authStore.loadAuthData()
 
-app.mount('#app')
+
