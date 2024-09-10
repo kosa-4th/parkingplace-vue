@@ -4,6 +4,7 @@
  설명 : 주차장 프리뷰 컴포넌트
  ---------------------
  2024.09.09 양건모 | 기능 구현
+ 2024.09.10 양건모 | 즐겨찾기 조회, 등록/해제
  -->
 
 <template>
@@ -28,9 +29,25 @@
         </span>
       </div>
       <div class="sheet-content">
-        <div class="info-box">
-          <h2 class="lot-big">{{ currentLotInfo.name }}</h2>
-          <p class="lot-standard">{{ currentLotInfo.address }}</p>
+        <div class="info-box info-box-flex">
+          <div id="name-address">
+            <h2 class="lot-big">{{ currentLotInfo.name }}</h2>
+            <p class="lot-standard">{{ currentLotInfo.address }}</p>
+          </div>
+          <div id="favorite" v-if="authStore.isLoggedIn">
+            <img
+              class="favorite-image"
+              src="../../../../assets/img/favorite-filled.png"
+              v-if="hasFavorite"
+              @click="toggleFavorite()"
+            />
+            <img
+              class="favorite-image"
+              src="../../../../assets/img/favorite-empty.png"
+              v-else
+              @click="toggleFavorite()"
+            />
+          </div>
         </div>
         <div class="info-box">
           <p class="lot-small">리뷰 {{ currentLotInfo.reviewCount }}개</p>
@@ -70,6 +87,8 @@
 <script>
 import axios from 'axios'
 import router from '@/router'
+import { useRoute } from 'vue-router'
+import { AuthStore } from '@/stores/store'
 
 export default {
   props: {
@@ -84,7 +103,10 @@ export default {
   },
   data() {
     return {
-      currentLotInfo: {} // 현재 표시할 주차장 정보
+      currentLotInfo: {}, // 현재 표시할 주차장 정보
+      route: useRoute(),
+      authStore: AuthStore(),
+      hasFavorite: null
     }
   },
   watch: {
@@ -109,7 +131,6 @@ export default {
       })
         .then((response) => {
           this.currentLotInfo = { ...response.data }
-          console.log(this.currentLotInfo)
         })
         .catch(function (e) {
           console.error(e)
@@ -117,12 +138,53 @@ export default {
     },
     toDetail() {
       router.push(`/lot/${this.lotInfo.lotId}`)
+    },
+    async getHasFavorite() {
+      await axios({
+        method: 'get',
+        url: '/api/protected/favorite/check',
+        params: {
+          parkingLotId: this.lotInfo.lotId
+        },
+        headers: {
+          Authorization: `Bearer ${this.authStore.token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+        .then((response) => {
+          this.hasFavorite = response.data.hasFavorite
+        })
+        .catch(function (e) {
+          console.error(e)
+        })
+    },
+    async toggleFavorite() {
+      await axios({
+        method: 'post',
+        url: '/api/protected/favorite/toggle',
+        params: {
+          parkingLotId: this.lotInfo.lotId
+        },
+        headers: {
+          Authorization: `Bearer ${this.authStore.token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+        .then((response) => {
+          this.hasFavorite = response.data.toggleResult
+        })
+        .catch(function (e) {
+          console.error(e)
+        })
     }
   },
   mounted() {
     if (this.lotInfo) {
       this.updateLotInfo(this.lotInfo)
     }
+
+    const re = this.getHasFavorite()
+    console.log(re)
   }
 }
 </script>
@@ -249,5 +311,28 @@ export default {
 
 p {
   margin: 0;
+}
+
+.info-box-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* 세로 정렬을 중앙으로 */
+  margin-bottom: 10px;
+}
+
+#name-address {
+  width: auto; /* 가변 너비로 설정 */
+  flex-grow: 1; /* 가능한 공간을 채움 */
+}
+
+#favorite {
+  width: auto;
+  display: flex;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+}
+
+.favorite-image {
+  width: 30px;
+  height: 30px;
 }
 </style>
