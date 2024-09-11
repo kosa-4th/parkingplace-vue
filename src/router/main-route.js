@@ -5,6 +5,7 @@
  ---------------------
  2024.09.02 양건모 | 루트 작성, 등록
  2024.09.11 김경민 | 예약 및 결제 관련 라우터 추가
+ 2024.09.11 양건모 | reservation 관련 path 변경
  */
 
 import OwnerCmp from '@/components/contents/owner/OwnerCmp.vue'
