@@ -91,12 +91,7 @@ const autoResize = (event) => {
 //리뷰 불러오기
 const getReviews = async () => {
   try {
-    const response = await axios.get(`/api/parkinglots/${parkinglotId}/reviews`, {
-      params: {
-        page: page.value - 1,
-        size: size
-      }
-    });
+    const response = await axios.get(`/api/parkinglots/${parkinglotId}/reviews?page=${page.value -1}&size=${size}`);
     console.log(response.data);
     const newReviews = response.data.reviews.map(review => ({
       ...review,

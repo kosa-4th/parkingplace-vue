@@ -15,8 +15,9 @@ import OwnerReservationCmp from '@/components/contents/owner/OwnerReservationCmp
 import LoginCmp from '@/components/contents/user/LoginCmp.vue'
 import LotDetailCmp from '@/components/contents/user/lot/LotDetailCmp.vue'
 import LotDetailHomeCmp from '@/components/contents/user/lot/LotDetailHomeCmp.vue'
-import LotDetailQnaCmp from '@/components/contents/user/lot/LotDetailQnaCmp.vue'
+import LotDetailQnaListCmp from '@/components/contents/user/lot/LotDetailQnaListCmp.vue'
 import LotDetailReviewCmp from '@/components/contents/user/lot/LotDetailReviewCmp.vue'
+import LotDetailDoQnaCmp from '@/components/contents/user/lot/LotDetailDoQnaCmp.vue'
 import UserMapCmp from '@/components/contents/user/map/UserMapCmp.vue'
 import MyAccontCmp from '@/components/contents/user/my/MyAccontCmp.vue'
 import MyCarsCmp from '@/components/contents/user/my/MyCarsCmp.vue'
@@ -62,7 +63,11 @@ export default [
           },
           {
             path: 'inquiry',
-            component: LotDetailQnaCmp
+            component: LotDetailQnaListCmp
+          },
+          {
+            path: 'make-inquiry',
+            component: LotDetailDoQnaCmp
           }
         ]
       },
