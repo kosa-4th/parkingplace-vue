@@ -4,6 +4,7 @@
  설명 : 즐겨찾기한 주차장
  ---------------------
  2024.09.10 양건모 | 기능 구현
+ 2024.09.11 양건모 | api 명세 변경에 따른 요청 url 변경
  -->
 <template>
   <div id="content-wrapper">
@@ -92,6 +93,8 @@ export default {
   },
   methods: {
     async loadFavorites(state) {
+      console.log(this.authStore.getAuth)
+
       await axios({
         method: 'get',
         url: '/api/favorites/protected',
@@ -105,10 +108,8 @@ export default {
       })
         .then((response) => {
           const data = response.data.favorites
-          console.log(response.data)
 
           this.favorites = [...this.favorites, ...data.content]
-          console.log(this.favorites)
           this.page++
           state.loaded()
 
@@ -128,7 +129,7 @@ export default {
     async toggleFavorite(parkingLotId, index) {
       await axios({
         method: 'post',
-        url: '/api/favorites/toggle/protected',
+        url: '/api/favorites/protected',
         params: {
           parkingLotId: parkingLotId
         },

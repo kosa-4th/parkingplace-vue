@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="owner-container">
     <owner-menu-cmp></owner-menu-cmp>
     <router-view></router-view>
   </div>
@@ -12,4 +12,15 @@ export default {
 }
 </script>
 
-<style></style>
+<style scoped>
+.owner-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background-color: whitesmoke; */
+  display: flex;
+  flex-direction: column;
+  font-size: 17px;
+}
+</style>
