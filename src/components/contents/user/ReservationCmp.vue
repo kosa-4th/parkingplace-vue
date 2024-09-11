@@ -6,7 +6,7 @@
     2024.09.03 김경민 | 피그마를 확인 후 DatePicker
     2024.09.07 김경민 | 시간선택 및 전체적인 디자인
     2024.09.08 김경민 | 로그인 시 사용자의 등록된 차량과 주차장정보 불러오기 영업시간에 맞는 데이터 가져오기
-
+    2024.09.09 김경민 | 결제 전까지 구현
 -->
 <template>
   <div class="container">
@@ -177,7 +177,7 @@
     </div>
 
     <div v-if="available">
-      <button class="btn btn-primary" @click="reservationAndPayment">예약하기 및 결제하기</button>
+      <button :disabled=reservationBtn class="btn btn-primary"  @click="reservationAndPayment">예약하기 및 결제하기</button>
     </div>
   </div>
 </template>
@@ -187,6 +187,8 @@ import axios from 'axios'
 export default {
   data() {
     return {
+
+      parkingLotId : null,
       selectedCarNumber: '',  // 선택된 차량 번호
       userCars: [],  // 차량 번호 옵션들
       parkingLotInfo: {
@@ -204,8 +206,9 @@ export default {
       totalFee: 0,
       parkingSpaceId: null,
 
-      paymentShowModal: false, // 모달 창을 위한 상태
-
+      //결제 모달 관련
+      isModalOpen: false,
+      reservationBtn: false,
 
       //DatePicker 관련 변수
       selectedDate: null,
@@ -238,6 +241,8 @@ export default {
     }
   },
   created() {
+    this.parkingLotId = this.$route.params.lotId; // lotId 값을 가져옴
+    console.log(this.parkingLotId)
     this.generateEntranceAvailableHours()
     this.generateExitAvailableHours()
   },
@@ -248,14 +253,9 @@ export default {
     //axios를 통한 데이터 가져오기
     async getReservationLotData() {
       try {
-        //const responseReservationLotData = await axios.get('http://localhost:8080/api/parkingLots/{parkingLotId}/reservation',{
-        const responseReservationLotData = await axios.get('http://localhost:8080/api/parkingLots/reservation', {
-          params: {
-            // 실제로 할 떄 변경해야함.
-            parkingLotId: 1, //this.$route.params.parkingLotId;
-            userEmail: 'test@test.com' //이건 물어보기!!
-          }
-        })
+        const url = `/api/parkingLots/${this.parkingLotId}/reservation/protected`
+        const responseReservationLotData = await axios.get(url);
+
         this.parkingLotInfo = responseReservationLotData.data.parkingLotInfo
         this.userCars = responseReservationLotData.data.userCars
       } catch (error) {
@@ -265,9 +265,8 @@ export default {
       }
     },
     getCheckingParkingAndTotalFee() {
-      const url = 'http://localhost:8080/api/parkingLots/reservation/parkingCheck'
+      const url = `/api/parkingLots/${this.parkingLotId}/reservation/parkingCheck`
       const params = {
-        parkingLotId: 1, //this.$route.params.parkingLotId;
         plateNumber: this.selectedCarNumber,
         startTimeStr: this.entranceDateTimeResult,
         endTimeStr: this.exitDateTimeResult,
@@ -301,10 +300,10 @@ export default {
         })
     },
     reservationAndPayment(){
-        const requestReservationDto = {
-          parkingLotId :1,
+      const url = `/api/parkingLots/${this.parkingLotId}/reservation/protected`
+
+      const requestReservationDto = {
           parkingSpaceId : this.parkingSpaceId,
-          userEmail : 'test@test.com',
           plateNumber : this.selectedCarNumber,
           startTime : this.entranceDateTimeResult,
           endTime : this.exitDateTimeResult,
@@ -326,12 +325,16 @@ export default {
           requestReservationDto.washService = 'N';
         }
       }
-        axios.post('http://localhost:8080/api/parkingLots/reservation/reservation', requestReservationDto)
+
+      axios.post(url, requestReservationDto)
           .then(response => {
             const data =response.data;
             if(data.reservationUuid != null){
-              this.paymentShowModal = true;
+
               alert("결제 가능");
+              //결제모달 ONreservationId
+              window.location.href = `/reservationDetail/${response.data.reservationId}`;
+
             }else {
               alert("예약 실패");
             }
@@ -339,6 +342,10 @@ export default {
             console.log('예약 요청 중 오류 발생:', error)
         });
      },
+    //결제 Modal 닫기
+    closeModal() {
+      this.isModalOpen = false; // 모달 닫기
+    },
 
     // 일요일: 0, 토요일: 6
     checkIfWeekend(date) {
@@ -607,5 +614,3 @@ export default {
   margin-right: 20px;
 }
 </style>
-<script setup>
-</script>

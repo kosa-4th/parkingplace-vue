@@ -1,9 +1,11 @@
 /* 
  담당자: 양건모
  시작 일자: 2024.09.02
- 설명 : 기본 라우터
+ 설명 : 기본 루트
  ---------------------
- 2024.09.02 양건모 | 라우터 작성, 등록
+ 2024.09.02 양건모 | 루트 작성, 등록
+ 2024.09.11 김경민 | 예약 및 결제 관련 라우터 추가
+ 2024.09.11 양건모 | reservation 관련 path 변경
  */
 
 import OwnerCmp from '@/components/contents/owner/OwnerCmp.vue'
@@ -28,6 +30,7 @@ import RegisterCmp from '@/components/contents/user/RegisterCmp.vue'
 import ReservationCmp from '@/components/contents/user/ReservationCmp.vue'
 import UserCmp from '@/components/contents/user/UserCmp.vue'
 import ManagerCmp from '@/components/manager/ManagerCmp.vue'
+import ReservationDetailCmp from '@/components/contents/user/reservation/ReservationDetailCmp.vue'
 
 export default [
   {
@@ -69,6 +72,11 @@ export default [
       {
         path: 'reservation/:lotId',
         component: ReservationCmp,
+        props: true
+      },
+      {
+        path: 'reservation/detail/:reservationId',
+        component: ReservationDetailCmp,
         props: true
       },
       {
