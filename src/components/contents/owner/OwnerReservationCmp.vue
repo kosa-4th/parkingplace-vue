@@ -1,3 +1,12 @@
+<!--
+ 담당자: 양건모
+ 시작 일자: 2024.09.10
+ 설명 : 주차장 업주 대시보드 - 예약 관리
+ ---------------------
+ 2024.09.11 김찬희 | UI 구현
+ 2024.09.11 양건모 | UI 수정
+ 
+-->
 <template>
   <div class="reservation-container">
     <div class="reservation-section">
