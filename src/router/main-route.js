@@ -70,7 +70,7 @@ export default [
         ]
       },
       {
-        path: 'reservation/lot/:lotId',
+        path: 'reservation/:lotId',
         component: ReservationCmp,
         props: true
       },
