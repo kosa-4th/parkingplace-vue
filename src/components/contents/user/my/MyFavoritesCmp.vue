@@ -92,6 +92,8 @@ export default {
   },
   methods: {
     async loadFavorites(state) {
+      console.log(this.authStore.getAuth)
+
       await axios({
         method: 'get',
         url: '/api/favorites/protected',
@@ -105,10 +107,8 @@ export default {
       })
         .then((response) => {
           const data = response.data.favorites
-          console.log(response.data)
 
           this.favorites = [...this.favorites, ...data.content]
-          console.log(this.favorites)
           this.page++
           state.loaded()
 
