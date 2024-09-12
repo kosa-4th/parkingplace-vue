@@ -14,9 +14,6 @@
         :max-date="selectedEndDate"
       />
 
-      <!-- 전체 보기 버튼 -->
-      <button class="view-all-btn" @click="viewAllInquiries">전체 보기</button>
-
       <!-- 두 번째 Datepicker (종료 날짜 선택) -->
       <Datepicker
         class="date-picker"
@@ -29,6 +26,11 @@
         :enable-time-picker="false"
         :min-date="selectedStartDate"
       />
+    </div>
+
+    <!-- 전체 보기 버튼  -->
+    <div class="view-all-btn-box">
+      <button class="view-all-btn" @click="viewAllInquiries">전체 보기</button>
     </div>
 
     <!-- 문의 내역 (날짜 범위에 해당하는 내역만 필터링) -->
@@ -164,7 +166,16 @@ export default {
 }
 
 /* 전체 보기 버튼 스타일 */
+
+.view-all-btn-box {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  /* background-color: red; */
+}
 .view-all-btn {
+  margin-top: 20px; /* 버튼을 Datepicker 아래로 이동시키기 위한 여백 */
   padding: 10px 20px;
   background-color: #007bff;
   color: white;
