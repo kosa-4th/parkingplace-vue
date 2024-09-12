@@ -381,29 +381,26 @@ export default {
           this.parkingLotInfo.weekendOpenTime,
           this.parkingLotInfo.weekendCloseTime
         )
-        this.entranceAvailableMinutes = this.generateAvailableMinutes(true)
         this.exitAvailableHours = this.generateAvailableHours(
           this.parkingLotInfo.weekendOpenTime,
           this.parkingLotInfo.weekendCloseTime
         )
-        this.exitAvailableMinutes = this.generateAvailableMinutes(false)
       } else {
         this.entranceAvailableHours = this.generateAvailableHours(
           this.parkingLotInfo.weekdaysOpenTime,
           this.parkingLotInfo.weekdaysCloseTime
         )
-        this.entranceAvailableMinutes = this.generateAvailableMinutes(true)
         this.exitAvailableHours = this.generateAvailableHours(
           this.parkingLotInfo.weekdaysOpenTime,
           this.parkingLotInfo.weekdaysCloseTime
         )
-        this.entranceAvailableMinutes = this.generateAvailableMinutes(false)
       }
     },
     // 주어진 영업 시작 시간과 종료 시간에 맞는 시간 배열 생성
     generateAvailableHours(openTime, closeTime) {
       //영업시간
       let startHour = parseInt(openTime.split(':')[0], 10)
+      const openMinute = parseInt(openTime.split(':')[1], 10)
       let endHour = parseInt(closeTime.split(':')[0], 10)
 
       //현재 시간
@@ -411,30 +408,64 @@ export default {
 
       if (this.selectedDate.getDate() === this.today.getDate() && nowHour > startHour) {
         startHour = nowHour
-        if (this.today.getMinutes() > 30) {
-          startHour++
-        }
       }
 
       if (startHour > endHour) {
         endHour += 24
       }
 
-      return Array.from({ length: endHour - startHour + 1 }, (_, i) =>
+      const result = Array.from({ length: endHour - startHour + 1 }, (_, i) =>
         (startHour + i).toString().padStart(2, '0')
       )
+
+      if (
+        openMinute > 30 ||
+        (this.selectedDate.getDate() === this.today.getDate() &&
+          this.today.getHours() == startHour &&
+          this.today.getMinutes() > 30)
+      ) {
+        result.splice(0, 1)
+      }
+
+      return result
     },
     generateAvailableMinutes(selectedHour, isEntrance) {
       let minutesArray = [0, 30]
 
-      if (
-        this.selectedDate.getDate() === this.today.getDate() &&
-        selectedHour == this.today.getHours()
-      ) {
-        if (this.today.getMinutes() < 30) {
-          minutesArray = [30]
+      const openTime = this.isWeekend
+        ? this.parkingLotInfo.weekendOpenTime
+        : this.parkingLotInfo.weekdaysOpenTime
+      const closeTime = this.isWeekend
+        ? this.parkingLotInfo.weekendCloseTime
+        : this.parkingLotInfo.weekdaysCloseTime
+
+      const openHour = parseInt(openTime.split(':')[0], 10)
+      let closeHour = parseInt(closeTime.split(':')[0], 10)
+      const closeMinute = parseInt(closeTime.split(':')[1], 10)
+
+      if (closeHour < openHour) {
+        closeHour += 24
+      }
+
+      if (selectedHour == closeHour) {
+        //기본 값
+        if (closeMinute > 30) {
+          minutesArray = [0, 30]
         } else {
-          minutesArray = []
+          minutesArray = [0]
+        }
+
+        //
+      } else {
+        if (
+          this.selectedDate.getDate() === this.today.getDate() &&
+          selectedHour == this.today.getHours()
+        ) {
+          if (this.today.getMinutes() < 30) {
+            minutesArray = [30]
+          } else {
+            minutesArray = []
+          }
         }
       }
 
@@ -585,6 +616,7 @@ export default {
         entranceDateTime.setHours(entranceHour, entranceMinute, 0, 0)
         const exitDateTime = new Date()
         exitDateTime.setHours(exitHour, exitMinute, 0, 0)
+        exitDateTime.setMinutes(exitDateTime.getMinutes() - 1)
 
         // 시간 차이를 밀리초로 계산
         const diffInMs = exitDateTime - entranceDateTime
