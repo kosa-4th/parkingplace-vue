@@ -8,6 +8,7 @@
     2024.09.08 김경민 | 로그인 시 사용자의 등록된 차량과 주차장정보 불러오기 영업시간에 맞는 데이터 가져오기
     2024.09.09 김경민 | 결제 전까지 구현
     2024.09.11 양건모 | 입출차 시간 출력 로직 버그 수정
+    2024.09.12 양건모 | 예약 가능 시간 출력 로직 재작성(현재 날짜와 시각을 고려해 예약 가능 시간 출력 변경)
 -->
 <template>
   <div class="container">
@@ -52,7 +53,12 @@
             <button
               v-for="hour in entranceAvailableHours"
               :key="hour"
-              @click="selectEntranceHour(hour)"
+              @click="
+                () => {
+                  selectEntranceHour(hour)
+                  generateAvailableMinutes(hour, true)
+                }
+              "
               :class="['time-picker-btn', { selected: hour === selectedEntranceHour }]"
             >
               {{ hour }}
@@ -61,13 +67,13 @@
         </div>
       </div>
       <hr />
-      <div class="row g-0">
+      <div class="row g-0" v-if="selectedEntranceHour">
         <div class="col-12 col-md-12">
           <div class="time-picker-grid text-center">
             <button
               v-for="minute in entranceAvailableMinutes"
               :key="minute"
-              @click="selectEntranceMinute(minute)"
+              @click="() => selectEntranceMinute(minute)"
               :class="['time-picker-btn', { selected: minute === selectedEntranceMinute }]"
             >
               {{ minute < 10 ? '0' + minute : minute }}
@@ -90,7 +96,12 @@
             <button
               v-for="hour in exitAvailableHours"
               :key="hour"
-              @click="selectExitHour(hour)"
+              @click="
+                () => {
+                  selectExitHour(hour)
+                  generateAvailableMinutes(hour, false)
+                }
+              "
               :class="['time-picker-btn', { selected: hour === selectedExitHour }]"
             >
               {{ hour }}
@@ -99,7 +110,7 @@
         </div>
       </div>
       <hr />
-      <div class="row g-0">
+      <div class="row g-0" v-if="selectedExitHour">
         <div class="col-12 col-md-12">
           <div class="time-picker-grid text-center">
             <!-- 출차 시간을 선택하는 버튼 -->
@@ -123,19 +134,19 @@
     <div class="row" v-if="isTimeSelected">
       <div class="col-md-3">
         <label>입차일자</label>
-        <Strong>{{ formattedSelectedDate }}</Strong>
+        <strong>{{ formattedSelectedDate }}</strong>
       </div>
       <div class="col-md-3">
         <label>총 주차시간</label>
-        <Strong>{{ totalTime }}</Strong>
+        <strong>{{ totalTime }}</strong>
       </div>
       <div class="col-md-3">
         <label>입차시간</label>
-        <Strong>{{ selectedEntranceTime }}</Strong>
+        <strong>{{ selectedEntranceTime }}</strong>
       </div>
       <div class="col-md-3">
         <label>출차시간</label>
-        <Strong>{{ selectedExitTime }}</Strong>
+        <strong>{{ selectedExitTime }}</strong>
       </div>
     </div>
 
@@ -236,7 +247,7 @@ export default {
 
       // 입차 시간 관련 데이터
       entranceAvailableHours: [], // 입차 가능한 시간 배열
-      entranceAvailableMinutes: [0, 30], // 입차 가능한 분 배열
+      entranceAvailableMinutes: [], // 입차 가능한 분 배열
       selectedEntranceHour: null,
       selectedEntranceMinute: null,
       entranceDateTimeResult: '',
@@ -244,7 +255,7 @@ export default {
 
       // 출차 시간 관련 데이터
       exitAvailableHours: [], // 출차 가능한 시간 배열
-      exitAvailableMinutes: [0, 30], // 출차 가능한 분 배열
+      exitAvailableMinutes: [], // 출차 가능한 분 배열
       selectedExitHour: null,
       selectedExitMinute: null,
       totalReservationTime: 0
@@ -253,8 +264,8 @@ export default {
   created() {
     this.parkingLotId = this.$route.params.lotId // lotId 값을 가져옴
     console.log(this.parkingLotId)
-    this.generateEntranceAvailableHours()
-    this.generateExitAvailableHours()
+    // this.generateEntranceAvailableHours()
+    // this.generateExitAvailableHours()
   },
   mounted() {
     this.getReservationLotData()
@@ -370,55 +381,83 @@ export default {
           this.parkingLotInfo.weekendOpenTime,
           this.parkingLotInfo.weekendCloseTime
         )
+        this.entranceAvailableMinutes = this.generateAvailableMinutes(true)
         this.exitAvailableHours = this.generateAvailableHours(
           this.parkingLotInfo.weekendOpenTime,
           this.parkingLotInfo.weekendCloseTime
         )
+        this.exitAvailableMinutes = this.generateAvailableMinutes(false)
       } else {
         this.entranceAvailableHours = this.generateAvailableHours(
           this.parkingLotInfo.weekdaysOpenTime,
           this.parkingLotInfo.weekdaysCloseTime
         )
+        this.entranceAvailableMinutes = this.generateAvailableMinutes(true)
         this.exitAvailableHours = this.generateAvailableHours(
           this.parkingLotInfo.weekdaysOpenTime,
           this.parkingLotInfo.weekdaysCloseTime
         )
+        this.entranceAvailableMinutes = this.generateAvailableMinutes(false)
       }
     },
     // 주어진 영업 시작 시간과 종료 시간에 맞는 시간 배열 생성
     generateAvailableHours(openTime, closeTime) {
-      const startHour = parseInt(openTime.split(':')[0], 10)
+      //영업시간
+      let startHour = parseInt(openTime.split(':')[0], 10)
       let endHour = parseInt(closeTime.split(':')[0], 10)
 
-      if (startHour > endHour) {
-        console.log('시작 시간이 앞선다')
-        endHour += 24
+      //현재 시간
+      const nowHour = this.today.getHours()
+
+      if (this.selectedDate.getDate() === this.today.getDate() && nowHour > startHour) {
+        startHour = nowHour
+        if (this.today.getMinutes() > 30) {
+          startHour++
+        }
       }
 
-      Array.from({ length: endHour - startHour + 1 }, (_, i) =>
-        (startHour + i).toString().padStart(2, '0')
-      ).forEach((element) => {
-        console.log(element)
-      })
+      if (startHour > endHour) {
+        endHour += 24
+      }
 
       return Array.from({ length: endHour - startHour + 1 }, (_, i) =>
         (startHour + i).toString().padStart(2, '0')
       )
     },
-    // 입차 가능한 시간 생성
-    generateEntranceAvailableHours() {
-      this.entranceAvailableHours = Array.from(
-        { length: this.entranceBusinessEndTime - this.entranceBusinessStartTime + 1 },
-        (_, i) => (this.entranceBusinessStartTime + i).toString().padStart(2, '0')
-      )
+    generateAvailableMinutes(selectedHour, isEntrance) {
+      let minutesArray = [0, 30]
+
+      if (
+        this.selectedDate.getDate() === this.today.getDate() &&
+        selectedHour == this.today.getHours()
+      ) {
+        if (this.today.getMinutes() < 30) {
+          minutesArray = [30]
+        } else {
+          minutesArray = []
+        }
+      }
+
+      if (isEntrance) {
+        this.entranceAvailableMinutes = minutesArray
+      } else {
+        this.exitAvailableMinutes = minutesArray
+      }
     },
-    // 출차 가능한 시간 생성
-    generateExitAvailableHours() {
-      this.exitAvailableHours = Array.from(
-        { length: this.exitBusinessEndTime - this.exitBusinessStartTime + 1 },
-        (_, i) => (this.exitBusinessStartTime + i).toString().padStart(2, '0')
-      )
-    },
+    // // 입차 가능한 시간 생성
+    // generateEntranceAvailableHours() {
+    //   this.entranceAvailableHours = Array.from(
+    //     { length: this.entranceBusinessEndTime - this.entranceBusinessStartTime + 1 },
+    //     (_, i) => (this.entranceBusinessStartTime + i).toString().padStart(2, '0')
+    //   )
+    // },
+    // // 출차 가능한 시간 생성
+    // generateExitAvailableHours() {
+    //   this.exitAvailableHours = Array.from(
+    //     { length: this.exitBusinessEndTime - this.exitBusinessStartTime + 1 },
+    //     (_, i) => (this.exitBusinessStartTime + i).toString().padStart(2, '0')
+    //   )
+    // },
     selectEntranceHour(hour) {
       this.selectedEntranceHour = hour
     },
