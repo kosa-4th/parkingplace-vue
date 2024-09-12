@@ -115,6 +115,7 @@ const handelSignup = () => {
 const HandelLogout = () => {
   isSidebarOpen.value = !isSidebarOpen.value
   logout()
+  router.push("/")
 }
 
 watchEffect(() => {
