@@ -11,7 +11,6 @@
           <p>혜화주차장님</p>
           <!-- 사용자 전체 이름 표시 -->
         </div>
-
         <!-- 메뉴 항목 리스트 -->
         <ul>
           <!-- v-for을 사용하여 menuItems 배열을 반복 렌더링 -->
@@ -55,6 +54,9 @@ export default {
 </script>
 
 <style scoped>
+p {
+  margin-bottom: 10px;
+}
 /* 사용자 이름이 들어가는 원형 아이콘 */
 .owner-name-circle {
   display: flex;
@@ -62,9 +64,10 @@ export default {
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 50%; /* 원형으로 만들기 */
+  border-radius: 100%; /* 원형으로 만들기 */
   background-color: #9a64e8; /* 아이콘 배경색 */
   margin-bottom: 10px;
+  margin-right: 10px;
 }
 
 /* 원형 아이콘 내부 텍스트 */
@@ -102,10 +105,10 @@ export default {
 /* 사용자 이름과 아이콘이 들어간 박스 */
 .owner-name-box {
   display: flex;
-  flex-direction: column; /* 세로 방향으로 정렬 */
+  flex-direction: row;
   align-items: center; /* 중앙 정렬 */
   color: #9a64e8; /* 텍스트 색상 */
-  height: 200px; /* 높이 설정 */
+  height: 100px;
   justify-content: center; /* 가운데 정렬 */
 }
 
