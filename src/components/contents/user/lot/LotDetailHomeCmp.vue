@@ -7,20 +7,23 @@
   <div class="home-detail">
     <!-- 주소 -->
     <div class="detail-item">
-      <i class="icon location"></i>
+      <!-- <i class="icon location"></i> -->
+      <img src="@/assets/img/icon-position.png" alt="Location Icon" class="icon">
       <p>{{ parkingLotDetail.address }}</p>
     </div>
 
     <!-- 전화번호 -->
-    <div class="detail-item">
-      <i class="icon phone"></i>
+    <div class="detail-item" v-if="!parkingLotDetail.phone==''">
+      <!-- <i class="icon phone"></i> -->
+      <img src="@/assets/img/icon-call.png" alt="Phone Icon" class="icon">
       <p>{{ parkingLotDetail.phone }}</p>
     </div>
 
     <!-- 영업시간 -->
     <div class="detail-item-col">
       <div>
-        <i class="icon clock"></i>
+        <!-- <i class="icon clock"></i> -->
+        <img src="@/assets/img/icon-clock.png" alt="Clock Icon" class="icon">
         <p>영업시간</p>
         <!-- <p>영업시간</p> -->
       </div>
@@ -32,7 +35,8 @@
     <div class="detail-item-col">
       
       <div>
-        <i class="icon price"></i>
+        <!-- <i class="icon price"></i> -->
+        <img src="@/assets/img/icon-won.png" alt="Price Icon" class="icon">
         <p>가격</p>
       </div>
         <p>평일 {{ lib.getNumberFormatted(parkingLotDetail.weekdayPrice) }}원</p>
@@ -67,6 +71,7 @@ const toReservation = function () {
 <style scoped>
 .home-detail {
   width: 90%;
+  max-width: 700px;
   /* padding: 20px; */
   display: flex;
   flex-direction: column;
@@ -79,11 +84,15 @@ const toReservation = function () {
   align-items: center;
 }
 
-i {
+/* i {
   font-size: 20px;
   margin-right: 10px;
+} */
+.icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
 }
-
 .detail-item p {
   margin: 0;
 }
@@ -108,7 +117,7 @@ i {
   padding-left: 38px;
 }
 
-.icon.location::before {
+/* .icon.location::before {
   content: '📍';
 }
 
@@ -122,7 +131,7 @@ i {
 
 .icon.price::before {
   content: '💰';
-}
+} */
 
 .reservation-button {
   background-color: #9a64e8;

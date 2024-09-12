@@ -32,7 +32,11 @@
         </div>
         <div class="sidebar-content">
           <div v-if="isLoggedIn">
-            <p @click="handleAccount">{{ username }} 님 안녕하세요!</p>
+            <div class="menu">메뉴</div>
+            <div class="user-box" @click="handleAccount">
+              <div><strong>{{ username }}</strong> 님 안녕하세요!</div>
+            </div>
+            <hr>
             <!-- 로그인 상태일 때 -->
             <ul class="list-unstyled">
               <li>
@@ -49,16 +53,24 @@
                 </router-link>
               </li>
               <li><router-link to="/my/reviews" @click="closeNavigation">내 리뷰</router-link></li>
-              <li @click="HandelLogout">로그아웃</li>
+              <li>
+                <span class="logout" @click="HandelLogout">로그아웃</span>
+              </li> 
             </ul>
           </div>
+
+
           <!-- 비로그인 상태일 때 -->
-          <div v-else>
-            <p>로그인이 필요합니다</p>
-            <ul class="list-unstyled">
-              <li><a href="#" @click="handelSignup">회원가입</a></li>
-              <li><a href="#" @click="handleLogin">로그인</a></li>
-            </ul>
+          <div v-else class="unloggedin">
+
+            <div class="unlogggedin-info">
+              더 많은 서비스 이용을 원하신다면<br />
+              로그인해 주세요.
+            </div>
+            <button class="login-btn" @click="handleLogin">로그인하러 가기</button>
+            <p class="nav"><span>아직 계정이 없으신가요?</span><router-link class="nav-register" to="/register" @click="closeNavigation">간편 가입하기</router-link></p>
+
+
           </div>
         </div>
       </div>
@@ -69,17 +81,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watchEffect } from 'vue'
+import { ref, onMounted, watchEffect, computed } from 'vue'
 import { AuthStore } from '@/stores/store'
 import { useRouter } from 'vue-router'
 import { logout } from '@/service/authService'
 
-const isSidebarOpen = ref(false)
-const isLoggedIn = ref(false)
-const username = ref('')
+const isSidebarOpen = ref(false);
+const isLoggedIn = ref(false);
 
-const router = useRouter()
-const authStore = AuthStore()
+const router = useRouter();
+const authStore = AuthStore();
+
+const username = computed(() => authStore.getUsername);
 
 const closeNavigation = () => {
   isSidebarOpen.value = false
@@ -88,18 +101,6 @@ const closeNavigation = () => {
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value
 }
-
-//비활성화 -> 양건모
-// const handleAccount = () => {
-//   isSidebarOpen.value = !isSidebarOpen.value
-//   router.push('/my')
-// }
-
-//비활성화 -> 양건모
-// const handleCar = () => {
-//   isSidebarOpen.value = !isSidebarOpen.value
-//   router.push('/my/cars')
-// }
 
 const handleLogin = () => {
   isSidebarOpen.value = !isSidebarOpen.value
@@ -126,6 +127,17 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.menu {
+  font-size: 25px;
+  font-weight: 700;
+}
+.user-box {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  margin: 10px 0;
+  padding: 10px;
+}
 .navbar {
   height: 50px;
 }
@@ -146,14 +158,14 @@ onMounted(() => {
   width: 100%;
   max-width: 400px;
   height: 100%;
-  background: #f8f9fa;
+  background: #EBEBEB;
   z-index: 1050;
   transition: left 0.3s ease;
 }
 
 .sidebar.active {
   left: 0;
-  background-color: #d8d7d7;
+  background-color: #EBEBEB;
 }
 
 .sidebar-header {
@@ -164,6 +176,8 @@ onMounted(() => {
 
 .sidebar-content {
   padding: 15px;
+  margin: 20px auto;
+  width: 90%;
 }
 
 .sidebar-content ul {
@@ -173,15 +187,21 @@ onMounted(() => {
 
 .sidebar-content ul li a {
   display: block;
-  padding: 10px;
+  padding: 10px 0;
   color: #212529;
   text-decoration: none;
 }
 
 /* hover -> 선택 된 배색  */
 .sidebar-content ul li a:hover {
-  background-color: #e9ecef;
+  background-color: #EBEBEB;
   color: #7b2ca6;
+}
+
+.logout {
+  display: block;
+  font-size: 13px;
+  margin-top: 30px;
 }
 
 /* 오버레이 스타일 */
@@ -193,5 +213,51 @@ onMounted(() => {
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   z-index: 1040;
+}
+
+.unloggedin {
+  display: flex;
+  flex-direction: column;
+}
+.unlogggedin-info {
+  width: 100%;
+  background-color: white;
+  border: 1px solid #9A64E8;
+  border-radius: 3px;
+  height: 150px;
+  padding: auto;
+  margin: 30px auto;
+
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center
+}
+
+.login-btn {
+  width: 100%;
+  margin:0 auto 20px;
+  height: 40px;
+  background-color: #9A64E8;
+  color: white;
+  border-radius: 5px;
+  border: none;
+}
+
+.nav {
+  display: flex;
+  flex-direction: row;
+  font-size: 13px;
+  gap: 10px;
+  margin: auto;
+}
+
+.nav span {
+  display: block;
+}
+
+.nav-register {
+  color: black;
+  font-weight: 600;
 }
 </style>
