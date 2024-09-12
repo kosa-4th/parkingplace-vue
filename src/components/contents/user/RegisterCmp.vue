@@ -88,6 +88,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue';
+import router from '@/router';
 import axios from 'axios';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
@@ -194,12 +195,13 @@ const handleSignup = async () => {
     try {
       const response = await axios.post("/api/users", user);
       console.log(response.data);
-      if (response.data.message === "success") {
+      if (response.status === 204 ) {
         // alert("회원가입이 완료되었습니다.");
         modal.modalTitle = 'info';
         modal.modalMessage = '회원가입이 성공적으로 완료되었습니다!!!!!!!!!!!!!!!!!!!!!!!!!!!!';
         modal.modalPath = '/';
         modal.isModalVisible = true;
+        router.push('/login');
       }
     } catch (error) {
       console.error(error);
