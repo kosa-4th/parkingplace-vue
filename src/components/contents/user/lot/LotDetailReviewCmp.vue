@@ -13,10 +13,13 @@
       <button class="submit-btn" @click="registerReview">리뷰 등록</button>
     </div>
 
-    <hr>
+    <div v-if="reviews.length == 0" class="no-review">
+      작성된 리뷰가 없습니다
+    </div>
 
     <!-- 리뷰목록 -->
-    <div class="review-items">
+    <div v-else class="review-items">
+      <hr>
       <div v-for="(review, index) in reviews" :key="index" class="review-item">
         <div>
           <span class="review-reviewer">{{ review.reviewer }}</span> | <span class="review-date">{{ review.reviewDate }}</span>
@@ -229,9 +232,27 @@ textarea.read-only-textarea {
 
 .review-detail {
   width: 90%;
+  max-width: 700px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-height: 300px;
+}
+
+.no-review {
+  width: 100%;
+  height: 50px;
+  margin: 0 auto;
+  padding: auto;
+  border-left: 2px solid #9a64e8;
+  border-right: 3px solid #9a64e8;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  font-weight: 700;
+  margin-top: 20px;
+  color: #757575;
 }
 
 .review-input {

@@ -23,7 +23,20 @@
         |
         <div class="parking-type">{{ parkingLotDetail.parkingLotType }}</div>
       </div>
-      <div>별</div>
+      <div id="favorite" v-if="authStore.isLoggedIn">
+        <img
+          class="favorite-image" 
+          src="../../../../assets/img/favorite-filled.png"
+          v-if="hasFavorite"
+          @click="toggleFavorite()"
+        />
+        <img
+          class="favorite-image" 
+          src="../../../../assets/img/favorite-empty.png"
+          v-else
+          @click="toggleFavorite()"
+        />
+      </div>
     </div>
 
     <!-- 탭 버튼 -->
@@ -43,7 +56,9 @@ import { ref, computed, onMounted } from 'vue';
 import {Swiper, SwiperSlide } from 'swiper/vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
+import { AuthStore } from '@/stores/store';
 
+const authStore = AuthStore();
 const route = useRoute();
 const parkinglotId = route.params.lotId;
 
@@ -52,6 +67,7 @@ const parkingLotDetail = ref([]);
 const images = ref([]);
 
 const hasImages = computed(() => images.value.length > 0);
+const hasFavorite = ref(false);
 
 const getParkingLotDetails = async () => {
   try {
@@ -59,9 +75,15 @@ const getParkingLotDetails = async () => {
     const response = await axios.get(`/api/parkinglots/${parkinglotId}`);
     console.log(response.data);
     parkingLotDetail.value = response.data;
+    getHasFavorite();
   } catch (error) {
     console.log(error);
   }
+}
+
+const getHasFavorite = async () => {
+  const response = await axios.get(`/api/favorites/parkingLot/${parkinglotId}/protected`);
+  hasFavorite.value = response.data.hasFavorite;
 }
 
 onMounted(() => {
@@ -70,6 +92,19 @@ onMounted(() => {
 
 
 const isActiveTab = (tab) => route.path.includes(tab);
+
+const toggleFavorite = async () => {
+  const response = await axios.post('/api/favorites/protected', null, {
+    params: {
+      parkingLotId: parkinglotId
+    },
+    headers: {
+      Authorization: `Bearer ${authStore.token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  hasFavorite.value = response.data.toggleResult;
+}
 </script>
 
 <style scoped>
@@ -78,6 +113,7 @@ const isActiveTab = (tab) => route.path.includes(tab);
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-width: 700;
 }
 
 .image-slider {
@@ -153,5 +189,16 @@ const isActiveTab = (tab) => route.path.includes(tab);
 .tab-buttons .tab:hover {
   background-color: white;
   color: #9A64E8;
+}
+
+#favorite {
+  width: auto;
+  display: flex;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+}
+
+.favorite-image {
+  width: 30px;
+  height: 30px;
 }
 </style>

@@ -51,6 +51,21 @@ export const AuthStore = defineStore('userAuth', {
     },
     getAuth: (state) => {
       return jwtDecode(state.token).role
+    },
+    getUsername: (state) => {
+      if (state.username && state.username !== '') {
+        return state.username;
+      }
+
+      if (state.token) {
+        try {
+          return jwtDecode(state.token).name;
+        } catch (error) {
+          console.error("토큰 이상..");
+          return '';
+        }
+      }
+      return '';
     }
   }
 })

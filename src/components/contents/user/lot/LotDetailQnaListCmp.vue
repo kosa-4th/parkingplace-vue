@@ -2,9 +2,9 @@
   <div class="inquriy-container">
     <button class="inquiry-btn" @click="navigateToMakeInquiry">문의하기</button>
 
-    <div v-if="inquiries.length === 0">작성된 문의가 없습니다.</div>
+    <div class="no-inquiry" v-if="inquiries.length === 0">작성된 문의가 없습니다</div>
 
-    <div class="inquiries">
+    <div v-else class="inquiries">
     <div 
       v-for="(inquiry, index) in inquiries" 
       :key="index"
@@ -19,7 +19,10 @@
           <div>
             <span class="inquirer">{{ inquiry.inquirer }}</span> | <span class="inquiry-date">{{  inquiry.inquiryDate }}</span>
           </div>
-          <span class="arrow">{{ selectedInquiry === index && inquiry.answerDate ? '∧' : '∨' }}</span>
+          <!-- <span class="arrow">{{ selectedInquiry === index && inquiry.answerDate ? '∧' : '∨' }}</span> -->
+          <span class="arrow material-symbols-outlined">
+            {{ selectedInquiry === index && inquiry.answerDate ? 'expand_less' : 'expand_more' }}
+          </span>
         </div>
         <div
           class="inquiry-text"
@@ -96,6 +99,8 @@ onMounted(() => {
   width: 90%;
   display: flex;
   flex-direction: column;
+  max-width: 700px;
+  min-height: 300px;
 }
 
 button {
@@ -106,6 +111,22 @@ button {
   border-radius: 5px;
   height: 40px;
   margin-bottom: 20px;
+}
+
+.no-inquiry {
+  width: 100%;
+  height: 50px;
+  margin: 0 auto;
+  padding: auto;
+  border-left: 2px solid #9a64e8;
+  border-right: 3px solid #9a64e8;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  font-weight: 700;
+  margin-top: 15px;
+  color: #757575;
 }
 
 .inquiries {
