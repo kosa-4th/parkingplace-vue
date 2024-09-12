@@ -18,8 +18,12 @@
 
     <!-- 주차장 정보 -->
     <div class="parking-info">
-      <h2>{{ parkingLotDetail.parkingLotName }}</h2>
-      <p>{{ parkingLotDetail.parkingLotType }}</p>
+      <div>
+        <div class="parking-name">{{ parkingLotDetail.parkingLotName }}</div>
+        |
+        <div class="parking-type">{{ parkingLotDetail.parkingLotType }}</div>
+      </div>
+      <div>별</div>
     </div>
 
     <!-- 탭 버튼 -->
@@ -70,10 +74,10 @@ const isActiveTab = (tab) => route.path.includes(tab);
 
 <style scoped>
 .parking-detail {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
 }
 
 .image-slider {
@@ -98,8 +102,29 @@ const isActiveTab = (tab) => route.path.includes(tab);
 }
 
 .parking-info {
-  text-align: center;
-  margin-bottom: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.parking-info div {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+}
+
+.parking-name {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.parking-type {
+  font-size: 12px;
 }
 
 .tab-buttons {
@@ -107,25 +132,26 @@ const isActiveTab = (tab) => route.path.includes(tab);
   justify-content: space-around;
   width: 100%;
   margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
 }
 
 .tab-buttons .tab {
-  padding: 10px 20px;
+  padding: 15px 5px;
   text-decoration: none;
-  background-color: #ddd;
+  background-color: white;
   cursor: pointer;
   color: black;
-  font-weight: bold;
-  border-radius: 5px;
 }
 
 .tab-buttons .tab.active {
-  background-color: #a663cc;
-  color: white;
+  background-color: white;
+  color: #9A64E8;
+  font-weight: 700;
+  border-bottom: 2px solid #757575;
 }
 
 .tab-buttons .tab:hover {
-  background-color: #a663cc;
-  color: white;
+  background-color: white;
+  color: #9A64E8;
 }
 </style>

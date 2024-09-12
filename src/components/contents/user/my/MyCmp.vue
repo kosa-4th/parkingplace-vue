@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h3>MyCmp</h3>
     <router-view></router-view>
   </div>
 </template>

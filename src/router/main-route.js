@@ -1,10 +1,11 @@
 /* 
  담당자: 양건모
  시작 일자: 2024.09.02
- 설명 : 기본 라우터
+ 설명 : 기본 루트
  ---------------------
- 2024.09.02 양건모 | 라우터 작성, 등록
- 2024.09.11 예약 및 결제 관련 라우터 추가
+ 2024.09.02 양건모 | 루트 작성, 등록
+ 2024.09.11 김경민 | 예약 및 결제 관련 라우터 추가
+ 2024.09.11 양건모 | reservation 관련 path 변경
  */
 
 import OwnerCmp from '@/components/contents/owner/OwnerCmp.vue'
@@ -16,8 +17,9 @@ import OwnerReservationCmp from '@/components/contents/owner/OwnerReservationCmp
 import LoginCmp from '@/components/contents/user/LoginCmp.vue'
 import LotDetailCmp from '@/components/contents/user/lot/LotDetailCmp.vue'
 import LotDetailHomeCmp from '@/components/contents/user/lot/LotDetailHomeCmp.vue'
-import LotDetailQnaCmp from '@/components/contents/user/lot/LotDetailQnaCmp.vue'
+import LotDetailQnaListCmp from '@/components/contents/user/lot/LotDetailQnaListCmp.vue'
 import LotDetailReviewCmp from '@/components/contents/user/lot/LotDetailReviewCmp.vue'
+import LotDetailDoQnaCmp from '@/components/contents/user/lot/LotDetailDoQnaCmp.vue'
 import UserMapCmp from '@/components/contents/user/map/UserMapCmp.vue'
 import MyAccontCmp from '@/components/contents/user/my/MyAccontCmp.vue'
 import MyCarsCmp from '@/components/contents/user/my/MyCarsCmp.vue'
@@ -64,7 +66,11 @@ export default [
           },
           {
             path: 'inquiry',
-            component: LotDetailQnaCmp
+            component: LotDetailQnaListCmp
+          },
+          {
+            path: 'make-inquiry',
+            component: LotDetailDoQnaCmp
           }
         ]
       },
@@ -74,7 +80,7 @@ export default [
         props: true
       },
       {
-        path: 'reservationDetail/:reservationId',
+        path: 'reservation/detail/:reservationId',
         component: ReservationDetailCmp,
         props: true
       },

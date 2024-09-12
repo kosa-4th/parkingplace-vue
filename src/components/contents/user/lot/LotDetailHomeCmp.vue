@@ -18,23 +18,26 @@
     </div>
 
     <!-- 영업시간 -->
-    <div class="detail-item">
-      <i class="icon clock"></i>
+    <div class="detail-item-col">
       <div>
+        <i class="icon clock"></i>
         <p>영업시간</p>
+        <!-- <p>영업시간</p> -->
+      </div>
         <p>평일 {{ parkingLotDetail.weekdayTime }}</p>
         <p>주말 {{ parkingLotDetail.weekendTime }}</p>
-      </div>
     </div>
 
     <!-- 가격 -->
-    <div class="detail-item">
-      <i class="icon price"></i>
+    <div class="detail-item-col">
+      
       <div>
+        <i class="icon price"></i>
         <p>가격</p>
+      </div>
         <p>평일 {{ lib.getNumberFormatted(parkingLotDetail.weekdayPrice) }}원</p>
         <p>주말 {{ lib.getNumberFormatted(parkingLotDetail.weekendPrice) }}원</p>
-      </div>
+      
     </div>
 
     <!-- 예약 버튼 -->
@@ -63,10 +66,12 @@ const toReservation = function () {
 
 <style scoped>
 .home-detail {
-  padding: 20px;
+  width: 90%;
+  /* padding: 20px; */
   display: flex;
   flex-direction: column;
   gap: 20px;
+  margin: 10px 0;
 }
 
 .detail-item {
@@ -74,13 +79,33 @@ const toReservation = function () {
   align-items: center;
 }
 
-.detail-item i {
+i {
   font-size: 20px;
   margin-right: 10px;
 }
 
 .detail-item p {
   margin: 0;
+}
+
+.detail-item-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-item-col > div > p {
+  margin: 0;
+}
+
+.detail-item-col > div{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.detail-item-col > p {
+  margin: 0;
+  padding-left: 38px;
 }
 
 .icon.location::before {
@@ -100,14 +125,17 @@ const toReservation = function () {
 }
 
 .reservation-button {
-  background-color: #a663cc;
+  background-color: #9a64e8;
   color: white;
-  padding: 15px 20px;
+  padding: auto;
   border: none;
   border-radius: 5px;
   font-size: 17px;
   cursor: pointer;
   width: 100%;
+  height: 40px;
+  margin-top: 10px;
+  margin-bottom: 20px;
 }
 
 .reservation-button:hover {

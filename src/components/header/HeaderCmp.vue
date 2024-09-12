@@ -4,6 +4,7 @@
  설명 : 메인 헤더 작성
  ---------------------
  2024.09.02 김경민 : 메인 헤더 작성
+ 2024.09.11 양건모 : a 태그 router-link로 변환, 관련 메서드 수정 삭제
  -->
 <template>
   <nav class="navbar bg-light fixed-top">
@@ -31,14 +32,24 @@
         </div>
         <div class="sidebar-content">
           <div v-if="isLoggedIn">
-            <p>{{ username }} 님 안녕하세요!</p>
+            <p @click="handleAccount">{{ username }} 님 안녕하세요!</p>
             <!-- 로그인 상태일 때 -->
             <ul class="list-unstyled">
-              <li><a href="#">내 예약 내역</a></li>
-              <li><a href="#">내 차량 관리</a></li>
-              <li><a href="#">즐겨찾기한 주차장</a></li>
-              <li><a href="#">내 리뷰</a></li>
-              <li><a href="#" @click="HandelLogout">로그아웃</a></li>
+              <li>
+                <router-link to="/my/reservations" @click="closeNavigation"
+                  >내 예약 내역</router-link
+                >
+              </li>
+              <li>
+                <router-link to="/my/cars" @click="closeNavigation">내 차량 관리</router-link>
+              </li>
+              <li>
+                <router-link to="/my/favorites" @click="closeNavigation">
+                  즐겨찾기한 주차장
+                </router-link>
+              </li>
+              <li><router-link to="/my/reviews" @click="closeNavigation">내 리뷰</router-link></li>
+              <li @click="HandelLogout">로그아웃</li>
             </ul>
           </div>
           <!-- 비로그인 상태일 때 -->
@@ -58,45 +69,60 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watchEffect } from 'vue';
-import { AuthStore } from '@/stores/store';
-import { useRouter } from 'vue-router';
-import { logout } from '@/service/authService';
+import { ref, onMounted, watchEffect } from 'vue'
+import { AuthStore } from '@/stores/store'
+import { useRouter } from 'vue-router'
+import { logout } from '@/service/authService'
 
-const isSidebarOpen = ref(false);
-const isLoggedIn = ref(false);
-const username = ref('');
+const isSidebarOpen = ref(false)
+const isLoggedIn = ref(false)
+const username = ref('')
 
-const router = useRouter();
-const authStore = AuthStore();
+const router = useRouter()
+const authStore = AuthStore()
 
-const toggleSidebar = () => {
-  isSidebarOpen.value = !isSidebarOpen.value;
+const closeNavigation = () => {
+  isSidebarOpen.value = false
 }
 
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value
+}
+
+//비활성화 -> 양건모
+// const handleAccount = () => {
+//   isSidebarOpen.value = !isSidebarOpen.value
+//   router.push('/my')
+// }
+
+//비활성화 -> 양건모
+// const handleCar = () => {
+//   isSidebarOpen.value = !isSidebarOpen.value
+//   router.push('/my/cars')
+// }
+
 const handleLogin = () => {
-  isSidebarOpen.value = !isSidebarOpen.value;
-  router.push("/login");
+  isSidebarOpen.value = !isSidebarOpen.value
+  router.push('/login')
 }
 
 const handelSignup = () => {
-  isSidebarOpen.value = !isSidebarOpen.value;
-  router.push("/register");
+  isSidebarOpen.value = !isSidebarOpen.value
+  router.push('/register')
 }
 
 const HandelLogout = () => {
-  isSidebarOpen.value = !isSidebarOpen.value;
-  logout();
+  isSidebarOpen.value = !isSidebarOpen.value
+  logout()
 }
 
 watchEffect(() => {
-  isLoggedIn.value = authStore.isLoggedIn;
+  isLoggedIn.value = authStore.isLoggedIn
 })
 
 onMounted(() => {
-  isLoggedIn.value = authStore.isLoggedIn;
+  isLoggedIn.value = authStore.isLoggedIn
 })
-
 </script>
 
 <style scoped>
@@ -116,8 +142,9 @@ onMounted(() => {
 .sidebar {
   position: fixed;
   top: 0;
-  left: -250px;
-  width: 250px;
+  left: -400px;
+  width: 100%;
+  max-width: 400px;
   height: 100%;
   background: #f8f9fa;
   z-index: 1050;

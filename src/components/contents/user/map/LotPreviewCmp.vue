@@ -1,13 +1,55 @@
+<!-- 
+ 담당자: 양건모
+ 시작 일자: 2024.09.09
+ 설명 : 주차장 프리뷰 컴포넌트
+ ---------------------
+ 2024.09.09 양건모 | 기능 구현
+ 2024.09.10 양건모 | 즐겨찾기 조회, 등록/해제
+ 2024.09.10 양건모 | api 명세 변경에 따른 axios 요청 url 변경
+ 2024.09.11 양건모 | api 명세 변경에 따른 axios 요청 url 변경
+ -->
+
 <template>
   <transition name="slide-up">
     <div v-if="visible" class="bottom-sheet">
       <div class="sheet-header">
-        <span @click="hide">닫기</span>
+        <span @click="hide">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#9A64E8"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            width="24"
+            height="24"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </span>
       </div>
       <div class="sheet-content">
-        <div class="info-box">
-          <h2 class="lot-big">{{ currentLotInfo.name }}</h2>
-          <p class="lot-standard">{{ currentLotInfo.address }}</p>
+        <div class="info-box info-box-flex">
+          <div id="name-address">
+            <h2 class="lot-big">{{ currentLotInfo.name }}</h2>
+            <p class="lot-standard">{{ currentLotInfo.address }}</p>
+          </div>
+          <div id="favorite" v-if="authStore.isLoggedIn">
+            <img
+              class="favorite-image"
+              src="../../../../assets/img/favorite-filled.png"
+              v-if="hasFavorite"
+              @click="toggleFavorite()"
+            />
+            <img
+              class="favorite-image"
+              src="../../../../assets/img/favorite-empty.png"
+              v-else
+              @click="toggleFavorite()"
+            />
+          </div>
         </div>
         <div class="info-box">
           <p class="lot-small">리뷰 {{ currentLotInfo.reviewCount }}개</p>
@@ -21,7 +63,9 @@
             </p>
           </div>
         </div>
+        <br />
         <div class="info-box">
+          <p class="lot-standard" style="text-align: center"><b>요금 안내</b></p>
           <div id="fee-box" v-for="space in currentLotInfo.parkingSpaces" :key="space">
             <p class="lot-standard">
               <b>{{ space.carType }}</b>
@@ -35,7 +79,6 @@
           </div>
         </div>
       </div>
-      <!-- 상세보기 버튼을 하단에 고정 -->
       <div class="sheet-footer">
         <button id="to-detail" @click="toDetail">상세보기</button>
       </div>
@@ -46,6 +89,8 @@
 <script>
 import axios from 'axios'
 import router from '@/router'
+import { useRoute } from 'vue-router'
+import { AuthStore } from '@/stores/store'
 
 export default {
   props: {
@@ -60,7 +105,10 @@ export default {
   },
   data() {
     return {
-      currentLotInfo: {} // 현재 표시할 주차장 정보
+      currentLotInfo: {}, // 현재 표시할 주차장 정보
+      route: useRoute(),
+      authStore: AuthStore(),
+      hasFavorite: null
     }
   },
   watch: {
@@ -85,7 +133,6 @@ export default {
       })
         .then((response) => {
           this.currentLotInfo = { ...response.data }
-          console.log(this.currentLotInfo)
         })
         .catch(function (e) {
           console.error(e)
@@ -93,17 +140,67 @@ export default {
     },
     toDetail() {
       router.push(`/lot/${this.lotInfo.lotId}`)
+    },
+    async getHasFavorite() {
+      await axios({
+        method: 'get',
+        url: '/api/favorites/parkingLot/' + this.lotInfo.lotId + '/protected',
+        headers: {
+          Authorization: `Bearer ${this.authStore.token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+        .then((response) => {
+          this.hasFavorite = response.data.hasFavorite
+        })
+        .catch(function (e) {
+          console.error(e)
+        })
+    },
+    async toggleFavorite() {
+      await axios({
+        method: 'post',
+        url: '/api/favorites/protected',
+        params: {
+          parkingLotId: this.lotInfo.lotId
+        },
+        headers: {
+          Authorization: `Bearer ${this.authStore.token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+        .then((response) => {
+          this.hasFavorite = response.data.toggleResult
+        })
+        .catch(function (e) {
+          console.error(e)
+        })
     }
   },
   mounted() {
     if (this.lotInfo) {
       this.updateLotInfo(this.lotInfo)
     }
+
+    const re = this.getHasFavorite()
+    console.log(re)
   }
 }
 </script>
 
 <style scoped>
+@media (orientation: landscape) {
+  .bottom-sheet {
+    max-width: 800px;
+  }
+}
+
+@media (orientation: portrait) {
+  .bottom-sheet {
+    width: 100%;
+  }
+}
+
 .bottom::-webkit-scrollbar {
   display: none;
 }
@@ -113,7 +210,7 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60dvh;
+  height: 60vh;
   background-color: white;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
@@ -121,7 +218,8 @@ export default {
   transition: transform 0.3s ease;
   z-index: 100;
   display: flex;
-  flex-direction: column; /* flexbox로 구성하여 콘텐츠 영역을 배치 */
+  flex-direction: column;
+  margin: auto;
 }
 
 .sheet-header {
@@ -129,6 +227,8 @@ export default {
   text-align: right;
   background-color: white;
   border-bottom: 1px solid #ddd;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -180,7 +280,7 @@ export default {
 }
 
 .lot-standard {
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .lot-small {
@@ -200,11 +300,38 @@ export default {
 #recent-review {
   width: 100%;
   height: 30px;
-  border-left: 5px solid #9a64e8;
-  border-right: 5px solid #9a64e8;
+  border-left: 2.5px solid #9a64e8;
+  border-right: 2.5px solid #9a64e8;
+}
+
+#recent-review > p {
+  padding-top: 3px;
 }
 
 p {
   margin: 0;
+}
+
+.info-box-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* 세로 정렬을 중앙으로 */
+  margin-bottom: 10px;
+}
+
+#name-address {
+  width: auto; /* 가변 너비로 설정 */
+  flex-grow: 1; /* 가능한 공간을 채움 */
+}
+
+#favorite {
+  width: auto;
+  display: flex;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+}
+
+.favorite-image {
+  width: 30px;
+  height: 30px;
 }
 </style>

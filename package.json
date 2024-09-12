@@ -11,9 +11,10 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@vuepic/vue-datepicker": "^9.0.2",
+    "@vuepic/vue-datepicker": "^9.0.3",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
+    "infinite-loading-vue3-ts": "^1.0.5",
     "jwt-decode": "^4.0.0",
     "pinia": "^2.1.7",
     "swiper": "^11.1.12",
