@@ -355,7 +355,7 @@ export default {
           if (data.reservationUuid != null) {
             alert('결제 가능')
             //결제모달 ONreservationId
-            window.location.href = `/reservationDetail/${response.data.reservationId}`
+            window.location.href = `/reservation/detail/${response.data.reservationId}`
           } else {
             alert('예약 실패')
           }
