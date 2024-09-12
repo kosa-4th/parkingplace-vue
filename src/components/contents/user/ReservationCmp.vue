@@ -442,6 +442,8 @@ export default {
       const openHour = parseInt(openTime.split(':')[0], 10)
       let closeHour = parseInt(closeTime.split(':')[0], 10)
       const closeMinute = parseInt(closeTime.split(':')[1], 10)
+      const nowHour = this.today.getHours()
+      const nowMinute = this.today.getMinutes()
 
       if (closeHour < openHour) {
         closeHour += 24
@@ -455,7 +457,12 @@ export default {
           minutesArray = [0]
         }
 
-        //
+        //당일 예약에 끝 시간을 예약하려는 경우
+        if (this.selectedDate.getDate() === this.today.getDate() && nowHour == selectedHour) {
+          if (nowMinute > 30) {
+            minutesArray = [30]
+          }
+        }
       } else {
         if (
           this.selectedDate.getDate() === this.today.getDate() &&
