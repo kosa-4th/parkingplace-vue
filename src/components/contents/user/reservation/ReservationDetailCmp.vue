@@ -124,19 +124,19 @@ export default {
     async sendPaymentData(rsp) {
       try {
         const response = await axios.post(`/api/payment/${this.reservationId}/complete/protected`, {
-          imp_uid: rsp.imp_uid, // 아임포트 결제 고유번호
+          impUid: rsp.imp_uid, // 아임포트 결제 고유번호
+          merchantUid: rsp.merchant_uid,
           amount: rsp.paid_amount, // 결제 금액
           buyerEmail : rsp.buyer_email,
           buyerName: rsp.buyer_name, // 구매자 이름
-          reciptUrl : rsp.receipt_url,
+          buyerTel: rsp.buyer_tel, // 구매자 이름
+          receiptUrl : rsp.receipt_url,
           status : rsp.status,
           cardName : rsp.cardName,
           cardNumber : rsp.cardNumber,
-
-
+          paidAt : rsp.paid_at,
         });
-        console.log('결제 정보 서버 전송 성공:', response.data);
-        alert('결제 성공! 결제 정보가 서버에 전송되었습니다.');
+        alert('결제 정보 서버 전송 성공:', response.data);
         // 결제 성공 후 성공 페이지로 리다이렉트
         window.location.reload(); // 현재 페이지를 새로고침
       } catch (error) {

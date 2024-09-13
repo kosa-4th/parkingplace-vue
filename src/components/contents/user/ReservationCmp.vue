@@ -9,6 +9,7 @@
     2024.09.09 김경민 | 결제 전까지 구현
     2024.09.11 양건모 | 입출차 시간 출력 로직 버그 수정
     2024.09.12 양건모 | 예약 가능 시간 출력 로직 재작성(현재 날짜와 시각을 고려해 예약 가능 시간 출력 변경)
+    2024.09.13 김경민 | 코드 정리 및 Param -> DTO로 수정
 -->
 <template>
   <div class="container">
@@ -154,31 +155,22 @@
       <!-- 부가서비스 선택 -->
       <div class="col-md-6">
         <label>부가서비스</label>
-        <div
-          class="form-check form-check-inline"
-          v-if="
-            parkingLotInfo.wash == 'Y' ||
-            parkingLotInfo.wash == true ||
-            parkingLotInfo.wash == false
-          "
-        >
-          <input class="form-check-input" type="checkbox" id="wash" v-model="parkingLotInfo.wash" />
+        <!-- 세차 체크박스 -->
+        <div class="form-check form-check-inline" v-if="parkingLotInfo.wash === 'Y'">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="wash"
+            v-model="washChecked" />
           <label class="form-check-label" for="wash">세차</label>
         </div>
-        <div
-          class="form-check form-check-inline"
-          v-if="
-            parkingLotInfo.maintenance == 'Y' ||
-            parkingLotInfo.maintenance == true ||
-            parkingLotInfo.maintenance == false
-          "
-        >
+        <!-- 정비 체크박스 -->
+        <div class="form-check form-check-inline" v-if="parkingLotInfo.maintenance === 'Y'">
           <input
             class="form-check-input"
             type="checkbox"
             id="maintenance"
-            v-model="parkingLotInfo.maintenance"
-            :disabled="parkingLotInfo.maintenance == 'Y'"
+            v-model="maintenanceChecked"
           />
           <label class="form-check-label" for="maintenance">기본차량정비</label>
         </div>
@@ -210,6 +202,8 @@ import axios from 'axios'
 export default {
   data() {
     return {
+      washChecked : false,
+      maintenanceChecked :false,
       parkingLotId: null,
       selectedCarNumber: '', // 선택된 차량 번호
       userCars: [], // 차량 번호 옵션들
@@ -276,7 +270,6 @@ export default {
       try {
         const url = `/api/parkingLots/${this.parkingLotId}/reservation/protected`
         const responseReservationLotData = await axios.get(url)
-
         this.parkingLotInfo = responseReservationLotData.data.parkingLotInfo
         this.userCars = responseReservationLotData.data.userCars
       } catch (error) {
@@ -287,32 +280,18 @@ export default {
     },
     getCheckingParkingAndTotalFee() {
       const url = `/api/parkingLots/${this.parkingLotId}/reservation/parkingCheck`
-      const params = {
+      const requestAvailableDto = {
         plateNumber: this.selectedCarNumber,
-        startTimeStr: this.entranceDateTimeResult,
-        endTimeStr: this.exitDateTimeResult,
-        wash: this.parkingLotInfo.wash,
-        maintenance: this.parkingLotInfo.maintenance
-      }
-      // 세차 여부 조건 처리
-      if (this.parkingLotInfo.wash === 'Y') {
-        params.wash = true
-      } else if (this.parkingLotInfo.wash === 'N') {
-        params.wash = false
-      }
-
-      // 정비 여부 조건 처리
-      if (this.parkingLotInfo.maintenance === 'Y') {
-        params.maintenance = true
-      } else if (this.parkingLotInfo.maintenance === 'N') {
-        params.maintenance = false
+        startTime : this.entranceDateTimeResult,
+        endTime : this.exitDateTimeResult,
+        wash: this.washChecked,
+        maintenance: this.maintenanceChecked
       }
 
       axios
-        .get(url, { params })
+        .get(url, { params: requestAvailableDto })  // params 키워드를 사용하여 쿼리 파라미터 전달
         .then((response) => {
           const data = response.data
-
           this.available = data.available
           this.totalFee = data.totalFee
           this.parkingSpaceId = data.parkingSpaceId
@@ -330,24 +309,9 @@ export default {
         startTime: this.entranceDateTimeResult,
         endTime: this.exitDateTimeResult,
         totalPrice: this.totalFee,
-        washService: this.parkingLotInfo.wash,
-        maintenanceService: this.parkingLotInfo.maintenance
+        wash : this.washChecked,
+        maintenance : this.maintenanceChecked,
       }
-      // 세차 여부 조건 처리
-      if (this.parkingLotInfo.wash === 'Y') {
-        requestReservationDto.washService = true
-        if (requestReservationDto.washService === true) {
-          requestReservationDto.washService = 'Y'
-        } else {
-          requestReservationDto.washService = 'N'
-        }
-      } else if (this.parkingLotInfo.wash === 'N') {
-        requestReservationDto.wash = false
-        if (requestReservationDto.washService === false) {
-          requestReservationDto.washService = 'N'
-        }
-      }
-
       axios
         .post(url, requestReservationDto)
         .then((response) => {
@@ -355,7 +319,7 @@ export default {
           if (data.reservationUuid != null) {
             alert('결제 가능')
             //결제모달 ONreservationId
-            window.location.href = `/reservationDetail/${response.data.reservationId}`
+            window.location.href = `/reservation/detail/${response.data.reservationId}`
           } else {
             alert('예약 실패')
           }
