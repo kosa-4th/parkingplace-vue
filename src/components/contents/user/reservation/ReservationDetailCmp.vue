@@ -31,11 +31,24 @@
         <p>결제 금액 : {{ reservationInfo.totalPrice }}</p>
         <p class="text-success font-weight-bold">{{ reservationInfo.reservationConfirmed }} 예약 되었습니다.</p>
 
-        <!-- 결제 버튼 -->
-        <button v-if="reservationInfo.reservationConfirmed === 'N'" type="button" class="btn btn-primary"
-                @click="requestPayment">결제하기
-        </button>
+        <div>
+          <!-- 결제 버튼 -->
+          <button v-if="reservationInfo.reservationConfirmed === 'N'" type="button" class="bg-purple btn btn-spacing"
+                  @click="requestPayment">결제하기
+          </button>
+          <!-- 결제 버튼 -->
+          <button v-if="reservationInfo.reservationConfirmed === 'N'"
+                  type="button" class="bg-purple btn btn-spacing"
+                  @click="cancelReservation">예약취소
+          </button>
+          <!-- 결제 버튼 -->
+          <button v-if="reservationInfo.reservationConfirmed === 'C'"
+                  type="button" class="bg-purple btn btn-spacing"
+                  @click="cancelPayment">결제 및 예약 취소
+          </button>
+        </div>
       </div>
+
     </div>
   </div>
 </template>
@@ -71,7 +84,58 @@ export default {
     this.getReservationPaymentData()
   },
   methods: {
-    //axios를 통한 데이터 가져오기
+    /**
+     * @Author 김경민
+     * @Date 2024.09.14
+     * @method 결제취소 및 예약 취소
+     * API (Post)
+     * */
+    async cancelPayment(){
+      try{
+        const url = `/api/payment/${this.reservationId}/cancel/protected`
+        const paramData = {
+          merchantUid : this.reservationInfo.reservationUuid,
+          reason : '사용자 요청 취소',
+        }
+        const response = await axios.post(url, paramData);
+
+        // API 요청이 성공했을 경우
+        if (response && response.status === 200) {
+          alert('예약 및 결제가 성공적으로 취소되었습니다.');
+          window.location.href = '/'; // 메인 페이지로 리다이렉트
+        } else {
+          console.error('예약 취소 요청이 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('에러취소실패:', error);
+      }
+    },
+    /**
+     * @Author 김경민
+     * @Date 2024.09.14
+     * @method 예약취소
+     * API (put)
+     * */
+    async cancelReservation(){
+      try{
+        const url = `/api/reservation/${this.reservationId}/cancel/protected`
+
+        const response = await axios.put(url);
+
+        // API 요청이 성공했을 경우
+        if (response && response.status === 200) {
+          alert('예약이 성공적으로 취소되었습니다.');
+          window.location.href = '/'; // 메인 페이지로 리다이렉트
+        } else {
+          console.error('예약 취소 요청이 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('에러취소실패:', error);
+      } finally {
+        // 예약 취소 후에도 항상 실행될 코드
+        console.log('취소 요청 처리 완료');
+      }
+    },
     //예약정보에서 데이터 가져오기
     async getReservationPaymentData() {
       try {
@@ -164,7 +228,19 @@ export default {
   font-size: 1.2rem;
 }
 
+/* 버튼 간의 간격 설정 */
+.btn-spacing {
+  margin-right: 10px; /* 오른쪽에 10px 간격 추가 */
+}
+
+/* 버튼 hover 시 효과 */
 .bg-purple {
-  background-color: #9A64E8;
+  background-color: #9b59b6; /* 기본 보라색 */
+  color: white;
+}
+
+.bg-purple:hover {
+  background-color: #8e44ad; /* hover 시 보라색을 더 진하게 */
+  color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
 }
 </style>
