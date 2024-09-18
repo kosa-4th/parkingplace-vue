@@ -9,6 +9,7 @@ import axios from 'axios'
 export default {
   data() {
     return {
+      showModal: false, // 모달 창의 열림/닫힘 상태 관리
       reservationId: null,
       reservationDetails: {
         reservationConfirmed: ''
@@ -21,6 +22,12 @@ export default {
     console.log('reservationId : ' + this.reservationId)
   },
   methods: {
+    openModal() {
+      this.showModal = true; // 모달 열기
+    },
+    closeModal() {
+      this.showModal = false; // 모달 닫기
+    },
     async getReservationDetails() {
       const url = `/api/users/reservationsDetails/${this.reservationId}/protected`
       await axios.get(url)
@@ -36,7 +43,6 @@ export default {
       let checkConfirmed = this.reservationDetails.reservationConfirmed;
 
       if (checkConfirmed === 'N') {
-        alert('N입니다.');
         const url = `/api/reservation/${this.reservationId}/cancel/protected`;
 
         axios.put(url)
@@ -50,13 +56,11 @@ export default {
             console.error('에러취소실패:', error);
           });
       } else if (checkConfirmed === 'Y' || checkConfirmed === 'C') {
-        alert('C입니다.');
         const url = `/api/payment/${this.reservationId}/cancel/protected`;
         const paramData = {
           merchantUid: this.reservationDetails.reservationUuid,
           reason: '사용자 요청 취소',
         };
-
         axios.post(url, paramData)
           .then(response => {
             if (response.status === 200) {
@@ -68,12 +72,8 @@ export default {
             console.error('에러취소실패:', error);
           });
       }
-
-      // 모달 창 닫기
-      const modal = bootstrap.Modal.getInstance(document.getElementById('cancelModal'));
-      if (modal) {
-        modal.hide();
-      }
+      this.cancelReservation();
+      this.closeModal(); // 모달 닫기
     },
     formatDate(dateString) {
       if (!dateString) return ''
@@ -172,26 +172,20 @@ export default {
 
         <!-- 예약 취소 버튼 -->
         <div class="mt-4" v-if="reservationDetails.reservationConfirmed === 'Y' || reservationDetails.reservationConfirmed === 'C' || reservationDetails.reservationConfirmed === 'N'">
-          <button data-bs-toggle="modal" data-bs-target="#cancelModal" class="btn btn-block w-100"
+          <button @click="openModal" class="btn btn-block w-100"
                   style="background-color: #f3e8ff; color: #a678e1;">예약 취소하기
           </button>
         </div>
-      </div>
-    </div>
-    <!-- 모달 -->
-    <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered"> <!-- 이 클래스가 모달을 화면 중앙에 위치시킵니다 -->
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="cancelModalLabel">예약 취소</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            정말로 예약을 취소하시겠습니까?
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-            <button type="button" class="btn btn-danger" @click="confirmCancel">예약 취소</button>
+
+        <!-- 모달 -->
+        <div v-if="showModal" class="modal-overlay">
+          <div class="modal-content">
+            <h5>예약 취소</h5>
+            <p>정말로 예약을 취소하시겠습니까?</p>
+            <div class="d-flex justify-content-end">
+              <button class="btn btn-secondary me-2" @click="closeModal">취소</button>
+              <button class="btn btn-danger" @click="confirmCancel">확인</button>
+            </div>
           </div>
         </div>
       </div>
@@ -200,5 +194,23 @@ export default {
 </template>
 
 <style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  text-align: center;
+}
 </style>
