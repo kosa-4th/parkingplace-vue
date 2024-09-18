@@ -86,7 +86,7 @@ export default {
   methods: {
     /**
      * @Author 김경민
-     * @Date 2024.09.14
+     * @Date 2024.09.17
      * @method 결제취소 및 예약 취소
      * API (Post)
      * */

@@ -177,7 +177,7 @@
       </div>
     </div>
 
-    <button class="btn btn-primary" v-if="totalTime != 0" @click="getCheckingParkingAndTotalFee">
+    <button class="btn btn-primary" v-if="totalTime != '00:00'" @click="getCheckingParkingAndTotalFee">
       조회하기
     </button>
     <br />
