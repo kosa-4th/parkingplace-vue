@@ -7,6 +7,7 @@ import App from './App.vue'
 import router from './router'
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Popper.js 포함
 import { useKakao } from 'vue3-kakao-maps'
 import { AuthStore } from './stores/store'
 import DatePicker from '@vuepic/vue-datepicker';
