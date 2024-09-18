@@ -10,190 +10,194 @@
     2024.09.11 양건모 | 입출차 시간 출력 로직 버그 수정
     2024.09.12 양건모 | 예약 가능 시간 출력 로직 재작성(현재 날짜와 시각을 고려해 예약 가능 시간 출력 변경)
     2024.09.13 김경민 | 코드 정리 및 Param -> DTO로 수정
+    2024.09.18 김경민 | 디자인 수정 (시간 확인 버튼 삭제) / 버튼 위치 수정 / 데이터변경시 예약 불가
 -->
 <template>
-  <div class="container">
-    <!-- 전역으로 등록된 DatePicker 사용 -->
-    <h3>{{ parkingLotInfo.name }}</h3>
-    <!-- 각각 기능 설명-->
-    <!-- 선택된 날짜를 selectedDate에 바인딩 -->
-    <!-- 오늘 이후의 날짜만 선택 가능 -->
-    <!-- 30일 후까지 선택 가능 -->
-    <!-- 날짜 형식을 yyyy-MM-dd로 설정 -->
-    <!-- 시간 선택 기능 비활성화 -->
-    <div class="row">
-      <div class="col-md-12">
-        <!-- 차량 번호 선택 -->
-        <select v-model="selectedCarNumber" class="form-control">
-          <option disabled value="">차량 번호 선택</option>
-          <option v-for="(carData, index) in userCars" :key="index" :value="carData.plateNumber">
-            차량번호 - {{ carData.plateNumber }}
-          </option>
-        </select>
+  <div class="container mt-4">
+    <div class="card shadow-sm mt-4 p-3">
+      <!-- 전역으로 등록된 DatePicker 사용 -->
+      <h4 class="title">{{ parkingLotInfo.name }}
+      </h4>
+
+      <!-- 각각 기능 설명-->
+      <!-- 선택된 날짜를 selectedDate에 바인딩 -->
+      <!-- 오늘 이후의 날짜만 선택 가능 -->
+      <!-- 30일 후까지 선택 가능 -->
+      <!-- 날짜 형식을 yyyy-MM-dd로 설정 -->
+      <!-- 시간 선택 기능 비활성화 -->
+      <div class="row">
+        <div class="col-md-12">
+          <!-- 차량 번호 선택 -->
+          <select v-model="selectedCarNumber" class="form-control body-text">
+            <option disabled value="">차량 번호 선택</option>
+            <option v-for="(carData, index) in userCars" :key="index" :value="carData.plateNumber">
+              차량번호 - {{ carData.plateNumber }}
+            </option>
+          </select>
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <DatePicker
-          locale="ko"
-          v-model="selectedDate"
-          :min-date="today"
-          :max-date="maxDate"
-          :format="'yyyy-MM-dd'"
-          :enable-time-picker="false"
-        >
-        </DatePicker>
+      <div class="row">
+        <div class="col-md-12">
+          <DatePicker
+            locale="ko"
+            v-model="selectedDate"
+            :min-date="today"
+            :max-date="maxDate"
+            :format="'yyyy-MM-dd'"
+            :enable-time-picker="false"
+          >
+          </DatePicker>
+        </div>
       </div>
-    </div>
-    <!-- 입차시간 -->
-    <div class="time-picker-container mt-2" v-if="selectedDate">
-      <div class="row g-0">
-        <h6>입차시간</h6>
-        <div class="col-12 col-md-12 text-center">
-          <div class="time-picker-grid">
-            <button
-              v-for="hour in entranceAvailableHours"
-              :key="hour"
-              @click="
+      <!-- 입차시간 -->
+      <div class="time-picker-container mt-2" v-if="selectedDate">
+        <div class="row g-0">
+          <h6 class="body-text">입차시간</h6>
+          <div class="col-12 col-md-12 text-center">
+            <div class="time-picker-grid">
+              <button
+                v-for="hour in entranceAvailableHours"
+                :key="hour"
+                @click="
                 () => {
                   selectEntranceHour(hour)
                   generateAvailableMinutes(hour, true)
                 }
               "
-              :class="['time-picker-btn', { selected: hour === selectedEntranceHour }]"
-            >
-              {{ hour }}
-            </button>
+                :class="['time-picker-btn', { selected: hour === selectedEntranceHour }]"
+              >
+                {{ hour }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <hr />
+        <div class="row g-0" v-if="selectedEntranceHour">
+          <div class="col-12 col-md-12">
+            <div class="time-picker-grid text-center body-text">
+              <button
+                v-for="minute in entranceAvailableMinutes"
+                :key="minute"
+                @click="() => {selectEntranceMinute(minute)
+              confirmEntranceTime()}"
+                :class="['time-picker-btn', { selected: minute === selectedEntranceMinute }]"
+              >
+                {{ minute < 10 ? '0' + minute : minute }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-      <hr />
-      <div class="row g-0" v-if="selectedEntranceHour">
-        <div class="col-12 col-md-12">
-          <div class="time-picker-grid text-center">
-            <button
-              v-for="minute in entranceAvailableMinutes"
-              :key="minute"
-              @click="() => selectEntranceMinute(minute)"
-              :class="['time-picker-btn', { selected: minute === selectedEntranceMinute }]"
-            >
-              {{ minute < 10 ? '0' + minute : minute }}
-            </button>
-          </div>
-        </div>
-      </div>
-      <!-- Confirm Button -->
-      <div class="col-12 text-center mt-1">
-        <button @click="confirmEntranceTime" class="btn confirm-btn">입력</button>
-      </div>
-    </div>
 
-    <!-- 출차시간 -->
-    <div class="time-picker-container mt-2" v-if="selectedDate">
-      <div class="row g-0">
-        <h6>출차시간</h6>
-        <div class="col-12 col-md-12 text-center">
-          <div class="time-picker-grid">
-            <button
-              v-for="hour in exitAvailableHours"
-              :key="hour"
-              @click="
+      <!-- 출차시간 -->
+      <div class="time-picker-container mt-2" v-if="selectedDate">
+        <div class="row g-0">
+          <h6 class="body-text">출차시간</h6>
+          <div class="col-12 col-md-12 text-center">
+            <div class="time-picker-grid">
+              <button
+                v-for="hour in exitAvailableHours"
+                :key="hour"
+                @click="
                 () => {
                   selectExitHour(hour)
                   generateAvailableMinutes(hour, false)
                 }
               "
-              :class="['time-picker-btn', { selected: hour === selectedExitHour }]"
-            >
-              {{ hour }}
-            </button>
+                :class="['time-picker-btn', { selected: hour === selectedExitHour }]"
+              >
+                {{ hour }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <hr />
+        <div class="row g-0" v-if="selectedExitHour">
+          <div class="col-12 col-md-12">
+            <div class="time-picker-grid text-center">
+              <!-- 출차 시간을 선택하는 버튼 -->
+              <button
+                v-for="minute in exitAvailableMinutes"
+                :key="minute"
+                @click="() => {selectExitMinute(minute)
+              confirmExitTime()}"
+                :class="['time-picker-btn', { selected: minute === selectedExitMinute }]"
+              >
+                {{ minute < 10 ? '0' + minute : minute }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-      <hr />
-      <div class="row g-0" v-if="selectedExitHour">
-        <div class="col-12 col-md-12">
-          <div class="time-picker-grid text-center">
-            <!-- 출차 시간을 선택하는 버튼 -->
-            <button
-              v-for="minute in exitAvailableMinutes"
-              :key="minute"
-              @click="selectExitMinute(minute)"
-              :class="['time-picker-btn', { selected: minute === selectedExitMinute }]"
-            >
-              {{ minute < 10 ? '0' + minute : minute }}
-            </button>
+
+
+      <div class="card-body">
+        <div class="row mb-4" v-if="isTimeSelected">
+          <!-- 입차일자 -->
+          <div class="col-6 col-md-6 col-lg-3 mb-3">
+            <h6 class="body-text">입차일자</h6>
+            <strong class="small-text">{{ formattedSelectedDate }}</strong>
           </div>
+          <!-- 총 주차시간 -->
+          <div class="col-6 col-md-6 col-lg-3 mb-3">
+            <h6 class="body-text">총 주차시간</h6>
+            <strong class="small-text">{{ totalTime }}</strong>
+          </div>
+          <!-- 입차시간 -->
+          <div class="col-6 col-md-6 col-lg-3 mb-3">
+            <h6 class="body-text">입차시간</h6>
+            <strong class="small-text">{{ selectedEntranceTime }}</strong>
+          </div>
+          <!-- 출차시간 -->
+          <div class="col-6 col-md-6 col-lg-3 mb-3">
+            <h6 class="body-text">출차시간</h6>
+            <strong class="small-text">{{ selectedExitTime }}</strong>
+          </div>
+          <!-- 부가서비스 선택 -->
+          <div class="row mb-3" v-if="isTimeSelected">
+            <div class="col-md-6">
+              <h6 class="body-text">부가서비스</h6>
+              <div class="form-check" v-if="parkingLotInfo.wash === 'Y'">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="wash"
+                  v-model="washChecked" />
+                <label class="form-check-label small-text" for="wash">세차</label>
+              </div>
+              <div class="form-check" v-if="parkingLotInfo.maintenance === 'Y'">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="maintenance"
+                  v-model="maintenanceChecked" />
+                <label class="form-check-label small-text" for="maintenance">기본차량정비</label>
+              </div>
+            </div>
+          </div>
+          <button class="btn bg-purple btn-spacing" v-if="totalTime !== '00:00' && totalTime !== ''"
+                  @click="getCheckingParkingAndTotalFee" style="padding: 5px 10px; font-size: 12px;"
+                  :disabled="isButtonDisabled">
+            요금 조회하기
+          </button>
         </div>
-      </div>
-      <!-- Confirm Button -->
-      <div class="col-12 text-center mt-1">
-        <button @click="confirmExitTime" class="btn confirm-btn">입력</button>
-      </div>
-    </div>
-
-    <div class="row" v-if="isTimeSelected">
-      <div class="col-md-3">
-        <label>입차일자</label>
-        <strong>{{ formattedSelectedDate }}</strong>
-      </div>
-      <div class="col-md-3">
-        <label>총 주차시간</label>
-        <strong>{{ totalTime }}</strong>
-      </div>
-      <div class="col-md-3">
-        <label>입차시간</label>
-        <strong>{{ selectedEntranceTime }}</strong>
-      </div>
-      <div class="col-md-3">
-        <label>출차시간</label>
-        <strong>{{ selectedExitTime }}</strong>
-      </div>
-    </div>
-
-    <div class="row" v-if="isTimeSelected">
-      <!-- 부가서비스 선택 -->
-      <div class="col-md-6">
-        <label>부가서비스</label>
-        <!-- 세차 체크박스 -->
-        <div class="form-check form-check-inline" v-if="parkingLotInfo.wash === 'Y'">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="wash"
-            v-model="washChecked" />
-          <label class="form-check-label" for="wash">세차</label>
+        <!-- 가격 및 주차 여부 정보 -->
+        <div v-if="totalFee > 0">
+          <h6 class="body-text">가격</h6>
+          <h5 class="small-text">{{ totalFee }} 원</h5>
+          <hr>
+          <h6 class="body-text">주차 여부</h6>
+          <h5 v-if="available" class="text-success small-text">이용할 수 있습니다.</h5>
+          <h5 v-else class="text-danger small-text">이용할 수 없습니다.</h5>
         </div>
-        <!-- 정비 체크박스 -->
-        <div class="form-check form-check-inline" v-if="parkingLotInfo.maintenance === 'Y'">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="maintenance"
-            v-model="maintenanceChecked"
-          />
-          <label class="form-check-label" for="maintenance">기본차량정비</label>
-        </div>
+
       </div>
-    </div>
-
-    <button class="btn btn-primary" v-if="totalTime != '00:00'" @click="getCheckingParkingAndTotalFee">
-      조회하기
-    </button>
-    <br />
-    <div v-if="isTimeSelected">
-      <label>가격</label>
-      <h6>{{ totalFee }}</h6>
-      <label>주차 여부</label>
-      <h6 v-if="available">이용할 수 있습니다.</h6>
-      <h6 v-else>이용할 수 없습니다.</h6>
-    </div>
-
-    <div v-if="available">
-      <button :disabled="reservationBtn" class="btn btn-primary" @click="reservationAndPayment">
+      <button v-if="available" :disabled="reservationBtn" class="btn bg-purple btn-spacing"
+              @click="reservationAndPayment" style="padding: 5px 10px; font-size: 12px;">
         예약하기 및 결제하기
       </button>
     </div>
+
   </div>
 </template>
 <script>
@@ -202,8 +206,10 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      washChecked : false,
-      maintenanceChecked :false,
+      isButtonDisabled: false, //버튼 비활성화
+      reservationBtn: true, //버튼 활성화
+      washChecked: false,
+      maintenanceChecked: false,
       parkingLotId: null,
       selectedCarNumber: '', // 선택된 차량 번호
       userCars: [], // 차량 번호 옵션들
@@ -221,10 +227,6 @@ export default {
       available: null,
       totalFee: 0,
       parkingSpaceId: null,
-
-      //결제 모달 관련
-      isModalOpen: false,
-      reservationBtn: false,
 
       //DatePicker 관련 변수
       selectedDate: null,
@@ -282,8 +284,8 @@ export default {
       const url = `/api/parkingLots/${this.parkingLotId}/reservation/parkingCheck`
       const requestAvailableDto = {
         plateNumber: this.selectedCarNumber,
-        startTime : this.entranceDateTimeResult,
-        endTime : this.exitDateTimeResult,
+        startTime: this.entranceDateTimeResult,
+        endTime: this.exitDateTimeResult,
         wash: this.washChecked,
         maintenance: this.maintenanceChecked
       }
@@ -295,6 +297,8 @@ export default {
           this.available = data.available
           this.totalFee = data.totalFee
           this.parkingSpaceId = data.parkingSpaceId
+          this.isButtonDisabled = true
+          this.reservationBtn = false  // 예약하기 버튼 활성화
         })
         .catch((error) => {
           console.log('Error: ', error)
@@ -309,16 +313,14 @@ export default {
         startTime: this.entranceDateTimeResult,
         endTime: this.exitDateTimeResult,
         totalPrice: this.totalFee,
-        wash : this.washChecked,
-        maintenance : this.maintenanceChecked,
+        wash: this.washChecked,
+        maintenance: this.maintenanceChecked
       }
       axios
         .post(url, requestReservationDto)
         .then((response) => {
           const data = response.data
           if (data.reservationUuid != null) {
-            alert('결제 가능')
-            //결제모달 ONreservationId
             window.location.href = `/reservation/detail/${response.data.reservationId}`
           } else {
             alert('예약 실패')
@@ -328,9 +330,17 @@ export default {
           console.log('예약 요청 중 오류 발생:', error)
         })
     },
-    //결제 Modal 닫기
-    closeModal() {
-      this.isModalOpen = false // 모달 닫기
+    // 데이터 변경 시 요금을 0으로 초기화하고 버튼 상태 업데이트
+    resetTotalFee() {
+      this.totalFee = 0
+      this.isButtonDisabled = false  // 요금 조회 버튼 활성화
+      this.reservationBtn = true  // 예약 버튼 비활성화
+    },
+
+    // 항목 값이 변경될 때 버튼 다시 활성화
+    enableButton() {
+      this.isButtonDisabled = false // 버튼 활성화
+      this.reservationBtn = true  // 예약 버튼 비활성화
     },
 
     // 일요일: 0, 토요일: 6
@@ -446,20 +456,6 @@ export default {
         this.exitAvailableMinutes = minutesArray
       }
     },
-    // // 입차 가능한 시간 생성
-    // generateEntranceAvailableHours() {
-    //   this.entranceAvailableHours = Array.from(
-    //     { length: this.entranceBusinessEndTime - this.entranceBusinessStartTime + 1 },
-    //     (_, i) => (this.entranceBusinessStartTime + i).toString().padStart(2, '0')
-    //   )
-    // },
-    // // 출차 가능한 시간 생성
-    // generateExitAvailableHours() {
-    //   this.exitAvailableHours = Array.from(
-    //     { length: this.exitBusinessEndTime - this.exitBusinessStartTime + 1 },
-    //     (_, i) => (this.exitBusinessStartTime + i).toString().padStart(2, '0')
-    //   )
-    // },
     selectEntranceHour(hour) {
       this.selectedEntranceHour = hour
     },
@@ -612,6 +608,16 @@ export default {
     }
   },
   watch: {
+// 데이터 변경을 감지하고 totalFee를 0으로 변경
+    totalTime() {
+      this.resetTotalFee()
+    },
+    washChecked() {
+      this.enableButton()
+    },
+    maintenanceChecked() {
+      this.enableButton()
+    },
     // DatePicker로 선택된 날짜가 변경될 때마다 주중/주말 판단 및 영업 시간 설정
     selectedDate(newDate) {
       if (newDate) {
@@ -639,7 +645,30 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style scoped>/* 제목 스타일 */
+.title {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+/* 부제목 스타일 */
+.subtitle {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* 본문 스타일 */
+.body-text {
+  font-size: 17px;
+  font-weight: normal;
+}
+
+/* 작은 글씨 스타일 */
+.small-text {
+  font-size: 12px;
+  font-weight: normal;
+}
+
 .time-picker-btn {
   width: 20px;
   height: 20px;
@@ -655,10 +684,9 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition:
-    background-color 0.3s,
-    color 0.3s,
-    box-shadow 0.3s;
+  transition: background-color 0.3s,
+  color 0.3s,
+  box-shadow 0.3s;
 }
 
 .time-picker-btn.selected {
@@ -723,5 +751,21 @@ export default {
 
 .form-check-label {
   margin-right: 20px;
+}
+
+/* 버튼 간의 간격 설정 */
+.btn-spacing {
+  margin-right: 10px; /* 오른쪽에 10px 간격 추가 */
+}
+
+/* 버튼 hover 시 효과 */
+.bg-purple {
+  background-color: #9a64e8; /* 기본 보라색 */
+  color: white;
+}
+
+.bg-purple:hover {
+  background-color: #7a52b6; /* hover 시 보라색을 더 진하게 */
+  color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
 }
 </style>
