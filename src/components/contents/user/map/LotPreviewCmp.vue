@@ -210,7 +210,7 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60vh;
+  height: 50vh;
   background-color: white;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
