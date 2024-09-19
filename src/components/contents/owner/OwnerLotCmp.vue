@@ -1,36 +1,48 @@
 <template>
   <div class="parking-lot-management">
-    <h1>주차장 관리</h1>
+    <h1 id="description"><b>주차장 관리</b></h1>
 
     <!-- 주차장 정보 입력 섹션 -->
     <div class="parking-info">
-      <h3>주차장 정보</h3>
       <!-- 주차장명 입력 -->
       <div class="input-group">
         <label>주차장명</label>
-        <input v-model="parkingLot.name" type="text" />
+        <input v-model="parkingLot.name" type="text" readonly />
       </div>
       <!-- 주소 입력 -->
       <div class="input-group">
         <label>주소</label>
-        <input v-model="parkingLot.address" type="text" />
+        <input v-model="parkingLot.address" type="text" disabled />
       </div>
       <!-- 연락처 입력 -->
       <div class="input-group">
         <label>연락처</label>
-        <input v-model="parkingLot.contact" type="text" />
+        <input v-model="parkingLot.tel" type="text" readonly />
       </div>
       <!-- 평일 영업시간 입력 -->
       <div class="input-group">
         <label>평일 영업시간</label>
-        <input v-model="parkingLot.weekdayHoursStart" type="time" />
-        <input v-model="parkingLot.weekdayHoursEnd" type="time" />
+        <input v-model="parkingLot.weekdaysOpenTime" type="time" readonly />
+        <input v-model="parkingLot.weekdaysCloseTime" type="time" readonly />
       </div>
       <!-- 주말 영업시간 입력 -->
       <div class="input-group">
         <label>주말 영업시간</label>
-        <input v-model="parkingLot.weekendHoursStart" type="time" />
-        <input v-model="parkingLot.weekendHoursEnd" type="time" />
+        <input v-model="parkingLot.weekendOpenTime" type="time" readonly />
+        <input v-model="parkingLot.weekendCloseTime" type="time" readonly />
+      </div>
+      <div class="input-group">
+        <label>이미지</label>
+        <input type="file" multiple @change="onFileChange" ref="fileInput" readonly />
+      </div>
+
+      <!-- 이미지 미리보기 -->
+      <div class="image-preview">
+        <div v-for="(image, index) in imagePreviews" :key="index" class="img-wrapper">
+          <img :src="image" alt="uploaded image" class="uploaded-img" />
+          <button class="remove-btn" @click="removeImage(index)">x</button>
+          <!-- x 아이콘 추가 -->
+        </div>
       </div>
     </div>
 
@@ -117,55 +129,28 @@
 
 <script>
 import ParkingZoneTable from './ParkingZoneTable.vue'
+import axios from 'axios'
+import { AuthStore } from '@/stores/store'
 
 export default {
   components: {
     ParkingZoneTable // 주차 구역 테이블 컴포넌트
   },
+  props: ['selectedLotId'],
   data() {
     return {
-      // 주차장 정보 및 기본값 설정
+      authStore: AuthStore(),
       parkingLot: {
-        name: '혜화 주차장',
-        address: '서울시 용산구 명륜동',
-        contact: '010-1234-5678',
-        weekdayHoursStart: '00:00',
-        weekdayHoursEnd: '24:00',
-        weekendHoursStart: '02:00',
-        weekendHoursEnd: '24:00',
-        zones: [
-          // 주차 구역 초기값
-          {
-            name: 'A',
-            capacity: 5,
-            vehicleType: '모든 차량',
-            weekdayPrice: 3000,
-            weekendPrice: 4000,
-            washService: true,
-            maintenanceService: true
-          },
-          {
-            name: 'B',
-            capacity: 2,
-            vehicleType: '전기차',
-            weekdayPrice: 2000,
-            weekendPrice: 2500,
-            washService: false,
-            maintenanceService: false
-          },
-          {
-            name: 'C',
-            capacity: 2,
-            vehicleType: '경차',
-            weekdayPrice: 1500,
-            weekendPrice: 2000,
-            washService: false,
-            maintenanceService: false
-          }
-        ]
+        name: '',
+        address: '',
+        tel: '',
+        weekdaysOpenTime: '',
+        weekdaysCloseTime: '',
+        weekendOpenTime: '',
+        weekendCloseTime: '',
+        parkingSpaces: []
       },
       newZone: {
-        // 새로운 구역을 추가할 때 사용하는 초기값
         name: '',
         capacity: 0,
         vehicleType: '',
@@ -174,29 +159,42 @@ export default {
         washService: false,
         maintenanceService: false
       },
-      selectedZone: null, // 수정 중인 구역 정보를 저장
-      showAddZoneForm: false // 구역 추가 폼 표시 여부 관리
+      selectedZone: null,
+      showAddZoneForm: false,
+      imagePreviews: [],
+      files: []
     }
   },
   methods: {
-    // 구역 추가 폼 토글 함수 (표시/숨기기)
-    toggleAddZoneForm() {
-      this.showAddZoneForm = !this.showAddZoneForm // 폼을 표시하거나 숨김
+    async getParkingLotDetail() {
+      await axios({
+        method: 'get',
+        url: `/api/parkinglots/${this.selectedLotId}/owner/protected`,
+        headers: {
+          Authorization: `Bearer ${this.authStore.token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+        .then((response) => {
+          this.parkingLot = response.data
+        })
+        .catch(function (e) {
+          alert(e)
+        })
     },
-    // 새로운 주차 구역 추가 함수
+    toggleAddZoneForm() {
+      this.showAddZoneForm = !this.showAddZoneForm
+    },
     addZone() {
-      // 유효성 검사: 구역 이름, 용량, 차량 유형이 올바르게 입력되었는지 확인
       if (!this.newZone.name || this.newZone.capacity <= 0 || !this.newZone.vehicleType) {
         alert('모든 필드를 올바르게 입력하세요.')
         return
       }
 
-      // 새로운 구역 추가
-      this.parkingLot.zones.push({ ...this.newZone }) // 새로운 구역을 배열에 추가
-      this.resetNewZone() // 폼 초기화
-      this.showAddZoneForm = false // 폼 숨기기
+      this.parkingLot.zones.push({ ...this.newZone })
+      this.resetNewZone()
+      this.showAddZoneForm = false
     },
-    // 입력 필드 초기화 함수
     resetNewZone() {
       this.newZone = {
         name: '',
@@ -208,49 +206,79 @@ export default {
         maintenanceService: false
       }
     },
-    // 선택된 주차 구역 수정 함수
     editZone(index) {
-      this.selectedZone = { ...this.parkingLot.zones[index], index } // 선택된 구역 정보를 저장
+      this.selectedZone = { ...this.parkingLot.zones[index], index }
     },
-    // 수정된 구역 정보 저장
     saveZone() {
       if (this.selectedZone !== null) {
         const index = this.selectedZone.index
-        this.parkingLot.zones[index] = { ...this.selectedZone } // 수정된 구역 정보를 원본에 반영
-        this.selectedZone = null // 수정 후 초기화
+        this.parkingLot.zones[index] = { ...this.selectedZone }
+        this.selectedZone = null
       }
     },
-    // 수정 취소 함수
     cancelEdit() {
-      this.selectedZone = null // 수정 취소 시 선택된 구역 초기화
+      this.selectedZone = null
     },
-    // 주차 구역 삭제 함수
     deleteZone(index) {
-      this.parkingLot.zones.splice(index, 1) // 선택한 구역을 배열에서 삭제
+      this.parkingLot.zones.splice(index, 1)
+    },
+    onFileChange(event) {
+      const files = Array.from(event.target.files) // 파일 리스트를 배열로 변환
+      files.forEach((file) => {
+        this.files.push(file) // 파일 저장
+        this.imagePreviews.push(URL.createObjectURL(file)) // 미리보기 URL 저장
+      })
+    },
+    removeImage(index) {
+      this.imagePreviews.splice(index, 1) // 미리보기에서 이미지 삭제
+      this.files.splice(index, 1) // 파일 배열에서 해당 파일 삭제
+
+      // 새로운 FileList 객체 생성
+      const dataTransfer = new DataTransfer()
+      this.files.forEach((file) => dataTransfer.items.add(file)) // 남은 파일 추가
+
+      // input 요소에 새로운 FileList 적용
+      this.$refs.fileInput.files = dataTransfer.files
+    }
+  },
+  mounted() {
+    this.getParkingLotDetail()
+  },
+  watch: {
+    selectedLotId() {
+      this.getParkingLotDetail(this.selectedLotId)
     }
   }
 }
 </script>
 
 <style scoped>
-/* 전체 레이아웃 설정 */
-.parking-lot-management {
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
-  background-color: #f5f7fa;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.no-update {
+  background-color: lightgray;
 }
 
-/* 제목 스타일 */
+#description {
+  font-size: 22px;
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.font-large {
+  font-size: 22px;
+}
+
+.parking-lot-management {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 h1,
 h3 {
   text-align: center;
   color: #333;
 }
 
-/* 입력 그룹 설정: 주차장 정보 및 구역 추가 폼 */
 .input-group {
   margin-bottom: 15px;
   display: flex;
@@ -264,7 +292,6 @@ label {
   color: #555;
 }
 
-/* 텍스트 및 숫자 입력 필드 스타일 */
 input[type='text'],
 input[type='time'],
 input[type='number'] {
@@ -278,12 +305,10 @@ input[type='number'] {
   color: #333;
 }
 
-/* 체크박스 스타일 */
 input[type='checkbox'] {
   margin-left: 10px;
 }
 
-/* 버튼 스타일 */
 button {
   padding: 10px 20px;
   border: none;
@@ -293,7 +318,6 @@ button {
   transition: background-color 0.3s ease;
 }
 
-/* 구역 추가 토글 버튼 스타일 */
 button.btn-toggle {
   background-color: #007bff;
   color: white;
@@ -303,40 +327,36 @@ button.btn-toggle:hover {
   background-color: #0056b3;
 }
 
-/* 구역 추가, 저장, 취소 버튼 스타일 */
-/* 구역 추가, 저장, 취소 버튼 스타일 */
 button.btn-add,
 button.btn-save,
 button.btn-cancel {
   color: white;
 }
 
-/* 버튼 배경색을 파란색 계열로 통일 */
 button.btn-add {
-  background-color: #007bff; /* 파란색으로 변경 */
+  background-color: #007bff;
 }
 
 button.btn-add:hover {
-  background-color: #0056b3; /* 호버 시 진한 파란색 */
+  background-color: #0056b3;
 }
 
 button.btn-save {
-  background-color: #007bff; /* 파란색으로 통일 */
+  background-color: #007bff;
 }
 
 button.btn-save:hover {
-  background-color: #0056b3; /* 호버 시 진한 파란색 */
+  background-color: #0056b3;
 }
 
 button.btn-cancel {
-  background-color: #dc3545; /* 취소 버튼은 빨간색 유지 */
+  background-color: #dc3545;
 }
 
 button.btn-cancel:hover {
-  background-color: #c82333; /* 호버 시 더 진한 빨간색 */
+  background-color: #c82333;
 }
 
-/* 주차 구역 추가 및 수정 폼 간격 및 스타일 */
 .add-zone-form,
 .edit-zone-form {
   margin-top: 30px;
@@ -344,5 +364,36 @@ button.btn-cancel:hover {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.image-preview {
+  display: flex;
+  gap: 10px;
+}
+
+.img-wrapper {
+  position: relative;
+  border: 1px solid #000;
+  padding: 10px;
+}
+
+.uploaded-img {
+  max-width: 100px;
+  max-height: 100px;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #9a64e8;
+  color: white;
+  border: none;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 50%;
 }
 </style>

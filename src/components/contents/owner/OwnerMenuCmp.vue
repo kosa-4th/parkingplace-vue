@@ -1,54 +1,78 @@
+<!-- 
+ 담당자: 양건모
+ 시작 일자: 2024.09.10
+ 설명 : 주차장 업주 대시보드 사이드바
+ ---------------------
+ 2024.09.11 김찬희 | 대략적 UI 구현
+ 2024.09.18 양건모 | 기능 구현
+ -->
+
 <template>
   <div class="owner-menu">
     <div class="owner-side-container">
       <div class="owner-side-top">
-        <!-- 사용자 이름과 아이콘을 담은 박스 -->
         <div class="owner-name-box">
-          <div class="owner-name-circle">
-            <p>G</p>
-            <!-- 사용자 이름의 첫 글자 -->
-          </div>
-          <p>혜화주차장님</p>
-          <!-- 사용자 전체 이름 표시 -->
+          <p>{{ authStore.getUsername }}님</p>
+          <p @click="logout()"><small>로그아웃</small></p>
         </div>
-        <!-- 메뉴 항목 리스트 -->
+        <div>
+          <!-- v-model을 로컬 데이터인 localSelectedLotId로 연결 -->
+          <select
+            v-model="localSelectedLotId"
+            @change="$emit('select-change', this.localSelectedLotId)"
+          >
+            <option v-for="(lot, idx) in myLots" :key="idx" :value="lot.id">
+              {{ lot.name }}
+            </option>
+          </select>
+        </div>
         <ul>
-          <!-- v-for을 사용하여 menuItems 배열을 반복 렌더링 -->
           <li
             v-for="(menuItem, index) in menuItems"
             :key="index"
             :class="{ active: isActive(menuItem.link) }"
           >
-            <!-- 각 메뉴 항목의 링크 -->
             <router-link :to="menuItem.link">{{ menuItem.text }}</router-link>
           </li>
         </ul>
       </div>
-
-      <!-- 메뉴로 돌아가기 위한 링크 -->
-      <span style="margin-bottom: 20px"><router-link to="/owner">MENU</router-link></span>
     </div>
   </div>
 </template>
 
 <script>
+import router from '@/router'
+import { AuthStore } from '@/stores/store'
+
 export default {
+  props: ['myLots', 'selectedLotId'],
   data() {
     return {
-      // 메뉴 항목을 배열로 정의. 각 항목은 텍스트와 링크를 포함함
+      authStore: AuthStore(),
+      localSelectedLotId: this.selectedLotId, // props로 받은 값을 로컬 데이터로 설정
       menuItems: [
         { text: '수익 통계', link: '/owner/incomes' },
-        { text: '주차자 관리', link: '/owner/lots' },
+        { text: '주차장 관리', link: '/owner/lots' },
         { text: '예약 관리', link: '/owner/reservations' },
         { text: '문의 관리', link: '/owner/qna' }
       ]
     }
   },
+  watch: {
+    // 부모 컴포넌트로부터 selectedLotId가 변경되면 로컬 데이터도 업데이트
+    selectedLotId(newVal) {
+      this.localSelectedLotId = newVal
+    }
+  },
   methods: {
-    // 현재 경로가 menuItem의 링크와 일치하는지 확인하여 true/false 반환
     isActive(route) {
       return this.$route.path === route
-    }
+    },
+    logout() {
+      this.authStore.clearAuthData()
+      router.push('/')
+    },
+    toSelectedLot() {}
   }
 }
 </script>
@@ -56,26 +80,6 @@ export default {
 <style scoped>
 p {
   margin-bottom: 10px;
-}
-/* 사용자 이름이 들어가는 원형 아이콘 */
-.owner-name-circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 100%; /* 원형으로 만들기 */
-  background-color: #9a64e8; /* 아이콘 배경색 */
-  margin-bottom: 10px;
-  margin-right: 10px;
-}
-
-/* 원형 아이콘 내부 텍스트 */
-.owner-name-circle p {
-  color: #fff; /* 텍스트 색상 흰색 */
-  margin: auto;
-  font-weight: bold; /* 굵은 텍스트 */
-  font-size: 18px; /* 텍스트 크기 */
 }
 
 /* 메뉴 전체 박스 스타일 */
@@ -108,8 +112,9 @@ p {
   flex-direction: row;
   align-items: center; /* 중앙 정렬 */
   color: #9a64e8; /* 텍스트 색상 */
-  height: 100px;
-  justify-content: center; /* 가운데 정렬 */
+  height: 50px;
+  margin-top: 50px;
+  justify-content: space-around; /* 가운데 정렬 */
 }
 
 /* 상단 메뉴 섹션 */
@@ -126,7 +131,7 @@ p {
 /* 메뉴 리스트 스타일 */
 .owner-side-top ul {
   display: flex;
-  margin-top: 20px; /* 위쪽 마진 */
+  margin-top: 50px; /* 위쪽 마진 */
   flex-direction: column; /* 세로 정렬 */
   align-content: center;
   justify-content: center;
@@ -178,5 +183,14 @@ p {
 /* 활성화된 메뉴 항목은 hover 시 크기 변화 없음 */
 .owner-side-top ul li.active:hover {
   transform: none;
+}
+
+select {
+  display: block;
+  width: 94%;
+  margin: auto;
+  margin-top: 10px;
+  border: 1px solid #9a64e8;
+  border-radius: 5px;
 }
 </style>

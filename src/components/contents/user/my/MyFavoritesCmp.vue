@@ -163,7 +163,7 @@ export default {
 }
 
 .favorite {
-  border: 2px solid lightgray;
+  border: 1px solid lightgray;
   margin-bottom: 5px;
   border-radius: 5px;
   display: flex;
@@ -223,17 +223,17 @@ p {
 }
 
 .posts-end {
-  padding-top: 5px;
+  padding-top: 6px;
   width: 100%;
   height: 40px;
   text-align: center;
-  border: 2px solid lightgray;
+  border: 1px solid lightgray;
   border-radius: 5px;
 }
 
 .loading-msg {
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 400;
   color: gray;
 }
 </style>
