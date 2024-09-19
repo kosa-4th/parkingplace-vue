@@ -60,9 +60,7 @@ export default {
     }
   },
   watch: {
-    selectedLotId() {
-      alert('새로 변경된 id = ' + this.selectedLotId)
-    }
+    selectedLotId() {}
   }
 }
 </script>
