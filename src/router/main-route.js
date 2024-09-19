@@ -32,6 +32,7 @@ import ReservationCmp from '@/components/contents/user/ReservationCmp.vue'
 import UserCmp from '@/components/contents/user/UserCmp.vue'
 import ManagerCmp from '@/components/manager/ManagerCmp.vue'
 import ReservationDetailCmp from '@/components/contents/user/reservation/ReservationDetailCmp.vue'
+import MyReservationDetailCmp from '@/components/contents/user/my/MyReservationDetailCmp.vue'
 
 export default [
   {
@@ -99,6 +100,10 @@ export default [
           {
             path: 'reservations',
             component: MyReservationsCmp
+          },
+          {
+            path: 'reservations/:reservationId',
+            component: MyReservationDetailCmp
           },
           {
             path: 'favorites',
