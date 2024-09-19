@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="my-container">
     <router-view></router-view>
   </div>
 </template>
@@ -8,4 +8,10 @@
 export default {}
 </script>
 
-<style></style>
+<style>
+.my-container {
+  width: 90%;
+  max-width: 700px;
+  margin: 20px auto;
+}
+</style>

@@ -315,6 +315,10 @@ button {
   justify-content: flex-end;
 }
 
+.review-actions button {
+  height: 34px;
+}
+
 .edit-btn {
   background-color: #757575;
 }

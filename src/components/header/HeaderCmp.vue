@@ -112,6 +112,11 @@ const handelSignup = () => {
   router.push('/register')
 }
 
+const handleAccount = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+  router.push("/my");
+}
+
 const HandelLogout = () => {
   isSidebarOpen.value = !isSidebarOpen.value
   logout()

@@ -54,7 +54,7 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { onMounted, reactive } from 'vue';
 import { signIn } from '@/service/authService';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
@@ -96,10 +96,27 @@ const handleGoogleLogin = () => {
   const redirectUri = "http://localhost:5173/login"; 
   const scope = 'openid email profile';
 
-  const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=id_token&scope=${scope}&include_granted_scopes=true`;
+  const googleLoginUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}&include_granted_scopes=true`;
   // Google 로그인 페이지로 리디렉션
   window.location.href = googleLoginUrl;
 }
+
+const handleGoogleLoginCallback = async () => {
+  const hash = window.location.hash.substring(1);
+
+  const params = new URLSearchParams(hash);
+  const accessToken = params.get('access_token');
+  const tokenType = params.get('token_type');
+  const expiresIn = params.get('expires_in');
+
+  if (accessToken) {
+    console.log(accessToken);
+  }
+}
+
+onMounted(() => {
+  handleGoogleLoginCallback();
+})
 
 </script>
 
