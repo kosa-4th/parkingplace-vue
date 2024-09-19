@@ -1,28 +1,27 @@
 <!-- 
- 담당자: 양건모
- 시작 일자: 2024.09.10
- 설명 : 즐겨찾기한 주차장
- ---------------------
- 2024.09.10 양건모 | 기능 구현
- 2024.09.11 양건모 | api 명세 변경에 따른 요청 url 변경
- -->
+  담당자: 양건모
+  시작 일자: 2024.09.10
+  설명 : 즐겨찾기한 주차장
+  ---------------------
+  2024.09.10 양건모 | 기능 구현
+  2024.09.11 양건모 | api 명세 변경에 따른 요청 url 변경
+  -->
 <template>
   <div id="content-wrapper">
-    <div id="content-header">
-      <h3 class="font-large"><b>즐겨찾기한 주차장</b></h3>
-    </div>
+    <div class="font-large">즐겨찾기한 주차장</div>
+
     <div id="favorites-wrapper">
       <div class="favorite" v-for="(favorite, index) in favorites" :key="index">
         <div>
           <img
             class="favorite-img"
-            src="../../../../assets/img/favorite-filled.png"
+            src="@/assets/img/favorite-filled.png"
             @click="toggleFavorite(favorite.id, index)"
             v-if="favorite.toggleResult"
           />
           <img
             class="favorite-img"
-            src="../../../../assets/img/favorite-empty.png"
+            src="@/assets/img/favorite-empty.png"
             @click="toggleFavorite(favorite.id, index)"
             v-else
           />
@@ -152,15 +151,13 @@ export default {
 
 <style>
 #content-wrapper {
-  width: 90%;
-  padding: 10px;
-  margin: auto;
+  width: 100%;
 }
 
-#content-header {
+/* #content-header {
   text-align: center;
   margin-bottom: 10px;
-}
+} */
 
 .favorite {
   border: 1px solid lightgray;
@@ -205,6 +202,8 @@ export default {
 
 .font-large {
   font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 30px;
 }
 
 .font-small {

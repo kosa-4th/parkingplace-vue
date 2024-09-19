@@ -10,8 +10,8 @@ export default {}
 
 <style>
 .my-container {
-  width: 90%;
+  width: 85%;
   max-width: 700px;
-  margin: 20px auto;
+  margin: 30px auto 20px;
 }
 </style>

@@ -17,21 +17,23 @@
       <div>
         <label>시작 날짜</label>
         <Datepicker
+          locale="ko"
           class="date-input"
           v-model="startDate"
           format="yyyy-MM-dd"
-          clearable="true"
-          enable-time-picker="false"
+          :clearable="true"
+          :enable-time-picker="false"
         />
       </div>
       <div>
         <label>마지막 날짜</label>
         <Datepicker
+          locale="ko"
           class="date-input"
           v-model="endDate"
           format="yyyy-MM-dd"
-          clearable="true"
-          enable-time-picker="false"
+          :clearable="true"
+          :enable-time-picker="false"
         />
       </div>
       <button class="search-btn" @click="getNewReservations">검색하기</button>
@@ -53,7 +55,8 @@
         </div>
         <div class="reservation-info">
           <div class="parking-name">{{ reservation.parkingLotName }}</div>
-          <div class="car-info">{{ reservation.carNumber }} | {{ reservation.carType }}</div>
+          <div class="car-info">차량 번호: {{ reservation.carNumber }} </div>
+            <!-- | {{ reservation.carType }}</div> -->
           <div class="reservation-dates">
             주차 시간: {{ DateFormat(reservation.startDate) }} <br />
             출차 시간: {{ DateFormat(reservation.endDate) }}
@@ -85,18 +88,11 @@ import axios from 'axios';
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 
-// const dateData = {
-//   startDate: null,
-//   endDate: null,
-//   locale: 'kr',
-//   to: new Date(),
-//   from: new Date(2000, 0, 1)
-// }
-
 const showDatePicker = ref(false);
-const startDate = ref(new Date(2000, 0, 1));
+const startDate = ref(new Date(Date.UTC(2000, 0, 1, 0, 0, 0)));
 const endDate = ref(new Date());
 endDate.value.setDate(endDate.value.getDate() + 30);
+endDate.value.setUTCHours(0, 0, 0, 0);
 const page = ref(0);
 const size = 5;
 const hasMoreData = ref(true);
@@ -125,6 +121,8 @@ const getMyReservations = async () => {
 
 // date 변환해서 보내기
 const formatDate = (date) => {
+  const localDate = new Date(date);
+  localDate.setUTCHours(0, 0, 0, 0);
   return date.toISOString().substring(0, 19);
 }
 
@@ -135,15 +133,8 @@ const toggleDatepicker = () => {
 
 //Date 포맷
 const DateFormat = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleString('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).replace(/\./g, '-').replace(/\s/g, ' ');
-}
+  return dateString.replace('T', '  ').substring(0, 17);
+};
 
 //글씨 색
 const getStatusClass = (status) => {
@@ -165,7 +156,7 @@ const getMoreReservations  = () => {
 const getNewReservations = () => {
   page.value = 0;
   reservations.value = [];
-  getMoreReservations();
+  getMyReservations();
 }
 
 onMounted(() => {
@@ -175,6 +166,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.reservation-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .reservation-toggle {
   display: flex;
   flex-direction: row;
@@ -194,7 +190,6 @@ onMounted(() => {
   border-radius: 5px;
   display: flex;
   flex-direction: column;
-  /* justify-content: center; */
   width: 100%;
 }
 
@@ -219,6 +214,7 @@ onMounted(() => {
 
 .reservation-list {
   margin-top: 20px;
+  margin-bottom: 15px;
 }
 
 .reservation-item {
@@ -244,6 +240,7 @@ onMounted(() => {
 }
 
 .car-info {
+  margin-bottom: 5px;
 }
 
 .reservation-dates {
@@ -270,6 +267,7 @@ onMounted(() => {
   width: 29px;
   height: 29px;
   margin-bottom: 5px;
+  cursor: pointer;
 }
 .search-btn {
   width: 100%;
@@ -277,7 +275,6 @@ onMounted(() => {
   border: none;
   background-color: #9A64E8;
   border-radius: 5px;
-  /* margin-top: 10px; */
   color: white;
   font-weight: 700;
 }
@@ -285,22 +282,22 @@ onMounted(() => {
 .reservation-btns {
   display: flex;
   justify-content: space-between;
+  margin-top: 5px;
 }
 
 .detail-btn, .rebook-btn {
-  width: 45%;
+  width: 49%;
   padding: 10px;
-  margin-right: 5px;
   border: 1px solid #ddd;
   border-radius: 5px;
   background-color: white;
   cursor: pointer;
   text-align: center;
+  text-decoration: none;
+  color: inherit;
 }
 
 .toggle-search {
-  /* text-align: right; */
-  /* margin-bottom: 10px; */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -310,9 +307,22 @@ onMounted(() => {
   border-radius: 5px;
 }
 
-.fa-search {
-  cursor: pointer;
+.more-btn {
+  width: 110px;
+  border: 1px solid #ddd;
+  background-color: white;
+  border-radius: 20px;
+  color: black;
+  margin-top: -36px;
+  margin-bottom: 20px;
+  padding: 5px 20px;
+  align-self: center;
+  z-index: 1;
 }
+
+/* .fa-search {
+  cursor: pointer;
+} */
 
 .canceled {
   color: #F93A41;

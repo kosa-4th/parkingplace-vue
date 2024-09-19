@@ -1,15 +1,16 @@
 <template>
   <div class="review-container">
-    <h2>내 리뷰</h2>
+    <div class="title">내 리뷰</div>
 
     <div v-if="reviews.length === 0">작성된 리뷰가 없습니다.</div>
 
     <div v-for="(review, index) in reviews" :key="index" class="review-box" @click="gotoReview(review.parkinglotId)">
       <div class="review-header">
-        <span class="parking-name">{{ review.parkinglotName }}</span> | <span class="review-date">{{ review.reviewDate }}</span>
-      </div>
-      <div class="review-content">
-        {{ review.review }}
+        <div class="parking-name">{{ review.parkinglotName }}</div>
+        <div class="review-date">{{ review.reviewDate }}</div>
+        <div class="review-content">
+          {{ review.review }}
+        </div>
       </div>
       <span class="arrow">></span>
     </div>
@@ -65,10 +66,16 @@ onMounted(() => {
 
 <style scoped>
 .review-container {
-  width: 90%;
+  width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 30px;
 }
 
 .review-box {
@@ -77,12 +84,22 @@ onMounted(() => {
   padding: 10px;
   margin-bottom: 10px;
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
   align-items: center;
 }
 
 .review-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.parking-name {
   font-weight: 700;
+}
+
+.review-date {
+  font-size: 10px;
 }
 
 .review-date {
