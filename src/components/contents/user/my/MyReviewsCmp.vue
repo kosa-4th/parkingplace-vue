@@ -12,8 +12,14 @@
           {{ review.review }}
         </div>
       </div>
-      <span class="arrow">></span>
-    </div>
+      <span class="arrow">
+        <svg width="15" height="30" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 30">
+              <g fill="none" stroke="#9a64e8" stroke-width="4" stroke-linecap="round">
+                <path d="M 2 2 L 13 15 L 2 28" />
+              </g>
+            </svg>
+      </span>
+    </div>  
 
     <!-- 더보기 버튼 -->
     <hr class="more-separatior" v-if="hasMoreReviews">
@@ -90,6 +96,7 @@ onMounted(() => {
 }
 
 .review-header {
+  width: 90%;
   display: flex;
   flex-direction: column;
 }
@@ -104,13 +111,14 @@ onMounted(() => {
 
 .review-date {
   font-size: 15px;
+  color: #d9d9d9;
 }
 
 .review-content {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 80%;
+  width: 100%;
 }
 
 .arrow {

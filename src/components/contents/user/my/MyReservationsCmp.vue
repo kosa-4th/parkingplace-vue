@@ -79,12 +79,19 @@
     <hr class="more-separatior" v-if="hasMoreData">
     <button class="more-btn" v-if="hasMoreData" @click="getMoreReservations">더보기 ∨</button>
 
+    <confirm-modal
+      v-if="modal.isModalVisible"
+      :error="modal.error"
+      :message="modal.modalMessage"
+      @close="handleModalClose"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import axios from 'axios';
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 
@@ -95,9 +102,19 @@ endDate.value.setDate(endDate.value.getDate() + 30);
 endDate.value.setUTCHours(0, 0, 0, 0);
 const page = ref(0);
 const size = 5;
-const hasMoreData = ref(true);
+const hasMoreData = ref(false);
 
 const reservations = ref([]);
+
+const modal = reactive({
+  error: true,
+  isModalVisible: false,
+  modalMessage: '',
+})
+
+const handleModalClose = () => {
+  modal.isModalVisible = false;
+}
 
 // 예약 가져오기
 const getMyReservations = async () => {
@@ -113,9 +130,10 @@ const getMyReservations = async () => {
     const newReserve = response.data.reservations;
     reservations.value = [...reservations.value, ...newReserve];
     hasMoreData.value = response.data.nextPage;
-    console.log(response.data);
   } catch (error){
-    console.log(error.response.data);
+    // console.log(error.response.data);
+    modal.modalMessage = "잠시 후 다시 시도해 주세요.";
+    modal.isModalVisible = true;
   }
 }
 
@@ -210,6 +228,16 @@ onMounted(() => {
 .date-input {
   flex:2;
   width: 100%;
+}
+
+.no-reservations {
+  padding-top: 6px;
+  width: 100%;
+  height: 40px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-top: 20px;
 }
 
 .reservation-list {

@@ -37,10 +37,11 @@
 
     <ConfirmModal
       v-if="modal.isModalVisible"
+      :confirm="modal.confirm"
       :title="modal.modalTitle"
       :message="modal.modalMessage"
       :path="modal.modalPath"
-      @close="modal.handleModalClose"
+      @close="handleModalClose"
       />
 
     <!-- 소셜 로그인 -->
@@ -55,6 +56,7 @@
 
 <script setup>
 import { onMounted, reactive } from 'vue';
+import router from '@/router';
 import { signIn } from '@/service/authService';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
@@ -66,8 +68,9 @@ const user = reactive({
 });
 
 const modal = reactive({
+  confirm: false,
   isModalVisible: false,
-  modalTitle: '',
+  modalTitle: '로그인',
   modalMessage: '',
   modalPath: ''
 })
@@ -76,17 +79,20 @@ const handleLogin = async () => {
   try {
     const success = await signIn(user);
     if (success) {
-      console.log("login successful");
-      modal.modalTitle = "Info";
-      modal.modalMessage = "로그인이 완료되었습니다.";
-      modal.modalPath = "/";
-      modal.isModalVisible = true;
+      router.push("/");
     } else {
-      console.error("login failed");
+      modal.modalMessage = `이메일 혹은 비밀번호를<br/>잘못 입력하셨습니다.`;
+      modal.isModalVisible = true;
     }
-  } catch (error) {
-    console.error("Error during login");
+  } catch {
+    modal.modalMessage = '잘못된 접근입니다.<br/>잠시 후 다시 시도해 주세요.';
+    modal.modalPath = "/";
+    modal.isModalVisible = true;
   }
+}
+
+const handleModalClose = () => {
+  modal.isModalVisible = false;
 }
 
 // 구글 로그인 처리 함수
@@ -129,7 +135,7 @@ onMounted(() => {
 
 input {
   border: 1px solid #ddd;
-  border-radius: 5px;
+  border-radius: 5px !important;
   height: 40px;
   width: 100%;
 }
@@ -179,7 +185,7 @@ button {
   height: 3px;
   color: #9A64E8;
   position: absolute;
-  transform: translate(-130%, -250%); 
+  transform: translate(-5%, -200%); 
   opacity: 0;
 }
 
@@ -244,7 +250,7 @@ label {
   height: 3px;
   color: #9A64E8;
   position: absolute;
-  transform: translate(-130%, -250%);
+  transform: translate(-5%, -200%); 
   opacity: 0;
 }
 
@@ -254,7 +260,6 @@ label {
 
 .find-password {
   font-size: 12px;
-  color: black;
 }
 
 .login-button {
@@ -273,7 +278,6 @@ label {
 }
 
 .sign-up-link {
-  color: black;
   font-weight: 600;
 }
 

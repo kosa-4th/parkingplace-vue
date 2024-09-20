@@ -84,10 +84,6 @@ const toReservation = function () {
   align-items: center;
 }
 
-/* i {
-  font-size: 20px;
-  margin-right: 10px;
-} */
 .icon {
   width: 20px;
   height: 20px;
@@ -110,28 +106,14 @@ const toReservation = function () {
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-bottom: 5px;
 }
 
 .detail-item-col > p {
   margin: 0;
-  padding-left: 38px;
+  padding-left: 30px;
 }
 
-/* .icon.location::before {
-  content: '📍';
-}
-
-.icon.phone::before {
-  content: '📞';
-}
-
-.icon.clock::before {
-  content: '⏰';
-}
-
-.icon.price::before {
-  content: '💰';
-} */
 
 .reservation-button {
   background-color: #9a64e8;
