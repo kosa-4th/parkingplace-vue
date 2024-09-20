@@ -132,19 +132,19 @@ export default {
     * @Date 2024.09.18
     * 모달처리 및 디자인 */
     openModal(action) {
-      this.modalTitle = action; // 모달 제목 설정
-      this.showModal = true;    // 모달 열기
+      this.modalTitle = action // 모달 제목 설정
+      this.showModal = true    // 모달 열기
     },
     closeModal() {
-      this.showModal = false;   // 모달 닫기
+      this.showModal = false   // 모달 닫기
     },
     confirmAction() {
       if (this.modalTitle === '예약 취소') {
-        this.cancelReservation();
+        this.cancelReservation()
       } else if (this.modalTitle === '결제 및 예약 취소') {
-        this.cancelPayment();
+        this.cancelPayment()
       }
-      this.closeModal();
+      this.closeModal()
     },
     /**
      * @Author 김경민
@@ -362,6 +362,7 @@ export default {
   background-color: #8e44ad; /* hover 시 보라색을 더 진하게 */
   color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
 }
+
 .modal-overlay {
   position: fixed;
   top: 0;
