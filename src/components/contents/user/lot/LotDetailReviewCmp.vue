@@ -31,7 +31,9 @@
           rows="1"
           v-model="review.review"
           class="read-only-textarea"
-          @input="autoResize($event)"></textarea>
+          @input="autoResize($event)"
+          ref="reviewTextarea"
+          ></textarea>
 
         <textarea
           v-if="review.isEditing"
@@ -43,12 +45,12 @@
         <!-- 수정 모드 아닐 때 -->
         <div v-if="isReviewOwner(review) && !review.isEditing" class="review-actions">
           <button class="edit-btn" @click="modifyReview(review)">수정</button>
-          <button class="delete-btn" @click="deleteReview(review.id)">삭제</button>
+          <button class="delete-btn" @click="openDeleteModal(review)">삭제</button>
         </div>
 
         <!-- 수정 모드일 때 -->
         <div v-if="review.isEditing" class="review-actions">
-          <button class="save-btn" @click="saveReview(review)">저장</button>
+          <button class="save-btn" @click="openModifyModal(review)">저장</button>
           <button class="cancel-btn" @click="cancelEdit(review)">취소</button>
         </div>
       </div>
@@ -57,13 +59,33 @@
     <!-- 더보기 버튼 -->
     <hr class="more-separatior" v-if="hasMoreReviews">
     <button class="more-btn" v-if="hasMoreReviews" @click="getMoreReviews">더보기 ∨</button>
+
+    <confirm-modal
+      v-if="modalState.isVisible"
+      :confirm="modalState.confirm"
+      :error="modalState.error"
+      :message="modalState.message"
+      @close="handleCloseModal"  
+    />
+
+    <confirm-cancel-modal
+      v-if="confirmCancelModalState.isVisible"
+      :confirm="confirmCancelModalState.confirm"
+      :message="confirmCancelModalState.message"
+      @close="handleColseCCModal"
+      @confirm="confirmModalAction"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, reactive, ref } from 'vue';
 import { AuthStore } from '@/stores/store';
 import { useRoute } from 'vue-router';
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
+import ConfirmCancelModal from '@/components/modal/ConfirmCancelModal.vue';
+import { modalState, handleCloseModal, showConfirmModal, showInfoModal, showErrorModal } from '@/components/modal/ConfirmModalService';
+import { confirmCancelModalState, handleColseCCModal, showConfirmCancelModal, showCCInfoModal } from '@/components/modal/ConfirmModalService';
 import axios from 'axios';
 
 const authStore = AuthStore();
@@ -84,6 +106,81 @@ let editingReviewId = ref(null);
 // 현재 주차장 번호
 const parkinglotId = route.params.lotId;
 
+const actionType = ref('');
+const reviewVal = ref(null);
+
+// 기본 모달
+// const modal = reactive({
+//   confirm: false,
+//   error: false,
+//   modalMessage: '',
+//   isModalVisible: false,
+// })
+
+// 취소 확인 모달
+// const cancelModal = reactive({
+//   confirm: true,
+//   modalMessage: '',
+//   isModalVisible: false,
+//   actionType: '', // 삭제인지, 수정인지??
+//   review: null
+// })
+
+// 기본 모달 닫기
+// const handleModalClose = () => {
+//   modal.confirm = false;
+//   modal.error = false;
+//   modal.isModalVisible = false;
+// }
+
+// // 취소 확인 모달 닫기
+// const handleCancelModalClose = () => {
+//   cancelModal.confirm = false;
+//   cancelModal.isModalVisible = false;
+// }
+
+// 취소 확인 모달 -> 확인 눌렀을 때
+// const confirmModalAction = async () => {
+//   if (cancelModal.actionType === 'delete') {
+//     await deleteReview(cancelModal.review.id)
+//   } else if (cancelModal.actionType === 'modify') {
+//     await saveReview(cancelModal.review);
+//   }
+//   cancelModal.isModalVisible = false;
+// }
+
+//리뷰 삭제 모달 열기
+const openDeleteModal = (review) => {
+  // cancelModal.actionType = 'delete';
+  // cancelModal.modalMessage = "이 리뷰를 삭제하시겠습니까?";
+  // cancelModal.isModalVisible = true;
+  // cancelModal.review = review;
+  showCCInfoModal("이 리뷰를 삭제하시겠습니까?");
+  actionType.value = 'delete';
+  reviewVal.value = review;
+}
+
+// 리뷰 수정 모달
+const openModifyModal = (review) => {
+  // cancelModal.actionType = "modify";
+  // cancelModal.modalMessage = "이 리뷰를 수정하시겠습니까?"
+  // cancelModal.isModalVisible = true;
+  // cancelModal.review = review;
+  showCCInfoModal("이 리뷰를 수정하시겠습니까?");
+  actionType.value = 'modify';
+  reviewVal.value = review;
+}
+//  취소 확인 모달 -> 확인 눌렀을 때
+const confirmModalAction = async () => {
+  const review = reviewVal.value;
+  if (actionType.value === 'delete') {
+    await deleteReview(review.id);
+  } else if (actionType.value === 'modify') {
+    await saveReview(review)
+  }
+  handleColseCCModal();
+}
+
 //
 const autoResize = (event) => {
   const textarea = event.target;
@@ -95,7 +192,6 @@ const autoResize = (event) => {
 const getReviews = async () => {
   try {
     const response = await axios.get(`/api/parkinglots/${parkinglotId}/reviews?page=${page.value -1}&size=${size}`);
-    console.log(response.data);
     const newReviews = response.data.reviews.map(review => ({
       ...review,
       isEditing: false
@@ -103,27 +199,32 @@ const getReviews = async () => {
 
     hasMoreReviews.value = response.data.nextPage;
     reviews.value = [...reviews.value, ...newReviews];
+
+    await nextTick(() => {
+      document.querySelectorAll('textarea.read-only-textarea').forEach(textarea => {
+        autoResize({ target: textarea });
+      });
+    });
   } catch {
-    console.log("리뷰 가져오기 에러");
+    showErrorModal("잠시 후 다시 시도해주세요.")
   }
 }
 
 // 리뷰등록
 const registerReview = async () => {
   if (!newReview.value.trim()) {
-    alert("리뷰를 작성해주세요.")
+    showInfoModal("리뷰를 작성해주세요.")
     return;
   }
   if (authStore.isLoggedIn) {
-    
-    const response = await axios.post(`/api/parkinglots/${parkinglotId}/reviews/protected`,
+    await axios.post(`/api/parkinglots/${parkinglotId}/reviews/protected`,
       {newReview : newReview.value},
     );
-    console.log(response.data);
+    showConfirmModal("리뷰가 등록되었습니다.")
     resetData();
   } else {
     // 로그인되지 않음
-    alert("로그인 후 이용해주세요");
+    showInfoModal("로그인 후 이용해주세요.")
   }
 }
 
@@ -141,20 +242,19 @@ const isReviewOwner = (review) => {
 //리뷰 삭제
 const deleteReview = async (reviewid) => {
   if (authStore.isLoggedIn) {
-    console.log(reviewid);
-    const response = await axios.delete(`/api/parkinglots/${parkinglotId}/reviews/${reviewid}/protected`);
-    console.log(response.data);
+
+    await axios.delete(`/api/parkinglots/${parkinglotId}/reviews/${reviewid}/protected`);
+    showConfirmModal("리뷰가 삭제되었습니다.")
     resetData();
-    
   } else {
-    alert("로그인 후 이용해주세요.")
+    showInfoModal("로그인 후 이용해주세요.")
   }
 }
 
 //댓글 수정
 const modifyReview = (review) => {
   if (editingReviewId.value) {
-    alert("수정 중인 리뷰가 있습니다.")
+    showInfoModal("수정 중인 리뷰가 있습니다.")
   } else {
     review.isEditing = true;
     editingReview.value = review.review;
@@ -171,19 +271,19 @@ const cancelEdit = (review) => {
 
 //리뷰 수정 저장
 const saveReview = async (review) => {
-  console.log()
   try {
-    const response = await axios.put(`/api/parkinglots/${parkinglotId}/reviews/${review.id}/protected`,
+    await axios.put(`/api/parkinglots/${parkinglotId}/reviews/${review.id}/protected`,
       {newReview: editingReview.value}
     );
     review.review = editingReview.value;
-    console.log(response.data);
     review.isEditing = false;
     editingReview.value = '';
     editingReviewId.value = null;
     // resetData();
+    showConfirmModal("리뷰 수정이 완료되었습니다.");
   } catch {
-    console.log("리뷰 수정 에러");
+    // 리뷰 수정 에러
+    showErrorModal("잠시 후 다시 시도해주세요.")
   }
 }
 
@@ -252,7 +352,6 @@ textarea.read-only-textarea {
   align-items: center;
   font-weight: 700;
   margin-top: 20px;
-  color: #757575;
 }
 
 .review-input {

@@ -11,39 +11,46 @@
         ></textarea>
     </div>
     <button class="submit-btn" @click="submitInquiry">등록하기</button>
+
+    <confirm-modal
+      v-if="modalState.isVisible"
+      :confirm="modalState.confirm"
+      :message="modalState.message"
+      :path="modalState.path"
+      @close="handleCloseModal"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router'; 
+import { useRoute } from 'vue-router'; 
 import { AuthStore } from '@/stores/store';
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
+import { modalState, handleCloseModal } from '@/components/modal/ConfirmModalService';
+import { showConfirmModal, showInfoModal } from '@/components/modal/ConfirmModalService';
 import axios from 'axios';
 const route = useRoute();
-const router = useRouter();
 const parkinglotId = route.params.lotId;
 const inquiryContent = ref('');
 
 
+// 문의 작성
 const submitInquiry = async () => {
   if (inquiryContent.value.trim() == '') {
-    alert("문의 내용을 작성해주세요.");
+    showInfoModal("문의 내용을 작성해주세요.")
     return;
   };
   const authStore = AuthStore();
   
-  console.log("lot: " + parkinglotId);
-  console.log("inquiry: " + inquiryContent.value);
   if (authStore.isLoggedIn) {
-    const response = await axios.post(`/api/parkingLots/${parkinglotId}/inquiries/protected`,
+    await axios.post(`/api/parkingLots/${parkinglotId}/inquiries/protected`,
       {inquiry: inquiryContent.value},
     );
-    console.log(response.data);
-    alert("문의 작성이 완료되었습니다.");
+    showConfirmModal("문의 작성이 완료되었습니다.", `/lot/${parkinglotId}/inquiry`)
   } else {
-    alert("로그인 후 이용해주세요.")
+    showInfoModal("로그인 후 이용해주세요.")
   }
-  router.push(`/lot/${parkinglotId}/inquiry`);
 }
 </script>
 

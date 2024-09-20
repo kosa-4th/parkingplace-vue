@@ -75,6 +75,8 @@
     </form>
 
     <ConfirmModal
+      :confirm="modal.confirm"
+      :error="modal.error"
       v-if="modal.isModalVisible"
       :title="modal.modalTitle"
       :message="modal.modalMessage"
@@ -88,7 +90,6 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue';
-import router from '@/router';
 import axios from 'axios';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
@@ -113,8 +114,10 @@ const user = reactive({
 
 //모달 정보
 const modal = reactive({
+  error: false,
+  confirm: false,
   isModalVisible: false,
-  modalTitle: '',
+  modalTitle: '회원가입',
   modalMessage: '',
   modalPath: ''
 });
@@ -126,7 +129,10 @@ const getCarTypes = async () => {
     carTypes.value = response.data;
     user.selectedCar = carTypes.value[0].carType;
   } catch (error) {
-    console.log(error);
+    modal.error = true;
+    modal.modalMessage = "잠시 후 다시 시도해 주세요."
+    modal.modalPath = "/"
+    modal.isModalVisible = true;
   }
 }
 
@@ -135,19 +141,23 @@ const sendVerification = async () => {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
 
   if (!emailPattern.test(user.email)) {
-    alert("올바른 이메일을 입력해주세요.");
+    modal.modalMessage("올바른 이메일을 입력해주세요.");
+    modal.isModalVisible = true;
     return;
   }
-
-  alert("인증 메일이 요청되었습니다. 잠시만 기다려주세요.");
+  modal.modalMessage = "인증 메일이 요청되었습니다.<br/> 잠시만 기다려주세요."
+  modal.confirm = true;
+  modal.isModalVisible = true;
   try {
-    const response = await axios.post("/api/auth/verification", {
+    await axios.post("/api/auth/verification", {
       email: user.email
     });
-    console.log(response.data);
-    alert("인증 메일이 발송되었습니다.");
+
   } catch (error) {
-    alert("에러");
+    console.log(error.response.data);
+    modal.modalMessage = error.response.data.message;
+    modal.confirm = false;
+    modal.isModalVisible = true;
   }
 }
 
@@ -159,9 +169,13 @@ const verifyCode = async () => {
       code: user.code
     });
     verification.value = true;
-    alert(response.data.message);
+    modal.confirm = true;
+    modal.modalMessage = response.data.message;
+    modal.isModalVisible = true;
   } catch (error) {
-    alert("에러");
+    modal.error = true;
+    modal.modalMessage = error.response.data.message;
+    modal.isModalVisible = true;
   }
 }
 
@@ -186,42 +200,41 @@ watch(
 //회원가입
 const handleSignup = async () => {
   if (!verification.value) {
-    alert("메일 인증이 필요합니다.");
+    modal.modalMessage = "메일 인증이 필요합니다.";
+    modal.isModalVisible = true;
   } else if (!passwordValid.value) {
-    alert("비밀번호 조건을 충족해주세요.")
+    modal.modalMessage = "비밀번호 조건을 충족해주세요.";
+    modal.isModalVisible = true;
   } else if (!confirmPasswordMatch.value){
-    alert("비밀번호가 일치하지 않습니다.")
+    modal.modalMessage = "비밀번호가 일치하지 않습니다.";
+    modal.isModalVisible = true;
   } else {
     try {
       const response = await axios.post("/api/users", user);
       console.log(response.data);
       if (response.status === 204 ) {
-        // alert("회원가입이 완료되었습니다.");
-        modal.modalTitle = 'info';
-        modal.modalMessage = '회원가입이 성공적으로 완료되었습니다!!!!!!!!!!!!!!!!!!!!!!!!!!!!';
-        modal.modalPath = '/';
+        modal.modalTitle = '회원가입';
+        modal.modalMessage = '회원가입이 완료되었습니다.';
+        modal.modalPath = '/login';
         modal.isModalVisible = true;
-        router.push('/login');
       }
     } catch (error) {
       console.error(error);
       if (error.response && error.response.data.message) {
-        modal.modalTitle = 'ERROR';
         modal.modalMessage = error.response.data.message;
-        modal.modalPath = '';
-        modal.isModalVisible = true;
       } else {
-        modal.modalTitle = 'ERROR';
         modal.modalMessage = error.response.data[0].message;
-        modal.modalPath = '';
-        modal.isModalVisible = true;
       }
+      modal.error = true;
+      modal.isModalVisible = true;
     }
   }
 }
 
 modal.handleModalClose = () => {
   modal.isModalVisible = false;
+  modal.error = false;
+  modal.confirm = false;
 }
 
 onMounted(() => {
@@ -240,7 +253,7 @@ onMounted(() => {
 
 input {
   border: 1px solid #ddd;
-  border-radius: 5px;
+  border-radius: 5px !important;
   height: 40px;
   width: 100%;
 }
@@ -302,7 +315,7 @@ label {
 }
 
 .input-with-btn {
-  border-radius: 5px 0 0 5px;
+  border-radius: 5px 0 0 5px !important;
   width: calc(100% - 100px);
 }
 

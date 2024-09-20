@@ -1,6 +1,7 @@
 <template>
   <div class="member-info-container">
-    <h2>님 안녕하세요!</h2>
+    <div class="title">회원 정보</div>
+    <div class="name"><strong>{{ authStore.getUsername }}</strong>님 안녕하세요!</div>
 
     <div class="form-group">
       <label for="email">이메일</label>
@@ -59,8 +60,10 @@
 
 <script setup>
 import { watch, computed, reactive } from 'vue';
+import { AuthStore } from '@/stores/store';
 import axios from 'axios';
 
+const authStore = AuthStore();
 const user = reactive({
   currentPassword: "",
   newPassword: "",
@@ -98,14 +101,18 @@ const deleteAccount = async () => {
 <style scoped>
 .member-info-container {
   max-width: 400px;
-  width: 90%;
+  width: 100%;
   margin: 0 auto;
-  padding: 20px;
 }
 
-h2 {
-  text-align: center;
-  margin-bottom: 20px;
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.name {
+  margin-bottom: 14px;
 }
 
 .form-group {

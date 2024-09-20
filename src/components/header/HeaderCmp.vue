@@ -5,6 +5,7 @@
  ---------------------
  2024.09.02 김경민 : 메인 헤더 작성
  2024.09.11 양건모 : a 태그 router-link로 변환, 관련 메서드 수정 삭제
+ 2024.09.19 오지수 : header 디자인 수정, 회원 정보 라우터 추가
  -->
 <template>
   <nav class="navbar bg-light fixed-top">
@@ -35,24 +36,20 @@
             <div class="menu">메뉴</div>
             <div class="user-box" @click="handleAccount">
               <div><strong>{{ username }}</strong> 님 안녕하세요!</div>
+              <svg width="15" height="30" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 30">
+              <g fill="none" stroke="#9a64e8" stroke-width="4" stroke-linecap="round">
+                <path d="M 2 2 L 13 15 L 2 28" />
+              </g>
+            </svg>
             </div>
             <hr>
             <!-- 로그인 상태일 때 -->
             <ul class="list-unstyled">
-              <li>
-                <router-link to="/my/reservations" @click="closeNavigation"
-                  >내 예약 내역</router-link
-                >
-              </li>
-              <li>
-                <router-link to="/my/cars" @click="closeNavigation">내 차량 관리</router-link>
-              </li>
-              <li>
-                <router-link to="/my/favorites" @click="closeNavigation">
-                  즐겨찾기한 주차장
+              <li v-for="(menu, index) in menus" :key="index">
+                <router-link :to="menu.path" @click="closeNavigation" class="menu-name">
+                  {{ menu.name }} <img src="@/assets/img/arrow-right-grey.png" alt="arrow">
                 </router-link>
               </li>
-              <li><router-link to="/my/reviews" @click="closeNavigation">내 리뷰</router-link></li>
               <li>
                 <span class="logout" @click="HandelLogout">로그아웃</span>
               </li> 
@@ -94,6 +91,13 @@ const authStore = AuthStore();
 
 const username = computed(() => authStore.getUsername);
 
+const menus = [
+{ path: "/my/reservations", name: "내 예약 내역" },
+{ path: "/my/cars", name: "내 차량 관리" },
+{ path: "/my/favorites", name: "즐겨찾기한 주차장" },
+{ path: "/my/reviews", name: "내 리뷰" },
+]
+
 const closeNavigation = () => {
   isSidebarOpen.value = false
 }
@@ -105,11 +109,6 @@ const toggleSidebar = () => {
 const handleLogin = () => {
   isSidebarOpen.value = !isSidebarOpen.value
   router.push('/login')
-}
-
-const handelSignup = () => {
-  isSidebarOpen.value = !isSidebarOpen.value
-  router.push('/register')
 }
 
 const handleAccount = () => {
@@ -134,15 +133,20 @@ onMounted(() => {
 
 <style scoped>
 .menu {
-  font-size: 25px;
+  font-size: 22px;
   font-weight: 700;
+  margin-bottom: 25px;
 }
 .user-box {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 2px;
   margin: 10px 0;
   padding: 10px;
+  align-items: center;
 }
 .navbar {
   height: 50px;
@@ -164,14 +168,14 @@ onMounted(() => {
   width: 100%;
   max-width: 400px;
   height: 100%;
-  background: #EBEBEB;
+  background: #f5f4f7;
   z-index: 1050;
   transition: left 0.3s ease;
 }
 
 .sidebar.active {
   left: 0;
-  background-color: #EBEBEB;
+  background-color: #f5f4f7;
 }
 
 .sidebar-header {
@@ -194,8 +198,17 @@ onMounted(() => {
 .sidebar-content ul li a {
   display: block;
   padding: 10px 0;
-  color: #212529;
+}
+
+.sidebar-content ul li img {
+  width: 30px;
+  height: 30px;
+  margin-top: -5px;
+}
+
+.menu-name {
   text-decoration: none;
+  /* color: #757575; */
 }
 
 /* hover -> 선택 된 배색  */

@@ -1,13 +1,18 @@
 <template>
   <!-- 
     작성자: 오지수
-    모달 페이지 
+    모달 페이지
+    2024.09.20: 확인, 에러 모두 가능하게 수정
   -->
   <div class="modal-overlay">
     <div class="modal-container">
+        <img v-if="error" src="@/assets/img/logo-error.jpg" alt="error">
+        <img v-else-if="confirm" src="@/assets/img/logo-check.jpg" alt="check">
+        <img v-else src="@/assets/img/logo-info.jpg" alt="info">
+        
         <h2>{{ title }}</h2>
-        <p>{{ message }}</p>
-        <button @click="confirm">확인</button>
+        <div v-html="message"></div>
+        <button @click="confirmAction" :class="{ 'error-btn': error, 'info-btn': !error}">확인</button>
     </div>
   </div>
 </template>
@@ -16,6 +21,14 @@
 import { useRouter } from 'vue-router';
 
 const props = defineProps({
+    confirm: {
+      type: Boolean,
+      default: true //true는 기본 알림창, false는 error 알림창
+    },
+    error: {
+      type: Boolean,
+      default: false
+    },
     // Error, Info 등 타이틀
     title: {
         type: String,
@@ -30,7 +43,7 @@ const props = defineProps({
     // 없다면 ''
     path: {
         type: String,
-        default: '/'
+        default: ''
     }
 });
 
@@ -38,7 +51,7 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 const router = useRouter();
 
-const confirm = () => {
+const confirmAction = () => {
     emit('close');
     if (props.path !== '') {
       router.push(props.path);
@@ -47,6 +60,9 @@ const confirm = () => {
 </script>
 
 <style scoped>
+img {
+  width: 200px;
+}
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -70,10 +86,18 @@ const confirm = () => {
 button {
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: #a371ea;
   color: #fff;
+  font-weight: 700;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.error-btn {
+  background-color: #F93A41 ;
+}
+
+.info-btn {
+  background-color: #9A64E8;
 }
 </style>

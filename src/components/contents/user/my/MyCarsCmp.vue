@@ -21,6 +21,7 @@
                 id="car-number"
                 v-model="newCarNumber"
                 placeholder="차량번호를 입력하세요."
+                required
         />
       </div>
 
@@ -35,12 +36,22 @@
     </div>
 
     <button @click="registerCar" class="submit-btn">내 차량 번호 등록하기</button>
+    
+    <confirm-modal
+      v-if="modal.isModalVisible"
+      :confirm="modal.confirm"
+      :error="modal.error"
+      :message="modal.modalMessage"
+      @click="handleModalClose"
+    />
+
 
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 import axios from 'axios';
 import { AuthStore } from '@/stores/store';
 const authStore = AuthStore();
@@ -50,6 +61,19 @@ const carTypes = ref([]);
 const newCarNumber = ref('');
 const selectedCar = ref('');
 
+const modal = reactive({
+  confirm: false,
+  error: false,
+  isModalVisible: false,
+  modalMessage: '',
+})
+
+const handleModalClose = () => {
+  modal.isModalVisible = false;
+  modal.confirm = false;
+  modal.error = false;
+}
+
 const getData = async () => {
   try {
     const response = await axios.get("/api/users/cars/protected");
@@ -58,43 +82,47 @@ const getData = async () => {
     carTypes.value = response.data.carTypes;
     selectedCar.value = carTypes.value[0].carType;
   } catch {
-    console.log("데이터 받기 에러")
+    modal.error = true;
+    modal.modalMessage = "잠시 후 다시 시도해주세요."
+    modal.isModalVisible = true;
   }
 
 }
 
 const removeCar = async (car) => {
   if (myCars.value.length <= 1) {
-    alert("차량은 1개 이상 등록되어야 합니다.");
+    modal.modalMessage = "차량은 1개 이상<br/>등록되어야 합니다.";
+    modal.isModalVisible = true;
   } else {
 
-    const response = await axios.delete(`/api/users/cars/${car.id}/protected`, {
+    await axios.delete(`/api/users/cars/${car.id}/protected`, {
         data: {
           carType: car.carType,
           plateNumber: car.plateNumber
         }
       
     });
-    console.log(response.data);
     getData();
   }
-  console.log(car);
 }
 
 const registerCar = async () => {
-  console.log(newCarNumber);
-  console.log(selectedCar);
-
+  if (newCarNumber.value.trim() === '') {
+    modal.modalMessage = "차 번호를 입력해주세요.";
+    modal.isModalVisible = true;
+    return;
+  }
+  
   try {
-    const response = await axios.post("/api/users/cars/protected",
+    await axios.post("/api/users/cars/protected",
     {
       carType: selectedCar.value,
       plateNumber: newCarNumber.value
     });
-    console.log(response.data);
+    // 등록 요청 완
   } catch(error) {
-    alert(error.response.data);
-    console.log(error.response.data);
+    modal.modalMessage = error.response.data.message;
+    modal.isModalVisible = true;
   }
   getData();
 }
