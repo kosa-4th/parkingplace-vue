@@ -1,303 +1,525 @@
+<!--
+@Author김경민
+@Date 2024.09.19-2023.09.20
+디자인 및 데이터 가져오기 및 승인 및 취소
+-->
+
 <template>
-  <div class="reservation-container">
-    <!-- 미승인된 예약 섹션 -->
-    <div class="reservation-section-box">
-      <div class="reservation-section">
-        <h3>미승인된 예약</h3>
-        <table>
-          <thead>
-            <tr>
-              <!-- 테이블 헤더 -->
-              <th>NO</th>
-              <th>예약 날짜</th>
-              <th>사용자 및 차량 조회</th>
-              <th>부가서비스</th>
-              <th>예약 승인 여부</th>
-              <th>예약 삭제</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- 미승인된 예약 목록을 페이징 처리하여 표시 -->
-            <tr v-for="(reservation, index) in paginatedPendingReservations" :key="index">
-              <td>{{ index + 1 + (pendingCurrentPage - 1) * reservationsPerPage }}</td>
-              <td>
-                <div>{{ reservation.date1 }}</div>
-                <div>{{ reservation.date2 }}</div>
-              </td>
-              <td><button @click="viewUserInfo(reservation)">조회하기</button></td>
-              <td>{{ reservation.extraService }}</td>
-              <td><input type="checkbox" v-model="reservation.approval" /></td>
-              <td><button @click="deleteReservation(index)">삭제</button></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <!-- 미승인 예약 페이지네이션 -->
-      <div class="pagination">
-        <span @click="prevPendingPage">«</span>
-        <span
-          v-for="page in pendingTotalPages"
-          :key="page"
-          @click="goToPendingPage(page)"
-          :class="{ active: pendingCurrentPage === page }"
-          >{{ page }}</span
-        >
-        <span @click="nextPendingPage">»</span>
+  <div class="main-container">
+    <div class="tabs-container">
+      <!-- 부트스트랩 네비게이션 탭 -->
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a
+            class="nav-link subtitle"
+            :class="{ active: activeTab === 'not_approved' }"
+            @click="switchTab('not_approved')"
+          >
+            미승인 된 예약
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link subtitle"
+            :class="{ active: activeTab === 'approved' }"
+            @click="switchTab('approved')"
+          >
+            승인 된 예약
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link subtitle"
+            :class="{ active: activeTab === 'canceled' }"
+            @click="switchTab('canceled')"
+          >
+            취소 된 예약
+          </a>
+        </li>
+      </ul>
+      <!-- 기간 선택 -->
+      <div class="input-group mb-3 search-container mt-3">
+        <div class="form-group">
+          <input type="date" v-model="startDate" id="start-date" class="form-control" />
+        </div>
+
+        <div class="form-group mx-3">
+          <input type="date" v-model="endDate" id="end-date" class="form-control" />
+        </div>
+        <button class="btn bg-purple btn-sm" @click="applyDateFilter">검색</button>
       </div>
     </div>
 
-    <!-- 승인된 예약 섹션 -->
-    <div class="reservation-section-box">
-      <div class="reservation-section">
-        <h3>승인된 예약</h3>
-        <table>
-          <thead>
-            <tr>
-              <!-- 테이블 헤더 -->
-              <th>NO</th>
-              <th>예약 날짜</th>
-              <th>사용자 및 차량 조회</th>
-              <th>부가서비스</th>
-              <th>예약 승인 여부</th>
-            </tr>
+    <!-- 탭에 해당하는 콘텐츠 영역 -->
+    <div class="tab-content">
+      <!-- 미승인 예약 탭 -->
+      <div v-if="activeTab === 'not_approved'">
+        <table class="table table-bordered table-hover text-center">
+          <thead class="thead-dark">
+          <tr>
+            <th scope="col">NO</th>
+            <th scope="col">예약 날짜</th>
+            <th scope="col">사용자 및 차량 조회</th>
+            <th scope="col">부가서비스</th>
+            <th scope="col">승인</th>
+            <th scope="col">거부</th>
+          </tr>
           </thead>
           <tbody>
-            <!-- 승인된 예약 목록을 페이징 처리하여 표시 -->
-            <tr v-for="(reservation, index) in paginatedApprovedReservations" :key="index">
-              <td>{{ index + 1 + (approvedCurrentPage - 1) * reservationsPerPage }}</td>
-              <td>
-                <div>{{ reservation.date1 }}</div>
-                <div>{{ reservation.date2 }}</div>
-              </td>
-              <td><button @click="viewUserInfo(reservation)">조회하기</button></td>
-              <td>{{ reservation.extraService }}</td>
-              <td><input type="checkbox" v-model="reservation.approval" disabled /></td>
-            </tr>
+          <tr v-for="(reservation, index) in reservationsData" :key="reservation.reservationId">
+            <td>{{ index + 1 }}</td>
+            <td>
+              {{ formatDate(reservation.startTime) }} <br> {{ formatDate(reservation.endTime) }}
+            </td>
+            <td align="left">
+              예약자명 : <span>{{ reservation.userName }}</span>
+              <br>
+              차량번호 : <span>{{ reservation.plateCarNumber }}</span>
+            </td>
+            <td>  <!-- 세차 여부 체크박스 -->
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  :checked="reservation.wash === 'Y'"
+                  disabled
+                />
+                <label class="form-check-label">세차</label>
+              </div>
+
+              <!-- 정비 여부 체크박스 -->
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  :checked="reservation.maintenance === 'Y'"
+                  disabled
+                />
+                <label class="form-check-label">정비</label>
+              </div>
+            </td>
+            <td>
+              <button class="btn btn-sm bg-green" @click="permitReservation(reservation.reservationId)">허가</button>
+            </td>
+            <td>
+              <button class="btn btn-sm bg-red"
+                      @click="ignoreReservation(reservation.reservationId, reservation.reservationUid)">거부
+              </button>
+            </td>
+          </tr>
           </tbody>
         </table>
+
+        <!-- 페이지네이션 -->
+        <nav>
+          <ul class="pagination justify-content-center">
+            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+              <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
+            </li>
+            <li
+              class="page-item"
+              v-for="page in totalPages"
+              :key="page"
+              :class="{ active: currentPage === page }"
+            >
+              <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+            </li>
+            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+              <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
+            </li>
+          </ul>
+        </nav>
       </div>
-      <!-- 승인된 예약 페이지네이션 -->
-      <div class="pagination">
-        <span @click="prevApprovedPage">«</span>
-        <span
-          v-for="page in approvedTotalPages"
-          :key="page"
-          @click="goToApprovedPage(page)"
-          :class="{ active: approvedCurrentPage === page }"
-          >{{ page }}</span
-        >
-        <span @click="nextApprovedPage">»</span>
+
+      <!-- 승인된 예약 탭 -->
+      <div v-if="activeTab === 'approved'">
+        <table class="table table-bordered table-hover text-center">
+          <thead class="thead-dark">
+          <tr>
+            <th scope="col">NO</th>
+            <th scope="col">예약 날짜</th>
+            <th scope="col">사용자 및 차량 조회</th>
+            <th scope="col">부가서비스</th>
+            <th scope="col">예약 삭제</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="(reservation, index) in reservationsData" :key="reservation.reservationId">
+            <td>{{ index + 1 }}</td>
+            <td>
+              {{ formatDate(reservation.startTime) }} <br> {{ formatDate(reservation.endTime) }}
+            </td>
+            <td align="left">
+              예약자명 : <span>{{ reservation.userName }}</span>
+              <br>
+              차량번호 : <span>{{ reservation.plateCarNumber }}</span>
+            </td>
+            <td>  <!-- 세차 여부 체크박스 -->
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  :checked="reservation.wash === 'Y'"
+                  disabled
+                />
+                <label class="form-check-label">세차</label>
+              </div>
+
+              <!-- 정비 여부 체크박스 -->
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  :checked="reservation.maintenance === 'Y'"
+                  disabled
+                />
+                <label class="form-check-label">정비</label>
+              </div>
+            </td>
+            <td>
+              <button class="btn btn-sm bg-red"
+                      @click="ignoreReservation(reservation.reservationId, reservation.reservationUid)">취소
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <!-- 페이지네이션 -->
+        <nav>
+          <ul class="pagination justify-content-center">
+            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+              <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
+            </li>
+            <li
+              class="page-item"
+              v-for="page in totalPages"
+              :key="page"
+              :class="{ active: currentPage === page }"
+            >
+              <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+            </li>
+            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+              <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- 취소된 예약 탭 -->
+      <div v-if="activeTab === 'canceled'">
+        <table class="table table-bordered table-hover text-center">
+          <thead class="thead-dark">
+          <tr>
+            <th scope="col">NO</th>
+            <th scope="col">예약 날짜</th>
+            <th scope="col">사용자 및 차량 조회</th>
+            <th scope="col">부가서비스</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="(reservation, index) in reservationsData" :key="reservation.reservationId">
+            <td>{{ index + 1 }}</td>
+            <td>
+              {{ formatDate(reservation.startTime) }} <br> {{ formatDate(reservation.endTime) }}
+            </td>
+            <td align="left">
+              예약자명 : <span>{{ reservation.userName }}</span>
+              <br>
+              차량번호 : <span>{{ reservation.plateCarNumber }}</span>
+            </td>
+            <td>  <!-- 세차 여부 체크박스 -->
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  :checked="reservation.wash === 'Y'"
+                  disabled
+                />
+                <label class="form-check-label">세차</label>
+              </div>
+
+              <!-- 정비 여부 체크박스 -->
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  :checked="reservation.maintenance === 'Y'"
+                  disabled
+                />
+                <label class="form-check-label">정비</label>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <!-- 페이지네이션 -->
+        <nav>
+          <ul class="pagination justify-content-center">
+            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+              <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
+            </li>
+            <li
+              class="page-item"
+              v-for="page in totalPages"
+              :key="page"
+              :class="{ active: currentPage === page }"
+            >
+              <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+            </li>
+            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+              <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
+  props: ['selectedLotId'],
+
   data() {
     return {
-      // 미승인 예약 데이터 샘플
-      pendingReservations: [
-        {
-          date1: '2024-08-30 14:00',
-          date2: '2024-08-31 14:00',
-          extraService: '세차',
-          approval: false
-        },
-        {
-          date1: '2024-08-30 14:00',
-          date2: '2024-08-31 14:00',
-          extraService: '세차',
-          approval: false
-        },
-        {
-          date1: '2024-08-30 14:00',
-          date2: '2024-08-31 14:00',
-          extraService: '세차',
-          approval: false
-        }
-      ],
-      // 승인된 예약 데이터 샘플
-      approvedReservations: [
-        {
-          date1: '2024-08-30 14:00',
-          date2: '2024-08-31 14:00',
-          extraService: '세차',
-          approval: true
-        },
-        {
-          date1: '2024-08-30 14:00',
-          date2: '2024-08-31 14:00',
-          extraService: '세차',
-          approval: true
-        },
-        {
-          date1: '2024-08-30 14:00',
-          date2: '2024-08-31 14:00',
-          extraService: '세차',
-          approval: true
-        }
-      ],
-      pendingCurrentPage: 1, // 미승인 예약 현재 페이지
-      approvedCurrentPage: 1, // 승인된 예약 현재 페이지
-      reservationsPerPage: 2 // 한 페이지당 보여줄 예약 수
-    }
-  },
-  computed: {
-    // 미승인된 예약의 총 페이지 수 계산
-    pendingTotalPages() {
-      return Math.ceil(this.pendingReservations.length / this.reservationsPerPage)
-    },
-    // 승인된 예약의 총 페이지 수 계산
-    approvedTotalPages() {
-      return Math.ceil(this.approvedReservations.length / this.reservationsPerPage)
-    },
-    // 현재 페이지에 맞게 미승인 예약을 페이징 처리하여 반환
-    paginatedPendingReservations() {
-      const start = (this.pendingCurrentPage - 1) * this.reservationsPerPage
-      const end = start + this.reservationsPerPage
-      return this.pendingReservations.slice(start, end)
-    },
-    // 현재 페이지에 맞게 승인된 예약을 페이징 처리하여 반환
-    paginatedApprovedReservations() {
-      const start = (this.approvedCurrentPage - 1) * this.reservationsPerPage
-      const end = start + this.reservationsPerPage
-      return this.approvedReservations.slice(start, end)
+      activeTab: 'not_approved', // 기본으로 첫 번째 탭이 활성화됨
+      reservationsData: [],
+      currentPage: 1,
+      totalPages: 0,
+      pageSize: 5,
+      startDate: null,
+      endDate: null
     }
   },
   methods: {
-    // 사용자 정보를 조회하는 메서드
-    viewUserInfo(reservation) {
-      alert(`사용자 정보: ${reservation.date1}`)
+    async ignoreReservation(reservationId, reservationUid) {
+      try {
+        const response = await axios.post(`/api/parking-manager/reservation/cancel/${reservationId}/protected`, {
+          merchantUid: reservationUid,
+          reason: '주차장업주 환불'
+        })
+
+        // 요청 성공 시 처리할 작업
+        if (response.status === 200) {
+          alert('예약 환불이 되었습니다..')
+          window.location.reload()
+        }
+      } catch (error) {
+        // 오류 처리
+        console.error('예약 허가 중 오류 발생:', error)
+        alert('예약을 허가하는 중 오류가 발생했습니다.')
+      }
     },
-    // 미승인 예약을 삭제하는 메서드
-    deleteReservation(index) {
-      this.pendingReservations.splice(index, 1)
+    async permitReservation(reservationId) {
+      try {
+        // PUT 요청을 통해 예약 상태를 '허가'로 변경
+        const response = await axios.put(`/api/parking-manager/reservation/${reservationId}`, {
+          reservationConfirmed: 'Y' // 허가 상태를 'Y'로 설정
+        })
+
+        // 요청 성공 시 처리할 작업
+        if (response.status === 200) {
+          alert('예약이 허가되었습니다.')
+          window.location.reload()
+        }
+      } catch (error) {
+        // 오류 처리
+        console.error('예약 허가 중 오류 발생:', error)
+        alert('예약을 허가하는 중 오류가 발생했습니다.')
+      }
     },
-    // 미승인 예약 페이지의 이전 페이지로 이동하는 메서드
-    prevPendingPage() {
-      if (this.pendingCurrentPage > 1) this.pendingCurrentPage--
+    async getReservationByConfirmed(reservationConfirmed, page = 1, size = 5) {
+      try {
+
+        // 필터 조건을 requestData 객체로 선언
+        const requestData = {
+          parkingLotId: this.$props.selectedLotId,
+          reservationConfirmed, // 탭에 따른 상태값 설정
+          startTime: this.startDate ? `${this.startDate}T00:00:00` : null,
+          endTime: this.endDate ? `${this.endDate}T23:59:59` : null
+        }
+
+        // Axios 요청
+        const response = await axios.get('/api/parking-manager/reservation', {
+          params: {
+            ...requestData, // 필터 조건 추가
+            page: page - 1, // 0-based pagination 처리
+            size: size
+          }
+        })
+
+        if (response.status === 200) {
+          this.reservationsData = response.data.content // 받은 데이터 설정
+          this.totalPages = response.data.totalPages // 전체 페이지 수 업데이트
+        } else if (response.status === 204) {
+          console.log('데이터가 없습니다.')
+          this.reservationsData = [] // 데이터가 없으면 빈 배열로 설정
+        }
+      } catch (error) {
+        console.error('오류 발생:', error)
+      }
     },
-    // 미승인 예약 페이지의 다음 페이지로 이동하는 메서드
-    nextPendingPage() {
-      if (this.pendingCurrentPage < this.pendingTotalPages) this.pendingCurrentPage++
+
+    changePage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page
+        this.getReservationByConfirmed(this.getReservationStatus(), this.currentPage, this.pageSize)
+      }
     },
-    // 미승인 예약의 특정 페이지로 이동하는 메서드
-    goToPendingPage(page) {
-      this.pendingCurrentPage = page
+    applyDateFilter() {
+      if (this.startDate > this.endDate) {
+        alert('입력 다시 해주세요.')
+      } else {
+        this.getReservationByConfirmed(this.getReservationStatus(), 1, this.pageSize) // 필터 적용 시 페이지 1로 초기화
+      }
     },
-    // 승인된 예약 페이지의 이전 페이지로 이동하는 메서드
-    prevApprovedPage() {
-      if (this.approvedCurrentPage > 1) this.approvedCurrentPage--
+
+    switchTab(tabName) {
+      this.activeTab = tabName
+      this.currentPage = 1 // 탭을 변경할 때 페이지를 1로 초기화
+      this.getReservationByConfirmed(this.getReservationStatus(), this.currentPage, this.pageSize)
     },
-    // 승인된 예약 페이지의 다음 페이지로 이동하는 메서드
-    nextApprovedPage() {
-      if (this.approvedCurrentPage < this.approvedTotalPages) this.approvedCurrentPage++
+
+    getReservationStatus() {
+      // 탭에 따른 상태값 반환
+      if (this.activeTab === 'not_approved') return 'C'
+      if (this.activeTab === 'approved') return 'Y'
+      if (this.activeTab === 'canceled') return 'D'
+      return ''
     },
-    // 승인된 예약의 특정 페이지로 이동하는 메서드
-    goToApprovedPage(page) {
-      this.approvedCurrentPage = page
+
+    formatDate(dateTime) {
+      const date = new Date(dateTime)
+      const year = String(date.getFullYear()).slice(2)
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      const hour = String(date.getHours()).padStart(2, '0')
+      const minute = String(date.getMinutes()).padStart(2, '0')
+      return `${year}년 ${month}월 ${day}일 ${hour}시 ${minute}분`
     }
+  },
+  mounted() {
+    this.getReservationByConfirmed(this.getReservationStatus(), this.currentPage, this.pageSize)
   }
 }
 </script>
 
 <style scoped>
-/* 예약 섹션 박스 설정: 상하 공간 분배를 위한 flex 사용 */
-.reservation-section-box {
+.main-container {
   display: flex;
-  height: 800px;
   flex-direction: column;
-  align-content: center;
-  justify-content: space-between;
+  align-items: start;
+  width: 80vw;
 }
 
-/* 전체 컨테이너 스타일 */
-.reservation-container {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  height: 100%;
+.table {
+  border-color: #dddddd;
 }
 
-/* 예약 섹션의 스타일: 테두리 및 그림자 적용 */
-.reservation-section {
+.table th,
+.table td {
+  border-color: #dddddd; /* 테이블 셀의 선 색상 */
+}
+
+.tabs-container {
   width: 100%;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
 }
 
-/* 테이블 스타일 */
-table {
+.nav-tabs {
+  justify-content: flex-start;
+}
+
+.tab-content {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
+  margin-left: 5px;
 }
 
-/* 테이블 셀 스타일 */
-th,
-td {
-  padding: 12px 15px;
-  text-align: center;
+.nav-item {
 }
 
-/* 테이블 헤더 스타일 */
-th {
-  background-color: #f0f0f0;
-  font-weight: bold;
+.subtitle {
+  color: #6c757d;
 }
 
-/* 테이블 바디 셀 스타일 */
-td {
-  background-color: #f9f9f9;
-  border-bottom: 1px solid #ddd;
+.subtitle:hover {
+  color: #6c757d;
 }
 
-/* 마우스를 올렸을 때 테이블 행 배경색 변경 */
-tbody tr:hover {
-  background-color: #f1f1f1;
+.subtitle.active {
+  font-weight: bold; /* 활성화된 탭 굵기 */
 }
 
-/* 버튼 기본 스타일 */
-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  cursor: pointer;
+
+.table {
+  margin-bottom: 30px;
 }
 
-/* 버튼 호버 시 배경색 변경 */
-button:hover {
-  background-color: #0056b3;
-}
-
-/* 페이지네이션 스타일: 중앙 정렬 */
 .pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
-/* 페이지네이션 버튼 스타일 */
-.pagination span {
-  margin: 0 5px;
-  padding: 5px 10px;
-  cursor: pointer;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-/* 현재 페이지 버튼 스타일 */
-.pagination span.active {
-  background-color: #007bff;
+.bg-purple {
+  background-color: #9A64E8; /* 기본 보라색 */
   color: white;
 }
 
-/* 페이지네이션 버튼 호버 시 배경색 변경 */
-.pagination span:hover {
-  background-color: #e0e0e0;
+.bg-purple:hover {
+  background-color: #8e44ad; /* hover 시 보라색을 더 진하게 */
+  color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
+
+}
+
+.bg-green {
+  background-color: #76D672; /* 기본 보라색 */
+  color: white;
+}
+
+.bg-green:hover {
+  background-color: #76D672; /* hover 시 보라색을 더 진하게 */
+  color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
+}
+
+.bg-red {
+  background-color: #F93A41; /* 기본 보라색 */
+  color: white;
+}
+
+.bg-red:hover {
+  background-color: #F93A41; /* hover 시 보라색을 더 진하게 */
+  color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
+}
+
+/* date-picker 전체 영역을 오른쪽으로 배치 */
+.search-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+}
+
+/* active 페이지에 보라색 배경 적용 */
+.pagination .page-item.active .page-link {
+  background-color: #9A64E8; /* 보라색 */
+  color: white; /* 흰색 텍스트 */
+  border-color: #9A64E8; /* 보라색 테두리 */
+}
+
+/* hover 시에도 동일한 스타일 유지 */
+.pagination .page-item .page-link:hover {
+  background-color: #9A64E8;
+  color: white;
+  border-color: #9A64E8;
+}
+
+/* 이전, 다음 버튼에 보라색 적용 */
+.pagination .page-item .page-link {
+  color: #9A64E8; /* 보라색 텍스트 */
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #6c757d; /* 비활성화된 버튼 색상 */
 }
 </style>

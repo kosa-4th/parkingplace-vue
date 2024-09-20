@@ -32,6 +32,7 @@
 <style scoped>
 .footer {
   border-top: 1px solid #dee2e6;
+  z-index: 1;
 }
 
 .footer h5 {
