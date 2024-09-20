@@ -285,14 +285,20 @@ export default {
   props: ['selectedLotId'],
 
   data() {
+    const today = new Date();
+    const startDate = today.toISOString().slice(0, 10); // YYYY-MM-DD 형식으로 변환
+    const endDate = new Date(today);
+    endDate.setDate(today.getDate() + 30); // 30일 더함
+    const formattedEndDate = endDate.toISOString().slice(0, 10); // YYYY-MM-DD 형식으로 변환
+
     return {
       activeTab: 'not_approved', // 기본으로 첫 번째 탭이 활성화됨
       reservationsData: [],
       currentPage: 1,
       totalPages: 0,
       pageSize: 5,
-      startDate: null,
-      endDate: null
+      startDate: startDate,
+      endDate: formattedEndDate
     }
   },
   methods: {
