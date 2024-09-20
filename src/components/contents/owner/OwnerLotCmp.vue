@@ -18,7 +18,6 @@
       <button v-if="modifying" @click="modifyComplete()">완료</button>
     </div>
     <div class="parking-info">
-      <!-- 주차장명 입력 -->
       <div class="input-group">
         <label>주차장명</label>
         <input
@@ -29,12 +28,10 @@
           :readonly="!modifying"
         />
       </div>
-      <!-- 주소 입력 -->
       <div class="input-group">
         <label>주소</label>
         <input id="address" v-model="parkingLot.address" type="text" disabled />
       </div>
-      <!-- 연락처 입력 -->
       <div class="input-group">
         <label>연락처</label>
         <input
@@ -45,7 +42,6 @@
           :readonly="!modifying"
         />
       </div>
-      <!-- 평일 영업시간 입력 -->
       <div class="input-group">
         <label>평일 영업시간</label>
         <input
@@ -63,7 +59,6 @@
           :disabled="!modifying"
         />
       </div>
-      <!-- 주말 영업시간 입력 -->
       <div class="input-group">
         <label>주말 영업시간</label>
         <input
@@ -107,7 +102,6 @@
         />
       </div>
 
-      <!-- 이미지 미리보기 -->
       <div class="image-preview">
         <div v-for="(image, index) in imagePreviews" :key="index" class="img-wrapper">
           <img :src="image" alt="uploaded image" class="uploaded-img" />
@@ -116,61 +110,56 @@
       </div>
     </div>
 
-    <!-- 구역 추가 버튼 (구역 추가 폼을 표시/숨기기) -->
     <button class="btn btn-toggle" @click="toggleAddZoneForm">
       {{ showAddZoneForm ? '구역 추가 숨기기' : '구역 추가하기' }}
     </button>
 
-    <!-- 주차 구역 추가 폼 (버튼 클릭 시 표시) -->
     <div v-if="showAddZoneForm" class="add-zone-form">
       <h3>새로운 주차 구역 추가</h3>
-      <!-- 구역 이름 입력 -->
       <div class="input-group">
-        <label>구역 이름</label>
-        <input v-model="newZone.name" type="text" />
+        <label>구역명</label>
+        <input v-model="newParkingSpace.name" type="text" />
       </div>
-      <!-- 용량 입력 -->
       <div class="input-group">
-        <label>용량</label>
-        <input v-model.number="newZone.capacity" type="number" />
+        <label>주차 가능 대수</label>
+        <input v-model.number="newParkingSpace.capacity" type="number" />
       </div>
-      <!-- 차량 유형 입력 -->
       <div class="input-group">
-        <label>차량 유형</label>
-        <input v-model="newZone.vehicleType" type="text" />
+        <label>허용되는 차량 유형</label>
+        <input v-model="newParkingSpace.vehicleType" type="text" />
       </div>
-      <!-- 평일 가격 입력 -->
       <div class="input-group">
         <label>평일 가격</label>
-        <input v-model.number="newZone.weekdayPrice" type="number" />
+        <input v-model.number="newParkingSpace.weekdayPrice" type="number" />
       </div>
-      <!-- 주말 가격 입력 -->
       <div class="input-group">
         <label>주말 가격</label>
-        <input v-model.number="newZone.weekendPrice" type="number" />
+        <input v-model.number="newParkingSpace.weekendPrice" type="number" />
       </div>
-      <!-- 세차 서비스 여부 체크 -->
       <div class="input-group">
         <label>세차 서비스</label>
-        <input v-model="newZone.washService" type="checkbox" />
+        <input v-model="newParkingSpace.washService" type="checkbox" />
       </div>
-      <!-- 유지보수 서비스 여부 체크 -->
+      <div class="input-group" v-if="newParkingSpace.washService">
+        <label>세차 서비스 가격</label>
+        <input v-model="newParkingSpace.washPrice" type="number" />
+      </div>
       <div class="input-group">
         <label>유지보수 서비스</label>
-        <input v-model="newZone.maintenanceService" type="checkbox" />
+        <input v-model="newParkingSpace.maintenanceService" type="checkbox" />
       </div>
-      <!-- 구역 추가 버튼 -->
+      <div class="input-group" v-if="newParkingSpace.maintenanceService">
+        <label>유지보수 서비스 가격</label>
+        <input v-model="newParkingSpace.maintenancePrice" type="number" />
+      </div>
       <button class="btn btn-add" @click="addZone">구역 추가</button>
     </div>
 
-    <!-- 주차 구역 정보 컴포넌트 사용 -->
     <div>
-      <h3>주차 구역 정보</h3>
-      <!-- 주차 구역 정보를 표시하는 테이블 -->
+      <h3 class="description">주차 구역 정보</h3>
       <table>
         <thead>
           <tr>
-            <!-- 테이블 헤더 -->
             <th>구역명</th>
             <th>주차 가능 대수</th>
             <th>차종</th>
@@ -185,7 +174,6 @@
           </tr>
         </thead>
         <tbody>
-          <!-- 테이블 바디: 각 구역 정보 출력 -->
           <tr v-for="(space, index) in parkingLot.parkingSpaces" :key="index">
             <td>{{ space.name ? space.name : '이름 없음' }}</td>
             <td>{{ space.availableSpaceNum }}</td>
@@ -203,32 +191,25 @@
       </table>
     </div>
 
-    <!-- 주차 구역 수정 폼 (존을 선택한 경우에만 표시) -->
     <div v-if="selectedZone !== null" class="edit-zone-form">
       <h3>{{ selectedZone.name }} 구역 수정</h3>
-      <!-- 주차 가능 대수 수정 -->
       <div class="input-group">
         <label>주차 가능 대수</label>
         <input v-model.number="selectedZone.capacity" type="number" />
       </div>
-      <!-- 차량 유형 수정 -->
       <div class="input-group">
         <label>차량 유형</label>
         <input v-model="selectedZone.vehicleType" type="text" />
       </div>
-      <!-- 평일 가격 수정 -->
       <div class="input-group">
         <label>평일 가격</label>
         <input v-model="selectedZone.weekdayPrice" type="number" />
       </div>
-      <!-- 주말 가격 수정 -->
       <div class="input-group">
         <label>주말 가격</label>
         <input v-model="selectedZone.weekendPrice" type="number" />
       </div>
-      <!-- 저장 버튼 -->
       <button class="btn btn-save" @click="saveZone">저장</button>
-      <!-- 취소 버튼 -->
       <button class="btn btn-cancel" @click="cancelEdit">취소</button>
     </div>
   </div>
@@ -255,20 +236,22 @@ export default {
         parkingSpaces: [],
         images: []
       },
-      newZone: {
+      newParkingSpace: {
         name: '',
-        capacity: 0,
-        vehicleType: '',
-        weekdayPrice: 0,
+        availableSpaceNum: 0,
+        carType: '',
+        weekdaysPrice: 0,
         weekendPrice: 0,
         washService: false,
-        maintenanceService: false
+        washPrice: 0,
+        maintenanceService: false,
+        maintenancePrice: 0
       },
       originData: null,
       selectedZone: null,
       showAddZoneForm: false,
-      imagePreviews: [], // 미리보기 이미지 배열
-      files: [], // 업로드할 파일 배열
+      imagePreviews: [],
+      files: [],
       modifying: false,
       deleteImageIds: []
     }
@@ -295,17 +278,21 @@ export default {
       this.showAddZoneForm = !this.showAddZoneForm
     },
     addZone() {
-      if (!this.newZone.name || this.newZone.capacity <= 0 || !this.newZone.vehicleType) {
+      if (
+        !this.newParkingSpace.name ||
+        this.newParkingSpace.capacity <= 0 ||
+        !this.newParkingSpace.vehicleType
+      ) {
         alert('모든 필드를 올바르게 입력하세요.')
         return
       }
 
-      this.parkingLot.zones.push({ ...this.newZone })
-      this.resetNewZone()
+      this.parkingLot.zones.push({ ...this.newParkingSpace })
+      this.resetnewParkingSpace()
       this.showAddZoneForm = false
     },
-    resetNewZone() {
-      this.newZone = {
+    resetnewParkingSpace() {
+      this.newParkingSpace = {
         name: '',
         capacity: 0,
         vehicleType: '',
@@ -332,25 +319,22 @@ export default {
       this.parkingLot.zones.splice(index, 1)
     },
     onFileChange(event) {
-      // 선택된 파일을 배열로 변환하여 파일 및 미리보기 갱신
       const files = Array.from(event.target.files)
-      this.files = [] // 기존 파일 배열 초기화
-      this.imagePreviews = [] // 미리보기 배열 초기화
+      this.files = []
+      this.imagePreviews = []
 
       files.forEach((file) => {
         this.files.push(file)
-        this.imagePreviews.push(URL.createObjectURL(file)) // 새롭게 미리보기 갱신
+        this.imagePreviews.push(URL.createObjectURL(file))
       })
     },
     removeImage(index) {
-      this.imagePreviews.splice(index, 1) // 미리보기에서 이미지 삭제
-      this.files.splice(index, 1) // 파일 배열에서 해당 파일 삭제
+      this.imagePreviews.splice(index, 1)
+      this.files.splice(index, 1)
 
-      // 새로운 FileList 객체 생성
       const dataTransfer = new DataTransfer()
-      this.files.forEach((file) => dataTransfer.items.add(file)) // 남은 파일 추가
+      this.files.forEach((file) => dataTransfer.items.add(file))
 
-      // input 요소에 새로운 FileList 적용
       this.$refs.fileInput.files = dataTransfer.files
     },
     modifyOn() {
@@ -360,18 +344,12 @@ export default {
       this.parkingLot = JSON.parse(JSON.stringify(this.originData))
       this.modifying = false
 
-      // 어둡게 변경된 이미지 복구
       this.removeDarker()
-
-      // 삭제할 이미지 목록 초기화
       this.deleteImageIds = []
-
-      // 파일 및 미리보기 초기화
       this.clearFileInput()
     },
 
     modifyComplete() {
-      console.log(this.parkingLot)
       if (confirm('수정하시겠습니까?')) {
         const formData = new FormData()
         formData.append('name', this.parkingLot.name)
@@ -382,7 +360,6 @@ export default {
         formData.append('weekendCloseTime', this.parkingLot.weekendCloseTime)
         formData.append('deleteImageIds', this.deleteImageIds)
 
-        // 파일을 FormData에 추가
         const files = this.$refs.fileInput.files
         for (let i = 0; i < files.length; i++) {
           formData.append('images', files[i])
@@ -432,8 +409,6 @@ export default {
         this.deleteImageIds.push(id)
         imgElement.classList.add('darker')
       }
-
-      console.log(this.deleteImageIds)
     },
     removeDeleteImg(id) {
       const index = this.deleteImageIds.indexOf(id)
