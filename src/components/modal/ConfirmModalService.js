@@ -66,6 +66,7 @@ export const confirmCancelModalState = ref({
     path: ''
 });
 
+// 초록 모달 화면 / 확인, 취소 버튼
 export function showConfirmCancelModal(message=null, path='', title="알림") {
     confirmCancelModalState.value = {
         isVisible: true,
@@ -77,6 +78,7 @@ export function showConfirmCancelModal(message=null, path='', title="알림") {
     }
 }
 
+// 빨강 모달 화면 / 확인, 취소 버튼
 export function showCCErrorModal(message=null, path='', title="알림") {
     confirmCancelModalState.value = {
         isVisible: true,
@@ -88,6 +90,7 @@ export function showCCErrorModal(message=null, path='', title="알림") {
     }
 }
 
+// 노랑 모달 화면 / 확인, 취소 버튼
 export function showCCInfoModal(message=null, path='', title="알림") {
     confirmCancelModalState.value = {
         isVisible: true,
@@ -99,6 +102,8 @@ export function showCCInfoModal(message=null, path='', title="알림") {
     }
 }
 
+
+// 취소버튼
 export function handleColseCCModal() {
     confirmCancelModalState.value.isVisible = false;
 }
