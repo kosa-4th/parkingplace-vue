@@ -1,167 +1,338 @@
 <template>
   <div class="reservation-container">
-    <h2>예약 내역</h2>
-
-    <!-- 날짜 선택 -->
-    <div class="date-picker">
-      <Datepicker
-        class="date-input"
-        v-model="startDate"
-        format="yyyy-MM-dd HH:mm:ss"
-        :upperLimit="dateData.to"
-        :lowerLimit="dateData.from"
-        clearable="true"
-        enable-time-picker="false"
-        :max-date="dateData.endDate"
-        />
-      <span> ~ </span>
-      <Datepicker
-        class="date-input"
-        v-model="endDate"
-        format="yyyy-MM-dd HH:mm:ss"
-        :upperLimit="dateData.to"
-        :lowerLimit="dateData.from"
-        clearable="true"
-        enable-time-picker="false"
-        :min-date="dateData.startDate"
-        />
-      <button class="search-btn" @click="getMyReservations"><i class="fa fa-search"></i></button>
+    <div class="reservation-toggle">
+      <div class="title">예약 내역</div>
+  
+      <!-- 토글 버튼 -->
+      <div class="toggle-search">
+        <button @click="toggleDatepicker" class="toggle-btn">
+          <img src="@/assets/img/search-purple.png" alt="search" class="toggle-icon">
+        </button>
+      </div>
     </div>
 
-    <!-- 예약내역 목록 -->
+    <!-- 날짜 선택 -->
+    <div v-if="showDatePicker" class="date-picker">
+      <img src="@/assets/img/arrow-top-grey.png" @click="toggleDatepicker" alt="arrow" class="arrow-img">
+      <div>
+        <label>시작 날짜</label>
+        <Datepicker
+          locale="ko"
+          class="date-input"
+          v-model="startDate"
+          format="yyyy-MM-dd"
+          :clearable="true"
+          :enable-time-picker="false"
+        />
+      </div>
+      <div>
+        <label>마지막 날짜</label>
+        <Datepicker
+          locale="ko"
+          class="date-input"
+          v-model="endDate"
+          format="yyyy-MM-dd"
+          :clearable="true"
+          :enable-time-picker="false"
+        />
+      </div>
+      <button class="search-btn" @click="getNewReservations">검색하기</button>
+    </div>
+
     <div v-if="reservations.length === 0" class="no-reservations">
       예약 내역이 없습니다.
     </div>
 
     <div v-else class="reservation-list">
-      <div v-for="(reservation, index) in reservations" :key="index" class="reservation-item">
+      <div
+        v-for="(reservation, index) in reservations"
+        :key="index"
+        class="reservation-item"
+        :class="{ 'canceled': reservation.status === 'canceled'}"
+      >
+        <div class="reservation-status" :class="getStatusClass(reservation.status)">
+          {{ reservation.status }}
+        </div>
         <div class="reservation-info">
-          <span class="parking-name">{{ reservation.parkingName }}</span>
+          <div class="parking-name">{{ reservation.parkingLotName }}</div>
+          <div class="car-info">차량 번호: {{ reservation.carNumber }} </div>
+            <!-- | {{ reservation.carType }}</div> -->
           <div class="reservation-dates">
-            {{ reservation.startDate }} {{ reservation.startTime }} <br />
-            {{ reservation.endDate }} {{ reservation.endTime }}
+            주차 시간: {{ DateFormat(reservation.startDate) }} <br />
+            출차 시간: {{ DateFormat(reservation.endDate) }}
           </div>
         </div>
-        <button class="detail-btn" @click="gotoReservationDetail(reservation.id)">예약 상세</button>
+        <div class="reservation-btns">
+          <router-link
+            :to="`/my/reservations/${reservation.reservationId}`"
+            class="detail-btn"
+            >예약상세</router-link>
+          <router-link
+            :to="`/lot/${reservation.parkinglotId}`"
+            class="rebook-btn"
+            >재예약</router-link>
+        </div>
       </div>
     </div>
+
+    <!-- 더보기 버튼 -->
+    <hr class="more-separatior" v-if="hasMoreData">
+    <button class="more-btn" v-if="hasMoreData" @click="getMoreReservations">더보기 ∨</button>
+
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 
-const dateData = {
-  startDate: null,
-  endDate: null,
-  locale: 'kr',
-  to: new Date(),
-  from: new Date(1999, 1, 1),
-}
+const showDatePicker = ref(false);
+const startDate = ref(new Date(Date.UTC(2000, 0, 1, 0, 0, 0)));
+const endDate = ref(new Date());
+endDate.value.setDate(endDate.value.getDate() + 30);
+endDate.value.setUTCHours(0, 0, 0, 0);
 const page = ref(0);
 const size = 5;
+const hasMoreData = ref(true);
 
-const startDate = ref(new Date());
-const endDate = ref(new Date());
 const reservations = ref([]);
 
+// 예약 가져오기
 const getMyReservations = async () => {
-  console.log("시작날짜야~ :" +startDate.value);
-  const response = await axios.post("/api/users/reservations/protected", {
-      startDate: formatDate(startDate.value),
-      endDate: formatDate(endDate.value),
-      page:page.value,
-      size: size
-  });
-  console.log(response.data)
+  try {
+    const response = await axios.get("/api/users/reservations/protected", {
+      params: {
+        startDate: formatDate(startDate.value),
+        endDate: formatDate(endDate.value),
+        page:page.value,
+        size: size
+      }
+    });
+    const newReserve = response.data.reservations;
+    reservations.value = [...reservations.value, ...newReserve];
+    hasMoreData.value = response.data.nextPage;
+    console.log(response.data);
+  } catch (error){
+    console.log(error.response.data);
+  }
 }
 
-const gotoReservationDetail = (reservationId) => {
-  console.log(reservationId);
+// date 변환해서 보내기
+const formatDate = (date) => {
+  const localDate = new Date(date);
+  localDate.setUTCHours(0, 0, 0, 0);
+  return date.toISOString().substring(0, 19);
+}
+
+//토클
+const toggleDatepicker = () => {
+  showDatePicker.value = !showDatePicker.value;
+}
+
+//Date 포맷
+const DateFormat = (dateString) => {
+  return dateString.replace('T', '  ').substring(0, 17);
+};
+
+//글씨 색
+const getStatusClass = (status) => {
+  switch (status) {
+    case '예약취소':
+      return 'canceled';
+    case '예약대기':
+      return 'pending';
+    case '예약확정':
+      return 'confirmed';
+  }
+}
+
+const getMoreReservations  = () => {
+  page.value++;
+  getMyReservations();
+}
+
+const getNewReservations = () => {
+  page.value = 0;
+  reservations.value = [];
+  getMyReservations();
 }
 
 onMounted(() => {
   getMyReservations();
 })
 
-const formatDate = (date) => {
-  return date.toISOString().substring(0, 19);
-}
 </script>
 
 <style scoped>
 .reservation-container {
-  width: 90%;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
 }
 
-.date-picker {
+.reservation-toggle {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  margin-bottom: 20px;
+  gap: 20px;
+  margin: 5px 0 10px 0;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.date-picker {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.date-picker label {
+  /* width: 130px; */
+  flex: 1;
+  padding: 0 0 10px 5px ;
+}
+
+.date-picker div {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 .date-input {
-  width: 150px;
-  padding: 8px;
-  margin-right: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-}
-
-.search-btn {
-  border: 1px solid #9A64E8;
-  color: #9A64E8;
-  cursor: pointer;
-}
-
-.search-btn i{
-  font-size: 16px;
+  flex:2;
+  width: 100%;
 }
 
 .reservation-list {
+  margin-top: 20px;
+  margin-bottom: 15px;
+}
+
+.reservation-item {
+  border: 1px solid #ddd;
+  padding: 20px;
+  margin-bottom: 10px;
+  border-radius: 5px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.reservation-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 5px;
-}
-
-.reservation-info {
-  font-size: 14px;
+.reservation-status {
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .parking-name {
+  font-size: 18px;
   font-weight: 700;
-  display: block;
   margin-bottom: 5px;
 }
 
-.detail-btn {
-  background-color: #9A64E8;
-  color: white;
-  border: none;
+.car-info {
+  margin-bottom: 5px;
+}
+
+.reservation-dates {
+}
+
+.toggle-btn {
+  width: 29px;
+  height: 29px;
+  background-color: white;
+  color: #9A64E8;
+  border: 1px solid #ddd;
   border-radius: 5px;
-  padding: 8px 12px;
   cursor: pointer;
 }
 
-.no-reservation {
-  text-align: center;
-  font-size: 16px;
-  color: #888;
+.toggle-icon {
+  display: flex;
+  flex-direction: column;
+  width: 200%;
+  margin-left: -6px;
 }
 
+.arrow-img {
+  width: 29px;
+  height: 29px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+.search-btn {
+  width: 100%;
+  height: 40px;
+  border: none;
+  background-color: #9A64E8;
+  border-radius: 5px;
+  color: white;
+  font-weight: 700;
+}
+
+.reservation-btns {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+
+.detail-btn, .rebook-btn {
+  width: 49%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: white;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.toggle-search {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 29px;
+  height: 29px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.more-btn {
+  width: 110px;
+  border: 1px solid #ddd;
+  background-color: white;
+  border-radius: 20px;
+  color: black;
+  margin-top: -36px;
+  margin-bottom: 20px;
+  padding: 5px 20px;
+  align-self: center;
+  z-index: 1;
+}
+
+/* .fa-search {
+  cursor: pointer;
+} */
+
+.canceled {
+  color: #F93A41;
+}
+
+.pending {
+  color: #9A64E8;
+}
+
+.confirmed {
+  color: #76D672;
+}
 </style>

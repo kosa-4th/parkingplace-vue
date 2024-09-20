@@ -1,31 +1,37 @@
 <template>
   <div class="car-management-container">
-    <h2>차량 관리</h2>
-    <h3>님 안녕하세요!</h3>
+    <div class="title">차량 관리</div>
+    <div class="name"><strong>{{ authStore.getUsername }}</strong>님 안녕하세요!</div>
 
-    <div v-for="(car, index) in myCars" :key="index" class="car-list">
-      <input type="text"
-            :value="car.plateNumber"
-            disabled
-            class="car-number-input"
-            />
-      <button @click="removeCar(car)" class="delete-btn">삭제</button>
+    <div class="car-list-box">
+      <div v-for="(car, index) in myCars" :key="index" class="car-list">
+        <input type="text"
+              :value="car.plateNumber"
+              disabled
+              class="car-number-input"
+              />
+        <button @click="removeCar(car)" class="delete-btn">삭제</button>
+      </div>
     </div>
 
     <div class="form-group">
-      <label for="car-number">차량번호 등록</label>
-      <input type="text"
-              id="car-number"
-              v-model="newCarNumber"
-              placeholder="차량번호를 입력하세요."
-      />
+      <div class="register-carNum">
+        <label for="car-number">차량번호 등록</label>
+        <input type="text"
+                id="car-number"
+                v-model="newCarNumber"
+                placeholder="차량번호를 입력하세요."
+        />
+      </div>
 
-      <label for="car-type">차량 종류</label>
-      <select v-model="selectedCar"  id="car-type">
-        <option v-for="(carType, index) in carTypes" :key="index" :value="carType.carType">
-          {{ carType.carType }}
-        </option>
-      </select>
+      <div class="register-carType">
+        <label for="car-type">차량 종류</label>
+        <select v-model="selectedCar"  id="car-type">
+          <option v-for="(carType, index) in carTypes" :key="index" :value="carType.carType">
+            {{ carType.carType }}
+          </option>
+        </select>
+      </div>
     </div>
 
     <button @click="registerCar" class="submit-btn">내 차량 번호 등록하기</button>
@@ -38,7 +44,7 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { AuthStore } from '@/stores/store';
 const authStore = AuthStore();
-const token = authStore.token;
+// const token = authStore.token;
 const myCars = ref([]);
 const carTypes = ref([]);
 const newCarNumber = ref('');
@@ -104,22 +110,31 @@ onMounted(() => {
   max-width: 400px;
   width: 100%;
   margin: 0 auto;
-  padding: 20px;
 }
 
-h2, h3 {
-  text-align: center;
-  margin-bottom: 20px;
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.name {
+  margin-bottom: 14px;
+}
+
+.car-list-box {
+  min-height: 350px;
 }
 
 .car-list {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
+  justify-content: space-between;
 }
 
 .car-number-input {
-  width: 70%;
+  flex: 5;
   padding: 10px;
   margin-right: 10px;
   font-size: 14px;
@@ -134,16 +149,36 @@ h2, h3 {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  flex: 1;
 }
 
 .form-group {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.form-group div {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group div label {
+  font-size:15px;
+  margin-bottom: 5px;
+  padding-left: 5px;
+}
+
+.register-carNum {
+  flex: 3;
+}
+
+.register-carType {
+  flex: 2;
 }
 
 input, select {
-  width: 40%;
+  width: 100%;
   padding: 10px;
   font-size: 14px;
   border: 1px solid #ddd;

@@ -9,15 +9,14 @@
 <template>
   <div class="owner-container">
     <div class="sidebar" @mouseover="showMenu" @mouseleave="hideMenu">
-
       <owner-menu-cmp
         :myLots="myLots"
         :selectedLotId="selectedLotId"
         @select-change="
-        (localSelectedLotId) => {
-          this.selectedLotId = localSelectedLotId
-        }
-      "
+          (localSelectedLotId) => {
+            this.selectedLotId = localSelectedLotId
+          }
+        "
       ></owner-menu-cmp>
     </div>
     <div class="main-content">
@@ -40,7 +39,6 @@ export default {
       myLots: [],
       selectedLotId: null,
       menuVisible: false // 메뉴가 보이는 상태를 관리
-
     }
   },
   async mounted() {
@@ -62,7 +60,7 @@ export default {
             this.selectedLotId = this.myLots[0].id
           }
         })
-        .catch(function(e) {
+        .catch(function (e) {
           alert(e)
         })
     },
@@ -74,9 +72,7 @@ export default {
     }
   },
   watch: {
-    selectedLotId() {
-      // alert('새로 변경된 id = ' + this.selectedLotId)
-    }
+    selectedLotId() {}
   }
 }
 </script>
@@ -130,8 +126,7 @@ export default {
 }
 
 .main-content {
-  -ms-overflow-style: none;  /* 인터넷 익스플로러와 엣지에서 스크롤 바 숨기기 */
-  scrollbar-width: none;  /* 파이어폭스에서 스크롤 바 숨기기 */
+  -ms-overflow-style: none; /* 인터넷 익스플로러와 엣지에서 스크롤 바 숨기기 */
+  scrollbar-width: none; /* 파이어폭스에서 스크롤 바 숨기기 */
 }
-
 </style>

@@ -5,15 +5,20 @@
   -->
   <div class="parking-detail">
     <!-- 이미지 슬라이더 -->
-    <div class="image-slider" v-if="hasImages">
-      <swiper :navigation="images.length>1" :pagination="true" class="mySwiper">
+    <div v-if="images.length === 0">
+      <img src="@/assets/img/no-map.jpg" alt="Default Image" class="parking-image" />
+    </div>
+
+    <div v-else-if="images.length === 1">
+      <img :src="removeFileProtocol(images[0])" alt="Parking Image" class="parking-image" />
+    </div>
+
+    <div v-else>
+      <swiper :navigation="true" :pagination="true" class="mySwiper">
         <swiper-slide v-for="(image, index) in images" :key="index">
-          <img :src="image" alt="Parking Image" class="parking-image" />
+          <img :src="removeFileProtocol(image)" alt="Parking image" class="parking-image">
         </swiper-slide>
       </swiper>
-    </div>
-    <div>
-      <img src="../../../../assets/img/no-map.jpg" alt="Default Image" class="parking-image" />
     </div>
 
     <!-- 주차장 정보 -->
@@ -26,13 +31,13 @@
       <div id="favorite" v-if="authStore.isLoggedIn">
         <img
           class="favorite-image" 
-          src="../../../../assets/img/favorite-filled.png"
+          src="@/assets/img/favorite-filled.png"
           v-if="hasFavorite"
           @click="toggleFavorite()"
         />
         <img
           class="favorite-image" 
-          src="../../../../assets/img/favorite-empty.png"
+          src="@/assets/img/favorite-empty.png"
           v-else
           @click="toggleFavorite()"
         />
@@ -52,7 +57,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import {Swiper, SwiperSlide } from 'swiper/vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
@@ -65,8 +70,6 @@ const parkinglotId = route.params.lotId;
 const parkingLotDetail = ref([]);
 
 const images = ref([]);
-
-const hasImages = computed(() => images.value.length > 0);
 const hasFavorite = ref(false);
 
 const getParkingLotDetails = async () => {
@@ -75,6 +78,7 @@ const getParkingLotDetails = async () => {
     const response = await axios.get(`/api/parkinglots/${parkinglotId}`);
     console.log(response.data);
     parkingLotDetail.value = response.data;
+    images.value = response.data.images;
     getHasFavorite();
   } catch (error) {
     console.log(error);
@@ -105,6 +109,14 @@ const toggleFavorite = async () => {
   });
   hasFavorite.value = response.data.toggleResult;
 }
+
+//잠깐 쓸거
+const removeFileProtocol = (path) => {
+  if (path.startsWith('file:///')) {
+    return path.replace('file:///', '');
+  }
+  return path;
+};
 </script>
 
 <style scoped>
