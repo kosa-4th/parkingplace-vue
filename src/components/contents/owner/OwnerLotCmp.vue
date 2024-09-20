@@ -267,8 +267,8 @@ export default {
       originData: null,
       selectedZone: null,
       showAddZoneForm: false,
-      imagePreviews: [],
-      files: [],
+      imagePreviews: [], // 미리보기 이미지 배열
+      files: [], // 업로드할 파일 배열
       modifying: false,
       deleteImageIds: []
     }
@@ -332,10 +332,14 @@ export default {
       this.parkingLot.zones.splice(index, 1)
     },
     onFileChange(event) {
-      const files = Array.from(event.target.files) // 파일 리스트를 배열로 변환
+      // 선택된 파일을 배열로 변환하여 파일 및 미리보기 갱신
+      const files = Array.from(event.target.files)
+      this.files = [] // 기존 파일 배열 초기화
+      this.imagePreviews = [] // 미리보기 배열 초기화
+
       files.forEach((file) => {
-        this.files.push(file) // 파일 저장
-        this.imagePreviews.push(URL.createObjectURL(file)) // 미리보기 URL 저장
+        this.files.push(file)
+        this.imagePreviews.push(URL.createObjectURL(file)) // 새롭게 미리보기 갱신
       })
     },
     removeImage(index) {
@@ -395,25 +399,23 @@ export default {
             this.parkingLot = response.data
             this.originData = JSON.parse(JSON.stringify(this.parkingLot))
             this.modifying = false
+
+            this.removeDarker()
+
+            this.clearFileInput()
           })
           .catch(function (error) {
             alert(error)
           })
       }
-
-      // 파일 및 미리보기 초기화
-      this.clearFileInput()
     },
-
     clearFileInput() {
-      // 파일 및 미리보기 초기화
       this.files = []
       this.imagePreviews = []
 
-      // 파일 입력 필드 초기화
       const fileInput = this.$refs.fileInput
       if (fileInput) {
-        fileInput.value = '' // HTML file input을 리셋
+        fileInput.value = ''
       }
     },
     addDeleteImgList(id) {
@@ -424,11 +426,9 @@ export default {
       const imgElement = document.getElementById(`image-${id}`)
 
       if (this.deleteImageIds.includes(id)) {
-        // 이미 삭제할 이미지 목록에 있으면, 목록에서 제거하고 흑백 필터 제거
         this.removeDeleteImg(id)
         imgElement.classList.remove('darker')
       } else {
-        // 삭제할 이미지 목록에 추가하고 흑백 필터 적용
         this.deleteImageIds.push(id)
         imgElement.classList.add('darker')
       }
