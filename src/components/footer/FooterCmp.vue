@@ -39,6 +39,7 @@
 .footer {
   border-top: 1px solid #dee2e6;
   padding: 15px;
+  z-index: 1;
 }
 
 label {
