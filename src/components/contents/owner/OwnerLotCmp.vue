@@ -42,15 +42,15 @@
           id="weekdaysOpenTime"
           v-model="parkingLot.weekdaysOpenTime"
           type="time"
-          class="lot-modify-able"
+          class="lot-modify-able time"
           :readonly="!modifying"
         />
         <input
           id="weekdaysCloseTime"
           v-model="parkingLot.weekdaysCloseTime"
           type="time"
-          class="lot-modify-able"
-          :readonly="!modifying"
+          class="lot-modify-able time"
+          :disabled="!modifying"
         />
       </div>
       <!-- 주말 영업시간 입력 -->
@@ -60,28 +60,32 @@
           id="weekendOpenTime"
           v-model="parkingLot.weekendOpenTime"
           type="time"
-          class="lot-modify-able"
+          class="lot-modify-able time"
           :readonly="!modifying"
         />
         <input
           id="weekendCloseTime"
           v-model="parkingLot.weekendCloseTime"
           type="time"
-          class="lot-modify-able"
+          class="lot-modify-able time"
           :readonly="!modifying"
         />
       </div>
 
-      <div>
-        <label>기존이미지</label>
+      <div class="image-preview">
+        <label>이미지</label>
         <div v-for="(image, idx) in parkingLot.images" :key="idx">
-          <img :src="image.path" />
-          {{ image.path }}
+          <img
+            :id="`image-${image.id}`"
+            src="../../../assets/img/tempLot.png"
+            class="uploaded-img"
+            @click="addDeleteImgList(image.id)"
+          />
         </div>
       </div>
 
-      <div class="input-group">
-        <label>이미지</label>
+      <div class="input-group" :hidden="!modifying">
+        <label>이미지 추가</label>
         <input
           id="images"
           type="file"
@@ -89,7 +93,7 @@
           @change="onFileChange"
           ref="fileInput"
           class="lot-modify-able"
-          :readonly="!modifying"
+          :disabled="!modifying"
         />
       </div>
 
@@ -255,7 +259,8 @@ export default {
       showAddZoneForm: false,
       imagePreviews: [],
       files: [],
-      modifying: false
+      modifying: false,
+      deleteImageIds: []
     }
   },
   methods: {
@@ -340,7 +345,17 @@ export default {
     modifyCancel() {
       this.parkingLot = JSON.parse(JSON.stringify(this.originData))
       this.modifying = false
+
+      // 어둡게 변경된 이미지 복구
+      this.removeDarker()
+
+      // 삭제할 이미지 목록 초기화
+      this.deleteImageIds = []
+
+      // 파일 및 미리보기 초기화
+      this.clearFileInput()
     },
+
     modifyComplete() {
       console.log(this.parkingLot)
       if (confirm('수정하시겠습니까?')) {
@@ -351,6 +366,7 @@ export default {
         formData.append('weekdaysCloseTime', this.parkingLot.weekdaysCloseTime)
         formData.append('weekendOpenTime', this.parkingLot.weekendOpenTime)
         formData.append('weekendCloseTime', this.parkingLot.weekendCloseTime)
+        formData.append('deleteImageIds', this.deleteImageIds)
 
         // 파일을 FormData에 추가
         const files = this.$refs.fileInput.files
@@ -374,6 +390,54 @@ export default {
             alert(error)
           })
       }
+
+      // 파일 및 미리보기 초기화
+      this.clearFileInput()
+    },
+
+    clearFileInput() {
+      // 파일 및 미리보기 초기화
+      this.files = []
+      this.imagePreviews = []
+
+      // 파일 입력 필드 초기화
+      const fileInput = this.$refs.fileInput
+      if (fileInput) {
+        fileInput.value = '' // HTML file input을 리셋
+      }
+    },
+    addDeleteImgList(id) {
+      if (!this.modifying) {
+        return
+      }
+
+      const imgElement = document.getElementById(`image-${id}`)
+
+      if (this.deleteImageIds.includes(id)) {
+        // 이미 삭제할 이미지 목록에 있으면, 목록에서 제거하고 흑백 필터 제거
+        this.removeDeleteImg(id)
+        imgElement.classList.remove('darker')
+      } else {
+        // 삭제할 이미지 목록에 추가하고 흑백 필터 적용
+        this.deleteImageIds.push(id)
+        imgElement.classList.add('darker')
+      }
+
+      console.log(this.deleteImageIds)
+    },
+    removeDeleteImg(id) {
+      const index = this.deleteImageIds.indexOf(id)
+      if (index !== -1) {
+        this.deleteImageIds.splice(index, 1)
+      }
+    },
+    removeDarker() {
+      this.deleteImageIds.forEach((id) => {
+        const imgElement = document.getElementById(`image-${id}`)
+        if (imgElement) {
+          imgElement.classList.remove('darker')
+        }
+      })
     }
   },
   mounted() {
@@ -431,13 +495,18 @@ input[type='text'],
 input[type='time'],
 input[type='number'] {
   width: 100%;
-  max-width: 250px;
+  max-width: 500px;
   padding: 8px;
   border: 1px solid #d1d9e6;
   border-radius: 4px;
   box-sizing: border-box;
   background-color: #fff;
   color: #333;
+}
+
+.time {
+  width: 100%;
+  max-width: 250px !important;
 }
 
 input[type='checkbox'] {
@@ -515,6 +584,7 @@ button.btn-cancel:hover {
 .uploaded-img {
   max-width: 100px;
   max-height: 100px;
+  transition: filter 0.2s ease;
 }
 
 .remove-btn {
@@ -620,5 +690,9 @@ button:active {
 button:disabled {
   background-color: #cccccc; /* 비활성화 시 버튼 배경색 */
   cursor: not-allowed; /* 비활성화 시 커서 금지 모양 */
+}
+
+.darker {
+  filter: brightness(50%);
 }
 </style>
