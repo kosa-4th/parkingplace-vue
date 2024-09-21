@@ -9,6 +9,7 @@
  2024.09.20 양건모 | 등록된 이미지 삭제 및 버그 수정
  2024.09.20 양건모 | 주차구역 추가
  2024.09.21 양건모 | 주차구역명이 등록되지 않는 버그 수정
+ 2024.09.22 양건모 | 주차구역 수정
  -->
 <template>
   <div class="parking-lot-management">
@@ -113,7 +114,7 @@
     </div>
 
     <button class="btn btn-toggle" @click="toggleAddZoneForm">
-      {{ showAddZoneForm ? '구역 추가 숨기기' : '구역 추가하기' }}
+      {{ showAddZoneForm ? '취소' : '주차 구역 추가' }}
     </button>
 
     <div v-if="showAddZoneForm" class="add-zone-form">
@@ -166,7 +167,7 @@
         <label>유지보수 서비스 가격</label>
         <input v-model="newParkingSpace.maintenancePrice" type="number" />
       </div>
-      <button class="btn btn-add" @click="addZone()">구역 추가</button>
+      <button class="btn btn-add" @click="addParkingSpace()">구역 추가</button>
     </div>
 
     <div>
@@ -198,32 +199,65 @@
             <td>{{ space.weekendAllDayPrice }}</td>
             <td>{{ space.washPrice ? space.washPrice : 'X' }}</td>
             <td>{{ space.maintenancePrice ? space.maintenancePrice : 'X' }}</td>
-            <td><button @click="editSpace(index)">수정</button></td>
-            <td><button @click="deleteSpace(index)">삭제</button></td>
+            <td><button @click="modifyParkingSpaceOn(index, space.id)">수정</button></td>
+            <td><button @click="deleteParkingSpace(index, id)">삭제</button></td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div v-if="selectedZone !== null" class="edit-zone-form">
-      <h3>{{ selectedZone.name }} 구역 수정</h3>
+    <div v-if="selectedParkingSpace" class="edit-zone-form">
+      <h3>{{ selectedParkingSpace.spaceName }} 구역 수정</h3>
       <div class="input-group">
-        <label>주차 가능 대수</label>
-        <input v-model.number="selectedZone.capacity" type="number" />
+        <label>구역명</label>
+        <input v-model="selectedParkingSpace.spaceName" type="text" />
       </div>
       <div class="input-group">
-        <label>차량 유형</label>
-        <input v-model="selectedZone.vehicleType" type="text" />
+        <label>주차 가능 대수</label>
+        <input v-model.number="selectedParkingSpace.availableSpaceNum" type="number" />
+      </div>
+      <div class="input-group">
+        <label>허용되는 차량 유형</label>
+        <select v-model="selectedParkingSpace.carTypeId">
+          <option v-for="(carType, index) in selectableCarTypes" :key="index" :value="carType.id">
+            {{ carType.carTypeKor }}
+          </option>
+        </select>
       </div>
       <div class="input-group">
         <label>평일 가격</label>
-        <input v-model="selectedZone.weekdayPrice" type="number" />
+        <input v-model.number="selectedParkingSpace.weekdaysPrice" type="number" />
+      </div>
+      <div class="input-group">
+        <label>평일 최대 가격</label>
+        <input v-model.number="selectedParkingSpace.weekAllDayPrice" type="number" />
       </div>
       <div class="input-group">
         <label>주말 가격</label>
-        <input v-model="selectedZone.weekendPrice" type="number" />
+        <input v-model.number="selectedParkingSpace.weekendPrice" type="number" />
       </div>
-      <button class="btn btn-save" @click="saveZone">저장</button>
+      <div class="input-group">
+        <label>주말 최대 가격</label>
+        <input v-model.number="selectedParkingSpace.weekendAllDayPrice" type="number" />
+      </div>
+      <div class="input-group">
+        <label>세차 서비스</label>
+        <input v-model="selectedParkingSpace.washService" type="checkbox" />
+      </div>
+      <div class="input-group" v-if="selectedParkingSpace.washService">
+        <label>세차 서비스 가격</label>
+        <input v-model="selectedParkingSpace.washPrice" type="number" />
+      </div>
+      <div class="input-group">
+        <label>유지보수 서비스</label>
+        <input v-model="selectedParkingSpace.maintenanceService" type="checkbox" />
+      </div>
+      <div class="input-group" v-if="selectedParkingSpace.maintenanceService">
+        <label>유지보수 서비스 가격</label>
+        <input v-model="selectedParkingSpace.maintenancePrice" type="number" />
+      </div>
+
+      <button class="btn btn-save" @click="saveSpace">저장</button>
       <button class="btn btn-cancel" @click="cancelEdit">취소</button>
     </div>
   </div>
@@ -266,7 +300,7 @@ export default {
         maintenancePrice: 0
       },
       originData: null,
-      selectedZone: null,
+      selectedParkingSpace: null,
       showAddZoneForm: false,
       imagePreviews: [],
       files: [],
@@ -295,15 +329,12 @@ export default {
     },
     toggleAddZoneForm() {
       this.showAddZoneForm = !this.showAddZoneForm
-      if (this.showAddZoneForm) {
-        this.getCarTypes()
-      }
     },
-    async addZone() {
+    async addParkingSpace() {
       if (
         !this.newParkingSpace.spaceName ||
         this.newParkingSpace.availableSpaceNum <= 0 ||
-        !this.newParkingSpace.carType
+        !this.newParkingSpace.carTypeId
       ) {
         alert('모든 필드를 올바르게 입력하세요.')
         return
@@ -344,21 +375,62 @@ export default {
         maintenancePrice: 0
       }
     },
-    editZone(index) {
-      this.selectedZone = { ...this.parkingLot.zones[index], index }
+    modifyParkingSpaceOn(index, parkingSpaceId) {
+      this.selectedParkingSpace = { ...this.parkingLot.parkingSpaces[index], index }
+      this.selectedParkingSpace.parkingSpaceId = parkingSpaceId
+      console.log(parkingSpaceId)
+      console.log(this.selectedParkingSpace)
     },
     saveSpace() {
-      if (this.selectedZone !== null) {
-        const index = this.selectedZone.index
-        this.parkingLot.zones[index] = { ...this.selectedZone }
-        this.selectedZone = null
-      }
+      // if (this.selectedZone !== null) {
+      //   const index = this.selectedZone.index
+      //   this.parkingLot.zones[index] = { ...this.selectedZone }
+      //   this.selectedParkingSpace = null
+      // }
+
+      console.log(this.selectedParkingSpace)
+      console.log(this.selectedParkingSpace.carTypeId)
+      const formData = new FormData()
+
+      // Add all the necessary form data from selectedParkingSpace
+      formData.append('parkingSpaceId', this.selectedParkingSpace.parkingSpaceId)
+      formData.append('spaceName', this.selectedParkingSpace.spaceName)
+      formData.append('availableSpaceNum', this.selectedParkingSpace.availableSpaceNum)
+      formData.append('carTypeId', this.selectedParkingSpace.carTypeId)
+      formData.append('weekdaysPrice', this.selectedParkingSpace.weekdaysPrice)
+      formData.append('weekAllDayPrice', this.selectedParkingSpace.weekAllDayPrice)
+      formData.append('weekendPrice', this.selectedParkingSpace.weekendPrice)
+      formData.append('weekendAllDayPrice', this.selectedParkingSpace.weekendAllDayPrice)
+      formData.append('washService', this.selectedParkingSpace.washService)
+      formData.append('washPrice', this.selectedParkingSpace.washPrice)
+      formData.append('maintenanceService', this.selectedParkingSpace.maintenanceService)
+      formData.append('maintenancePrice', this.selectedParkingSpace.maintenancePrice)
+
+      axios
+        .put(`/api/parking-manager/info/parkingarea/protected`, formData, {
+          headers: {
+            Authorization: `Bearer ${this.authStore.token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        .then((response) => {
+          this.parkingLot = response.data
+          this.originData = JSON.parse(JSON.stringify(this.parkingLot))
+          this.modifying = false
+
+          this.removeDarker()
+
+          this.clearFileInput()
+        })
+        .catch(function (error) {
+          alert(error)
+        })
     },
     cancelEdit() {
-      this.selectedZone = null
+      this.selectedParkingSpace = null
     },
     deleteSpace(index) {
-      this.parkingLot.zones.splice(index, 1)
+      this.parkingLot.parkingSpaces.splice(index, 1)
     },
     onFileChange(event) {
       const files = Array.from(event.target.files)
@@ -477,9 +549,6 @@ export default {
       })
         .then((response) => {
           this.selectableCarTypes = response.data.carTypes
-          if (this.selectableCarTypes.length > 0) {
-            this.newParkingSpace.carType = this.selectableCarTypes[0].id
-          }
         })
         .catch(function (e) {
           alert(e)
@@ -488,6 +557,11 @@ export default {
   },
   mounted() {
     this.getParkingLotDetail()
+    this.getCarTypes()
+    if (this.selectableCarTypes.length > 0) {
+      this.newParkingSpace.carType = this.selectableCarTypes[0].id
+      this.selectedParkingSpace.carType = this.selectableCarTypes[0].id
+    }
   },
   watch: {
     selectedLotId() {
