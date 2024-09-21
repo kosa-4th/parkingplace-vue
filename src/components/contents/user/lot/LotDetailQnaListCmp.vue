@@ -19,9 +19,15 @@
           <div>
             <span class="inquirer">{{ inquiry.inquirer }}</span> | <span class="inquiry-date">{{  inquiry.inquiryDate }}</span>
           </div>
-          <!-- <span class="arrow">{{ selectedInquiry === index && inquiry.answerDate ? '∧' : '∨' }}</span> -->
-          <span class="arrow material-symbols-outlined">
-            {{ selectedInquiry === index && inquiry.answerDate ? 'expand_less' : 'expand_more' }}
+          <span class="arrow">
+            <img 
+              v-if="selectedInquiry === index && inquiry.answerDate"
+              src="@/assets/img/arrow-top-grey.png" alt="arrow up"
+            />
+            <img 
+              v-else
+              src="@/assets/img/arrow-bottom-grey.png" alt="arrow down"
+            />
           </span>
         </div>
         <div
@@ -71,7 +77,6 @@ const navigateToMakeInquiry = () => {
 // 문의 가져오기
 const getInquiries = async () => {
   const response = await axios.get(`/api/parkingLots/${parkinglotId}/inquiries?page=${page.value}&size=${size}`);
-  console.log(response.data);
   const newInquiries = response.data.inquiries;
   inquiries.value = [...inquiries.value, ...newInquiries];
   hasMoreReviews.value = response.data.nextPage;
@@ -95,6 +100,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
+img {
+  height: 35px;
+}
 .inquriy-container {
   width: 90%;
   display: flex;
@@ -126,7 +134,6 @@ button {
   align-items: center;
   font-weight: 700;
   margin-top: 15px;
-  color: #757575;
 }
 
 .inquiries {
@@ -160,6 +167,7 @@ button {
 .inquiry-date, .answer-date {
   font-size: 13px;
 }
+
 .inquiry-text {
   width: 100%;
   padding: 10px 0;

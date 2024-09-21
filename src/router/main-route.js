@@ -34,6 +34,7 @@ import ManagerCmp from '@/components/manager/ManagerCmp.vue'
 import ReservationDetailCmp from '@/components/contents/user/reservation/ReservationDetailCmp.vue'
 import MyReservationDetailCmp from '@/components/contents/user/my/MyReservationDetailCmp.vue'
 import PageNotFound from '@/components/modal/PageNotFound.vue'
+import MyInquiriesCmp from '@/components/contents/user/my/MyInquiriesCmp.vue'
 
 export default [
   {
@@ -113,6 +114,10 @@ export default [
           {
             path: 'reviews',
             component: MyReviewsCmp
+          },
+          {
+            path: 'inquiries',
+            component: MyInquiriesCmp
           }
         ]
       }
