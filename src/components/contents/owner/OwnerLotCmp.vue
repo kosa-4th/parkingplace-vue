@@ -9,7 +9,7 @@
  2024.09.20 양건모 | 등록된 이미지 삭제 및 버그 수정
  2024.09.20 양건모 | 주차구역 추가
  2024.09.21 양건모 | 주차구역명이 등록되지 않는 버그 수정
- 2024.09.22 양건모 | 주차구역 수정
+ 2024.09.22 양건모 | 주차구역 수정, 삭제
  -->
 <template>
   <div class="parking-lot-management">
@@ -200,7 +200,7 @@
             <td>{{ space.washPrice ? space.washPrice : 'X' }}</td>
             <td>{{ space.maintenancePrice ? space.maintenancePrice : 'X' }}</td>
             <td><button @click="modifyParkingSpaceOn(index, space.id)">수정</button></td>
-            <td><button @click="deleteParkingSpace(index, id)">삭제</button></td>
+            <td><button @click="deleteParkingSpace(index, space.id)">삭제</button></td>
           </tr>
         </tbody>
       </table>
@@ -429,8 +429,25 @@ export default {
     cancelEdit() {
       this.selectedParkingSpace = null
     },
-    deleteSpace(index) {
-      this.parkingLot.parkingSpaces.splice(index, 1)
+    deleteParkingSpace(index, parkingSpaceId) {
+      if (
+        confirm('주차구역을 삭제해도 기존의 예약은 사라지지 않습니다. 정말로 삭제하시겠습니까?')
+      ) {
+        axios
+          .delete(`/api/parking-manager/info/parkingarea/protected`, {
+            headers: {
+              Authorization: `Bearer ${this.authStore.token}`,
+              parkingSpaceId: parkingSpaceId
+            }
+          })
+          .then(() => {
+            alert('삭제되었습니다')
+            this.parkingLot.parkingSpaces.splice(index, 1)
+          })
+          .catch(function (error) {
+            alert(error)
+          })
+      }
     },
     onFileChange(event) {
       const files = Array.from(event.target.files)
