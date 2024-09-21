@@ -10,6 +10,7 @@
  2024.09.20 양건모 | 주차구역 추가
  2024.09.21 양건모 | 주차구역명이 등록되지 않는 버그 수정
  2024.09.22 양건모 | 주차구역 수정, 삭제
+ 2024.09.22 양건모 | 차량 유형 기본값이 정상적으로 매핑되지 않는 버그 수정
  -->
 <template>
   <div class="parking-lot-management">
@@ -378,6 +379,7 @@ export default {
     modifyParkingSpaceOn(index, parkingSpaceId) {
       this.selectedParkingSpace = { ...this.parkingLot.parkingSpaces[index], index }
       this.selectedParkingSpace.parkingSpaceId = parkingSpaceId
+      this.selectedParkingSpace.carTypeId = this.selectableCarTypes[0].id
       console.log(parkingSpaceId)
       console.log(this.selectedParkingSpace)
     },
@@ -470,6 +472,8 @@ export default {
     },
     modifyOn() {
       this.modifying = true
+      this.newParkingSpace.carTypeId = this.selectableCarTypes[0].id
+      alert('기본 : ' + this.newParkingSpace.carTypeId)
     },
     modifyCancel() {
       this.parkingLot = JSON.parse(JSON.stringify(this.originData))
@@ -572,13 +576,17 @@ export default {
         })
     }
   },
-  mounted() {
+  async mounted() {
     this.getParkingLotDetail()
-    this.getCarTypes()
-    if (this.selectableCarTypes.length > 0) {
-      this.newParkingSpace.carType = this.selectableCarTypes[0].id
-      this.selectedParkingSpace.carType = this.selectableCarTypes[0].id
-    }
+      .then(() => {
+        return this.getCarTypes()
+      })
+      .then(() => {
+        if (this.selectableCarTypes.length > 0) {
+          this.newParkingSpace.carTypeId = this.selectableCarTypes[0].id
+          this.selectedParkingSpace.carTypeId = this.selectableCarTypes[0].id
+        }
+      })
   },
   watch: {
     selectedLotId() {
