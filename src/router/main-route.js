@@ -35,6 +35,8 @@ import ReservationDetailCmp from '@/components/contents/user/reservation/Reserva
 import MyReservationDetailCmp from '@/components/contents/user/my/MyReservationDetailCmp.vue'
 import PageNotFound from '@/components/modal/PageNotFound.vue'
 import MyInquiriesCmp from '@/components/contents/user/my/MyInquiriesCmp.vue'
+import ManagerUserCmp from '@/components/manager/ManagerUserCmp.vue'
+import ManagerLotCmp from '@/components/manager/ManagerLotCmp.vue'
 
 export default [
   {
@@ -151,14 +153,24 @@ export default [
   },
   {
     path: '/manager',
-    component: ManagerCmp
+    component: ManagerCmp,
+    children: [
+      {
+        path: 'user',
+        component: ManagerUserCmp
+      },
+      {
+        path: '/lot',
+        component: ManagerLotCmp
+      }
+    ]
   },
   {
     path: '/:pathMatch(.*)',
-    redirect: "/404"
+    redirect: '/404'
   },
   {
     path: '/404',
-    component: PageNotFound,
+    component: PageNotFound
   }
 ]
