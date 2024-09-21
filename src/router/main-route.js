@@ -34,8 +34,10 @@ import ManagerCmp from '@/components/manager/ManagerCmp.vue'
 import ReservationDetailCmp from '@/components/contents/user/reservation/ReservationDetailCmp.vue'
 import MyReservationDetailCmp from '@/components/contents/user/my/MyReservationDetailCmp.vue'
 import PageNotFound from '@/components/modal/PageNotFound.vue'
+import MyInquiriesCmp from '@/components/contents/user/my/MyInquiriesCmp.vue'
 import ManagerUserCmp from '@/components/manager/ManagerUserCmp.vue'
 import ManagerLotCmp from '@/components/manager/ManagerLotCmp.vue'
+import OwnerReviewCmp from '@/components/contents/owner/OwnerReviewCmp.vue'
 
 export default [
   {
@@ -115,6 +117,10 @@ export default [
           {
             path: 'reviews',
             component: MyReviewsCmp
+          },
+          {
+            path: 'inquiries',
+            component: MyInquiriesCmp
           }
         ]
       }
@@ -143,6 +149,10 @@ export default [
       {
         path: 'qna',
         component: OwnerQnaCmp
+      },
+      {
+        path: 'reviews',
+        component: OwnerReviewCmp
       }
     ]
   },

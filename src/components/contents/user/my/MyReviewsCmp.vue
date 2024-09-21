@@ -40,20 +40,16 @@ const size = 5;
 const hasMoreReviews = ref(true);
 
 const getReviews = async () => {
-  // try {
-    const response = await axios.get(`/api/users/reviews/protected`,
-      {
-        page: page.value,
-        size: size
-      }
-    );
-    console.log(response.data);
-    const newReviews = response.data.reviews;
-    reviews.value = [...reviews.value, ...newReviews];
-    hasMoreReviews.value = response.data.nextPage;
-  // } catch (error) {
-  //   console.log(error);
-  // }
+  const response = await axios.get(`/api/users/reviews/protected`,
+    {params: {
+      page: page.value,
+      size: size
+    }}
+  );
+  console.log(response.data);
+  const newReviews = response.data.reviews;
+  reviews.value = [...reviews.value, ...newReviews];
+  hasMoreReviews.value = response.data.nextPage;
 }
 
 const getMoreReviews = () => {
@@ -103,15 +99,16 @@ onMounted(() => {
 
 .parking-name {
   font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
 }
 
 .review-date {
-  font-size: 10px;
-}
-
-.review-date {
-  font-size: 15px;
+  font-size: 13px;
   color: #d9d9d9;
+  margin-bottom: 5px;
 }
 
 .review-content {

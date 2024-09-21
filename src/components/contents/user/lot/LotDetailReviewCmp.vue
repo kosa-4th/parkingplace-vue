@@ -79,7 +79,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, reactive, ref } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import { AuthStore } from '@/stores/store';
 import { useRoute } from 'vue-router';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
@@ -109,52 +109,8 @@ const parkinglotId = route.params.lotId;
 const actionType = ref('');
 const reviewVal = ref(null);
 
-// 기본 모달
-// const modal = reactive({
-//   confirm: false,
-//   error: false,
-//   modalMessage: '',
-//   isModalVisible: false,
-// })
-
-// 취소 확인 모달
-// const cancelModal = reactive({
-//   confirm: true,
-//   modalMessage: '',
-//   isModalVisible: false,
-//   actionType: '', // 삭제인지, 수정인지??
-//   review: null
-// })
-
-// 기본 모달 닫기
-// const handleModalClose = () => {
-//   modal.confirm = false;
-//   modal.error = false;
-//   modal.isModalVisible = false;
-// }
-
-// // 취소 확인 모달 닫기
-// const handleCancelModalClose = () => {
-//   cancelModal.confirm = false;
-//   cancelModal.isModalVisible = false;
-// }
-
-// 취소 확인 모달 -> 확인 눌렀을 때
-// const confirmModalAction = async () => {
-//   if (cancelModal.actionType === 'delete') {
-//     await deleteReview(cancelModal.review.id)
-//   } else if (cancelModal.actionType === 'modify') {
-//     await saveReview(cancelModal.review);
-//   }
-//   cancelModal.isModalVisible = false;
-// }
-
 //리뷰 삭제 모달 열기
 const openDeleteModal = (review) => {
-  // cancelModal.actionType = 'delete';
-  // cancelModal.modalMessage = "이 리뷰를 삭제하시겠습니까?";
-  // cancelModal.isModalVisible = true;
-  // cancelModal.review = review;
   showCCInfoModal("이 리뷰를 삭제하시겠습니까?");
   actionType.value = 'delete';
   reviewVal.value = review;
@@ -162,10 +118,6 @@ const openDeleteModal = (review) => {
 
 // 리뷰 수정 모달
 const openModifyModal = (review) => {
-  // cancelModal.actionType = "modify";
-  // cancelModal.modalMessage = "이 리뷰를 수정하시겠습니까?"
-  // cancelModal.isModalVisible = true;
-  // cancelModal.review = review;
   showCCInfoModal("이 리뷰를 수정하시겠습니까?");
   actionType.value = 'modify';
   reviewVal.value = review;

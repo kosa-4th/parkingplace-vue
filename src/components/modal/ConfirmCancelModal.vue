@@ -63,7 +63,10 @@ const confirmAction = () => {
 
 <style scoped>
 img {
-  width: 200px;
+  width: 280px;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .modal-overlay {
@@ -84,11 +87,13 @@ img {
   border-radius: 8px;
   width: 300px;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .button-group {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 10px;
   margin-top: 20px;
 }

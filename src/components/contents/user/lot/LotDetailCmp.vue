@@ -76,12 +76,11 @@ const getParkingLotDetails = async () => {
   try {
     
     const response = await axios.get(`/api/parkinglots/${parkinglotId}`);
-    console.log(response.data);
     parkingLotDetail.value = response.data;
     images.value = response.data.images;
     getHasFavorite();
   } catch (error) {
-    console.log(error);
+    //error
   }
 }
 
@@ -166,13 +165,16 @@ const removeFileProtocol = (path) => {
   align-items: center;
 }
 
+
 .parking-name {
   font-size: 20px;
   font-weight: 700;
+  flex: 3;
 }
 
 .parking-type {
   font-size: 12px;
+  flex: 1.2;
 }
 
 .tab-buttons {
@@ -188,7 +190,7 @@ const removeFileProtocol = (path) => {
   text-decoration: none;
   background-color: white;
   cursor: pointer;
-  color: black;
+  /* color: black; */
 }
 
 .tab-buttons .tab.active {

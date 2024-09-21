@@ -7,14 +7,12 @@
   <div class="home-detail">
     <!-- 주소 -->
     <div class="detail-item">
-      <!-- <i class="icon location"></i> -->
       <img src="@/assets/img/icon-position.png" alt="Location Icon" class="icon">
-      <p>{{ parkingLotDetail.address }}</p>
+      <div>{{ parkingLotDetail.address }}</div>
     </div>
 
     <!-- 전화번호 -->
     <div class="detail-item" v-if="!parkingLotDetail.phone==''">
-      <!-- <i class="icon phone"></i> -->
       <img src="@/assets/img/icon-call.png" alt="Phone Icon" class="icon">
       <p>{{ parkingLotDetail.phone }}</p>
     </div>
@@ -22,10 +20,8 @@
     <!-- 영업시간 -->
     <div class="detail-item-col">
       <div>
-        <!-- <i class="icon clock"></i> -->
         <img src="@/assets/img/icon-clock.png" alt="Clock Icon" class="icon">
         <p>영업시간</p>
-        <!-- <p>영업시간</p> -->
       </div>
         <p>평일 {{ parkingLotDetail.weekdayTime }}</p>
         <p>주말 {{ parkingLotDetail.weekendTime }}</p>
@@ -35,7 +31,6 @@
     <div class="detail-item-col">
       
       <div>
-        <!-- <i class="icon price"></i> -->
         <img src="@/assets/img/icon-won.png" alt="Price Icon" class="icon">
         <p>가격</p>
       </div>
@@ -45,7 +40,8 @@
     </div>
 
     <!-- 예약 버튼 -->
-    <button @click="toReservation()" class="reservation-button">예약하기</button>
+    <button v-if="props.parkingLotDetail.isIfReservation" @click="toReservation()" class="reservation-button">예약하기</button>
+    <div v-else></div>
   </div>
 </template>
 
