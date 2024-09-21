@@ -8,7 +8,7 @@
     <div class="modal-container">
         <img v-if="error" src="@/assets/img/logo-error.jpg" alt="error">
         <img v-else-if="confirm" src="@/assets/img/logo-check.jpg" alt="check">
-        <img v-else src="@/assets/img/logo-info.jpg" alt="info">
+        <img v-else src="@/assets/img/logo-info.jpg" alt="info" class="info-img">
         
         <h2>{{ title }}</h2>
         <div v-html="message"></div>
@@ -61,8 +61,12 @@ const confirmAction = () => {
 
 <style scoped>
 img {
-  width: 200px;
+  width: 280px;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
 }
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -81,6 +85,8 @@ img {
   border-radius: 8px;
   width: 300px;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
 button {

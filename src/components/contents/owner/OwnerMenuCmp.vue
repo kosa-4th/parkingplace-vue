@@ -13,7 +13,7 @@
       <div class="owner-side-top">
         <div class="owner-name-box">
           <p>{{ authStore.getUsername }}님</p>
-          <p @click="logout()"><small>로그아웃</small></p>
+          <!-- <p @click="logout()"><small>로그아웃</small></p> -->
         </div>
         <div>
           <!-- v-model을 로컬 데이터인 localSelectedLotId로 연결 -->
@@ -36,6 +36,7 @@
           </li>
         </ul>
       </div>
+      <div class="logout" @click="logout()">로그아웃</div>
     </div>
   </div>
 </template>
@@ -54,7 +55,8 @@ export default {
         { text: '수익 통계', link: '/owner/incomes' },
         { text: '주차장 관리', link: '/owner/lots' },
         { text: '예약 관리', link: '/owner/reservations' },
-        { text: '문의 관리', link: '/owner/qna' }
+        { text: '리뷰 관리', link: '/owner/reviews' },
+        { text: '문의 관리', link: '/owner/qna' },
       ]
     }
   },
@@ -84,6 +86,7 @@ p {
 
 /* 메뉴 전체 박스 스타일 */
 .owner-menu {
+  padding: 20px;
   background: #faf6ff; /* 연한 보라색 배경 */
   display: flex;
   flex-direction: column; /* 세로 배치 */
@@ -178,6 +181,7 @@ p {
 /* 활성화된 메뉴 항목의 링크 텍스트 스타일 */
 .owner-side-top ul li.active a {
   color: #fff; /* 활성화된 항목의 텍스트 색상 */
+  font-weight: 700;
 }
 
 /* 활성화된 메뉴 항목은 hover 시 크기 변화 없음 */
@@ -187,10 +191,20 @@ p {
 
 select {
   display: block;
-  width: 94%;
+  width: 100%;
+  padding: 10px;
   margin: auto;
   margin-top: 10px;
-  border: 1px solid #9a64e8;
+  border: 1px solid #D3D3D3;
   border-radius: 5px;
+  font-size: 15px;
+  outline: none;
+}
+
+.logout {
+  font-size: 13px;
+  margin: auto;
+  cursor: pointer;
+  text-decoration: underline;
 }
 </style>
