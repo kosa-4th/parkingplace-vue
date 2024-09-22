@@ -344,7 +344,7 @@ export default {
       console.log(this.newParkingSpace)
       await axios({
         method: 'post',
-        url: '/api/parking-manager/info/parkingarea',
+        url: '/api/parking-manager/info/parkingarea/protected',
         headers: {
           Authorization: `Bearer ${this.authStore.token}`,
           'Content-Type': 'application/json'
