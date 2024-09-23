@@ -40,7 +40,7 @@
     </div>
 
     <!-- 예약 버튼 -->
-    <button v-if="props.parkingLotDetail.isIfReservation" @click="toReservation()" class="reservation-button">예약하기</button>
+    <button v-if="parkingLotDetail.ifReservation" @click="toReservation()" class="reservation-button">예약하기</button>
     <div v-else></div>
   </div>
 </template>
