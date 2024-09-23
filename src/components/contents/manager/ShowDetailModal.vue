@@ -1,20 +1,54 @@
 <template>
+  <div class="modal-overlay">
     <div class="modal">
       <div class="modal-header">
         <h5 class="modal-title">사용자 상세 정보</h5>
         <button type="button" class="close" @click="$emit('close-modal')">×</button>
       </div>
       <div class="modal-body">
-        <p><strong>사용자 ID:</strong> {{ userId }}</p>
-        <p v-if="!userData">로딩 중...</p>
+        <div v-if="!userData">로딩 중...</div>
+        <div v-else>
+          <p><strong>사용자 이름:</strong> {{ userData.userName }}</p>
+          <p><strong>이메일:</strong> {{ userData.email }}</p>
+          <div v-if="userData.auth==='ROLE_USER'">
+            <!-- 차량 정보 출력 -->
+            <div v-if="userData.plateInfoList && userData.plateInfoList.length">
+              <h5>차량 정보</h5>
+              <ul>
+                <li v-for="(plate, index) in userData.plateInfoList" :key="index">
+                  <p><strong>차량 번호:</strong> {{ plate.plateNumber }}</p>
+                  <p><strong>차량 종류:</strong> {{ plate.carTypeEnum }}</p>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div v-else-if="userData.auth==='ROLE_PARKING_MANAGER'">
+            <!-- 주차장 정보 출력 (여러 개일 경우 반복문 처리) -->
+            <div v-if="userData.parkingLots && userData.parkingLots.length">
+              <h5>주차장 정보</h5>
+              <ul>
+                <li v-for="(lot, index) in userData.parkingLots" :key="index">
+                  <p><strong>주차장 이름:</strong> {{ lot.name }}</p>
+                  <p><strong>주소:</strong> {{ lot.address }}</p>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div v-else>
+            권한 없음
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" @click="$emit('close-modal')">닫기</button>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   props: {
     userId: {
@@ -24,36 +58,29 @@ export default {
   },
   data() {
     return {
-      userData: null, // 사용자 데이터 저장
-    };
+      userData: null
+    }
   },
   mounted() {
     // 사용자 데이터를 API로 불러오는 로직
-    this.fetchUserData(this.userId);
+    this.getUserData()
   },
   methods: {
-    async fetchUserData(userId) {
-      // 여기에 실제 API 요청 코드를 추가하여 사용자 데이터를 가져옴
-      // 임시로 데이터를 콘솔에 출력하거나 가짜 데이터를 설정할 수 있습니다.
-      console.log("Fetching data for user:", userId);
-
-      // 예시 API 요청 코드 (실제 사용 시 axios 같은 라이브러리 사용)
+    async getUserData() {
       try {
-        // 가짜 데이터 예시
-        this.userData = {
-          email: "testuser@example.com",
-          userName: "홍길동",
-        };
-
-        // 실제 API 요청 예시 (axios 필요)
-        // const response = await axios.get(`/api/users/${userId}`);
-        // this.userData = response.data;
+        const response = await axios.get('/api/System-Manager/userDetailData/protected', {
+          params: {
+            userId: this.userId
+          }
+        })
+        this.userData = response.data[0]
+        console.log(this.userData)
       } catch (error) {
-        console.error("사용자 데이터를 불러오는 중 오류 발생:", error);
+        console.error('사용자 데이터를 불러오는 중 오류 발생:', error)
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>
@@ -63,23 +90,25 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* 어두운 배경 */
+  background: rgba(0, 0, 0, 0.1); /* 어두운 배경 */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 3000; /* 모달이 다른 요소 위에 있도록 */
+  z-index: 1049; /* 모달이 다른 요소 위에 있도록 */
 }
 
 .modal {
-  position: relative;
-  background: pink;
-  padding: 20px;
+  display: block;
+  margin-left: 30%;
+  margin-top: 15%;
+  height: auto;
+  background: white;
+  padding: 30px;
   border-radius: 12px;
-  width: 80%;
-  max-width: 900px;
+  width: 60%;
+  max-width: 600px;
+  z-index: 1050; /* 모달이 overlay 위에 오도록 z-index 설정 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 가벼운 그림자 */
-  z-index: 3001; /* 모달이 overlay 위에 오도록 z-index 설정 */
-  animation: fadeIn 0.3s ease; /* 부드러운 모달 애니메이션 */
 }
 
 .modal-header {
@@ -100,6 +129,12 @@ export default {
   padding: 20px 0;
 }
 
+.modal-text {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
 .modal-footer {
   text-align: right;
   border-top: 1px solid #dee2e6;
@@ -118,14 +153,29 @@ export default {
   color: #ff0000;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+.btn-primary {
+  background-color: #fd7e14;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #e76e0e;
 }
 </style>
