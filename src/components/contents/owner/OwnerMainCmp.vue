@@ -6,7 +6,7 @@
 
 <template>
   <div class="main-container">
-    <h3>{{ formattedToday }} ## {{ parkingLotName }}의 현황 </h3>
+    <h3 >{{ formattedToday }} <br> <h4>{{ parkingLotName }} 오늘의 현황</h4> </h3>
     <br>
     <div class="tabs-container">
       <!-- 부트스트랩 네비게이션 탭 -->
@@ -43,7 +43,7 @@
     </div>
 
     <!-- 탭에 해당하는 콘텐츠 영역 -->
-    <div class="tab-content">
+    <div class="tab-content mt-3" >
       <div v-if="activeTab === 'entryScheduled'">
         <table class="table table-bordered table-hover text-center">
           <thead class="thead-dark">
@@ -417,45 +417,6 @@ export default {
 .pagination {
   margin-top: 20px;
 }
-
-.bg-purple {
-  background-color: #9A64E8; /* 기본 보라색 */
-  color: white;
-}
-
-.bg-purple:hover {
-  background-color: #8e44ad; /* hover 시 보라색을 더 진하게 */
-  color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
-
-}
-
-.bg-green {
-  background-color: #76D672; /* 기본 보라색 */
-  color: white;
-}
-
-.bg-green:hover {
-  background-color: #76D672; /* hover 시 보라색을 더 진하게 */
-  color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
-}
-
-.bg-red {
-  background-color: #F93A41; /* 기본 보라색 */
-  color: white;
-}
-
-.bg-red:hover {
-  background-color: #F93A41; /* hover 시 보라색을 더 진하게 */
-  color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
-}
-
-/* date-picker 전체 영역을 오른쪽으로 배치 */
-.search-container {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end; /* 오른쪽 정렬 */
-}
-
 /* active 페이지에 보라색 배경 적용 */
 .pagination .page-item.active .page-link {
   background-color: #9A64E8; /* 보라색 */

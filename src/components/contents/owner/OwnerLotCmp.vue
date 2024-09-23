@@ -7,6 +7,11 @@
  2024.09.18 양건모 | 주차장 정보 조회
  2024.09.19 양건모 | 주차장 기본 정보 수정, 이미지 조회 및 추가
  2024.09.20 양건모 | 등록된 이미지 삭제 및 버그 수정
+ 2024.09.20 양건모 | 주차구역 추가
+ 2024.09.21 양건모 | 주차구역명이 등록되지 않는 버그 수정
+ 2024.09.22 양건모 | 주차구역 수정, 삭제
+ 2024.09.22 양건모 | 차량 유형 기본값이 정상적으로 매핑되지 않는 버그 수정
+ 2024.09.22 양건모 | 입력값 validation 관련 코드 추가, 각종 버그 수정
  -->
 <template>
   <div class="parking-lot-management">
@@ -111,30 +116,42 @@
     </div>
 
     <button class="btn btn-toggle" @click="toggleAddZoneForm">
-      {{ showAddZoneForm ? '구역 추가 숨기기' : '구역 추가하기' }}
+      {{ showAddZoneForm ? '취소' : '주차 구역 추가' }}
     </button>
 
     <div v-if="showAddZoneForm" class="add-zone-form">
       <h3>새로운 주차 구역 추가</h3>
       <div class="input-group">
         <label>구역명</label>
-        <input v-model="newParkingSpace.name" type="text" />
+        <input v-model="newParkingSpace.spaceName" type="text" />
       </div>
       <div class="input-group">
-        <label>주차 가능 대수</label>
-        <input v-model.number="newParkingSpace.capacity" type="number" />
+        <label>주차 공간 수</label>
+        <input v-model.number="newParkingSpace.availableSpaceNum" type="number" />
       </div>
       <div class="input-group">
         <label>허용되는 차량 유형</label>
-        <input v-model="newParkingSpace.vehicleType" type="text" />
+        <select v-model="newParkingSpace.carTypeId">
+          <option v-for="(carType, index) in selectableCarTypes" :key="index" :value="carType.id">
+            {{ carType.carTypeKor }}
+          </option>
+        </select>
       </div>
       <div class="input-group">
         <label>평일 가격</label>
-        <input v-model.number="newParkingSpace.weekdayPrice" type="number" />
+        <input v-model.number="newParkingSpace.weekdaysPrice" type="number" />
+      </div>
+      <div class="input-group">
+        <label>평일 최대 가격</label>
+        <input v-model.number="newParkingSpace.weekAllDayPrice" type="number" />
       </div>
       <div class="input-group">
         <label>주말 가격</label>
         <input v-model.number="newParkingSpace.weekendPrice" type="number" />
+      </div>
+      <div class="input-group">
+        <label>주말 최대 가격</label>
+        <input v-model.number="newParkingSpace.weekendAllDayPrice" type="number" />
       </div>
       <div class="input-group">
         <label>세차 서비스</label>
@@ -152,7 +169,7 @@
         <label>유지보수 서비스 가격</label>
         <input v-model="newParkingSpace.maintenancePrice" type="number" />
       </div>
-      <button class="btn btn-add" @click="addZone">구역 추가</button>
+      <button class="btn btn-add" @click="addParkingSpace()">구역 추가</button>
     </div>
 
     <div>
@@ -161,7 +178,7 @@
         <thead>
           <tr>
             <th>구역명</th>
-            <th>주차 가능 대수</th>
+            <th>주차 공간 수</th>
             <th>차종</th>
             <th>평일 요금</th>
             <th>평일 최대</th>
@@ -175,7 +192,7 @@
         </thead>
         <tbody>
           <tr v-for="(space, index) in parkingLot.parkingSpaces" :key="index">
-            <td>{{ space.name ? space.name : '이름 없음' }}</td>
+            <td>{{ space.spaceName ? space.spaceName : '이름 없음' }}</td>
             <td>{{ space.availableSpaceNum }}</td>
             <td>{{ space.carType }}</td>
             <td>{{ space.weekdaysPrice }}</td>
@@ -184,32 +201,65 @@
             <td>{{ space.weekendAllDayPrice }}</td>
             <td>{{ space.washPrice ? space.washPrice : 'X' }}</td>
             <td>{{ space.maintenancePrice ? space.maintenancePrice : 'X' }}</td>
-            <td><button @click="editSpace(index)">수정</button></td>
-            <td><button @click="deleteSpace(index)">삭제</button></td>
+            <td><button @click="modifyParkingSpaceOn(index, space.id)">수정</button></td>
+            <td><button @click="deleteParkingSpace(index, space.id)">삭제</button></td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div v-if="selectedZone !== null" class="edit-zone-form">
-      <h3>{{ selectedZone.name }} 구역 수정</h3>
+    <div v-if="selectedParkingSpace" class="edit-zone-form">
+      <h3>{{ selectedParkingSpace.spaceName }} 구역 수정</h3>
       <div class="input-group">
-        <label>주차 가능 대수</label>
-        <input v-model.number="selectedZone.capacity" type="number" />
+        <label>구역명</label>
+        <input v-model="selectedParkingSpace.spaceName" type="text" />
       </div>
       <div class="input-group">
-        <label>차량 유형</label>
-        <input v-model="selectedZone.vehicleType" type="text" />
+        <label>주차 공간 수</label>
+        <input v-model.number="selectedParkingSpace.availableSpaceNum" type="number" />
+      </div>
+      <div class="input-group">
+        <label>허용되는 차량 유형</label>
+        <select v-model="selectedParkingSpace.carTypeId">
+          <option v-for="(carType, index) in selectableCarTypes" :key="index" :value="carType.id">
+            {{ carType.carTypeKor }}
+          </option>
+        </select>
       </div>
       <div class="input-group">
         <label>평일 가격</label>
-        <input v-model="selectedZone.weekdayPrice" type="number" />
+        <input v-model.number="selectedParkingSpace.weekdaysPrice" type="number" />
+      </div>
+      <div class="input-group">
+        <label>평일 최대 가격</label>
+        <input v-model.number="selectedParkingSpace.weekAllDayPrice" type="number" />
       </div>
       <div class="input-group">
         <label>주말 가격</label>
-        <input v-model="selectedZone.weekendPrice" type="number" />
+        <input v-model.number="selectedParkingSpace.weekendPrice" type="number" />
       </div>
-      <button class="btn btn-save" @click="saveZone">저장</button>
+      <div class="input-group">
+        <label>주말 최대 가격</label>
+        <input v-model.number="selectedParkingSpace.weekendAllDayPrice" type="number" />
+      </div>
+      <div class="input-group">
+        <label>세차 서비스</label>
+        <input v-model="selectedParkingSpace.washService" type="checkbox" />
+      </div>
+      <div class="input-group" v-if="selectedParkingSpace.washService">
+        <label>세차 서비스 가격</label>
+        <input v-model="selectedParkingSpace.washPrice" type="number" />
+      </div>
+      <div class="input-group">
+        <label>유지보수 서비스</label>
+        <input v-model="selectedParkingSpace.maintenanceService" type="checkbox" />
+      </div>
+      <div class="input-group" v-if="selectedParkingSpace.maintenanceService">
+        <label>유지보수 서비스 가격</label>
+        <input v-model="selectedParkingSpace.maintenancePrice" type="number" />
+      </div>
+
+      <button class="btn btn-save" @click="modifySpaceComplete()">저장</button>
       <button class="btn btn-cancel" @click="cancelEdit">취소</button>
     </div>
   </div>
@@ -226,6 +276,7 @@ export default {
     return {
       authStore: AuthStore(),
       parkingLot: {
+        parkingLotId: '',
         name: '',
         address: '',
         tel: '',
@@ -237,23 +288,27 @@ export default {
         images: []
       },
       newParkingSpace: {
-        name: '',
+        parkingLotId: this.selectedLotId,
+        spaceName: '',
         availableSpaceNum: 0,
-        carType: '',
+        carTypeId: '',
         weekdaysPrice: 0,
+        weekAllDayPrice: 0,
         weekendPrice: 0,
+        weekendAllDayPrice: 0,
         washService: false,
         washPrice: 0,
         maintenanceService: false,
         maintenancePrice: 0
       },
       originData: null,
-      selectedZone: null,
+      selectedParkingSpace: null,
       showAddZoneForm: false,
       imagePreviews: [],
       files: [],
       modifying: false,
-      deleteImageIds: []
+      deleteImageIds: [],
+      selectableCarTypes: []
     }
   },
   methods: {
@@ -277,46 +332,122 @@ export default {
     toggleAddZoneForm() {
       this.showAddZoneForm = !this.showAddZoneForm
     },
-    addZone() {
-      if (
-        !this.newParkingSpace.name ||
-        this.newParkingSpace.capacity <= 0 ||
-        !this.newParkingSpace.vehicleType
-      ) {
-        alert('모든 필드를 올바르게 입력하세요.')
+    async addParkingSpace() {
+      const validateResult = this.validateInsertParkingSpace(this.newParkingSpace)
+      if (validateResult !== null) {
+        alert(validateResult)
         return
       }
 
-      this.parkingLot.zones.push({ ...this.newParkingSpace })
-      this.resetnewParkingSpace()
-      this.showAddZoneForm = false
+      console.log(this.newParkingSpace)
+      await axios({
+        method: 'post',
+        url: '/api/parking-manager/info/parkingarea/protected',
+        headers: {
+          Authorization: `Bearer ${this.authStore.token}`,
+          'Content-Type': 'application/json'
+        },
+        data: this.newParkingSpace
+      })
+        .then(() => {
+          alert('주차구역이 추가되었습니다.')
+          this.resetnewParkingSpace()
+          this.showAddZoneForm = false
+          this.getParkingLotDetail()
+        })
+        .catch(function (e) {
+          alert(e)
+        })
     },
     resetnewParkingSpace() {
       this.newParkingSpace = {
-        name: '',
-        capacity: 0,
-        vehicleType: '',
-        weekdayPrice: 0,
+        parkingLotId: this.selectedLotId,
+        spaceName: '',
+        availableSpaceNum: 0,
+        carTypeId: '',
+        weekdaysPrice: 0,
+        weekAllDayPrice: 0,
         weekendPrice: 0,
+        weekendAllDayPrice: 0,
         washService: false,
-        maintenanceService: false
+        washPrice: 0,
+        maintenanceService: false,
+        maintenancePrice: 0
       }
     },
-    editZone(index) {
-      this.selectedZone = { ...this.parkingLot.zones[index], index }
-    },
-    saveSpace() {
-      if (this.selectedZone !== null) {
-        const index = this.selectedZone.index
-        this.parkingLot.zones[index] = { ...this.selectedZone }
-        this.selectedZone = null
+    modifyParkingSpaceOn(index, parkingSpaceId) {
+      this.selectedParkingSpace = { ...this.parkingLot.parkingSpaces[index], index }
+      this.selectedParkingSpace.parkingSpaceId = parkingSpaceId
+      this.selectedParkingSpace.washService = this.selectedParkingSpace.washPrice > 0
+      for (let i = 0; i < this.selectableCarTypes.length; i++) {
+        console.log(this.parkingLot.parkingSpaces[index])
+        if (this.selectedParkingSpace.carType == this.selectableCarTypes[i].carTypeKor) {
+          this.selectedParkingSpace.carTypeId = this.selectableCarTypes[i].id
+        }
       }
+      console.log('')
+      this.selectedParkingSpace.maintenanceService = this.selectedParkingSpace.maintenancePrice > 0
+    },
+    modifySpaceComplete() {
+      const validateResult = this.validateModifyParkingSpace(this.selectedParkingSpace)
+      if (validateResult !== null) {
+        alert(validateResult)
+        return
+      }
+      const formData = new FormData()
+
+      // Add all the necessary form data from selectedParkingSpace
+      formData.append('parkingSpaceId', this.selectedParkingSpace.parkingSpaceId)
+      formData.append('spaceName', this.selectedParkingSpace.spaceName)
+      formData.append('availableSpaceNum', this.selectedParkingSpace.availableSpaceNum)
+      formData.append('carTypeId', this.selectedParkingSpace.carTypeId)
+      formData.append('weekdaysPrice', this.selectedParkingSpace.weekdaysPrice)
+      formData.append('weekAllDayPrice', this.selectedParkingSpace.weekAllDayPrice)
+      formData.append('weekendPrice', this.selectedParkingSpace.weekendPrice)
+      formData.append('weekendAllDayPrice', this.selectedParkingSpace.weekendAllDayPrice)
+      formData.append('washService', this.selectedParkingSpace.washService)
+      formData.append('washPrice', this.selectedParkingSpace.washPrice)
+      formData.append('maintenanceService', this.selectedParkingSpace.maintenanceService)
+      formData.append('maintenancePrice', this.selectedParkingSpace.maintenancePrice)
+
+      axios
+        .put(`/api/parking-manager/info/parkingarea/protected`, formData, {
+          headers: {
+            Authorization: `Bearer ${this.authStore.token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        .then(() => {
+          alert('주차구역이 수정되었습니다.')
+          this.selectedParkingSpace = null
+          this.getParkingLotDetail()
+        })
+        .catch(function (error) {
+          alert(error)
+        })
     },
     cancelEdit() {
-      this.selectedZone = null
+      this.selectedParkingSpace = null
     },
-    deleteSpace(index) {
-      this.parkingLot.zones.splice(index, 1)
+    deleteParkingSpace(index, parkingSpaceId) {
+      if (
+        confirm('주차구역을 삭제해도 기존의 예약은 사라지지 않습니다. 정말로 삭제하시겠습니까?')
+      ) {
+        axios
+          .delete(`/api/parking-manager/info/parkingarea/protected`, {
+            headers: {
+              Authorization: `Bearer ${this.authStore.token}`,
+              parkingSpaceId: parkingSpaceId
+            }
+          })
+          .then(() => {
+            alert('삭제되었습니다')
+            this.parkingLot.parkingSpaces.splice(index, 1)
+          })
+          .catch(function (error) {
+            alert(error)
+          })
+      }
     },
     onFileChange(event) {
       const files = Array.from(event.target.files)
@@ -339,6 +470,8 @@ export default {
     },
     modifyOn() {
       this.modifying = true
+      this.newParkingSpace.carTypeId = this.selectableCarTypes[0].id
+      alert('기본 : ' + this.newParkingSpace.carTypeId)
     },
     modifyCancel() {
       this.parkingLot = JSON.parse(JSON.stringify(this.originData))
@@ -351,6 +484,12 @@ export default {
 
     modifyComplete() {
       if (confirm('수정하시겠습니까?')) {
+        const validateResult = this.validateParkingLot(this.parkingLot)
+        if (validateResult !== null) {
+          alert(validateResult)
+          return
+        }
+
         const formData = new FormData()
         formData.append('name', this.parkingLot.name)
         formData.append('tel', this.parkingLot.tel)
@@ -423,10 +562,161 @@ export default {
           imgElement.classList.remove('darker')
         }
       })
+    },
+    async getCarTypes() {
+      await axios({
+        method: 'get',
+        url: '/api/car-type',
+        headers: {
+          Authorization: `Bearer ${this.authStore.token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+        .then((response) => {
+          this.selectableCarTypes = response.data.carTypes
+        })
+        .catch(function (e) {
+          alert(e)
+        })
+    },
+    //validations
+    validateParkingLot(parkingLot) {
+      if (!this.selectedLotId || isNaN(this.selectedLotId)) {
+        return '주차장 ID는 숫자여야 하며, 빈 값일 수 없습니다.'
+      }
+
+      if (!parkingLot.name || typeof parkingLot.name !== 'string') {
+        return '주차장 이름은 빈 값일 수 없으며, 문자열이어야 합니다.'
+      }
+
+      if (!parkingLot.address || typeof parkingLot.address !== 'string') {
+        return '주소는 빈 값일 수 없으며, 문자열이어야 합니다.'
+      }
+
+      const telRegex = /^[0-9-]+$/
+      if (!parkingLot.tel || !telRegex.test(parkingLot.tel)) {
+        return '전화번호는 숫자와 하이픈(-)만 포함해야 하며, 빈 값일 수 없습니다.'
+      }
+
+      const timeRegex = /^[0-9]{2}:[0-9]{2}:[0-9]{2}$/
+      if (!parkingLot.weekdaysOpenTime || !timeRegex.test(parkingLot.weekdaysOpenTime)) {
+        return '평일 오픈 시간은 HH:MM 형식이어야 하며, 빈 값일 수 없습니다.'
+      }
+      if (!parkingLot.weekdaysCloseTime || !timeRegex.test(parkingLot.weekdaysCloseTime)) {
+        return '평일 마감 시간은 HH:MM 형식이어야 하며, 빈 값일 수 없습니다.'
+      }
+      if (!parkingLot.weekendOpenTime || !timeRegex.test(parkingLot.weekendOpenTime)) {
+        return '주말 오픈 시간은 HH:MM 형식이어야 하며, 빈 값일 수 없습니다.'
+      }
+      if (!parkingLot.weekendCloseTime || !timeRegex.test(parkingLot.weekendCloseTime)) {
+        return '주말 마감 시간은 HH:MM 형식이어야 하며, 빈 값일 수 없습니다.'
+      }
+
+      return null
+    },
+    validateInsertParkingSpace(newParkingSpace) {
+      if (!newParkingSpace.parkingLotId || isNaN(newParkingSpace.parkingLotId)) {
+        return '주차장 ID가 올바르지 않습니다'
+      }
+
+      return this.validateParkingSpaceValues(newParkingSpace)
+    },
+    validateModifyParkingSpace(selectedParkingSpace) {
+      if (
+        !this.selectedParkingSpace.parkingSpaceId ||
+        isNaN(this.selectedParkingSpace.parkingSpaceId)
+      ) {
+        return '주차 구역 ID가 올바르지 않습니다'
+      }
+
+      return this.validateParkingSpaceValues(selectedParkingSpace)
+    },
+    validateParkingSpaceValues(parkingSpace) {
+      if (!parkingSpace.spaceName || typeof parkingSpace.spaceName !== 'string') {
+        return '주차 구역명을 입력해주세요'
+      }
+
+      if (
+        parkingSpace.availableSpaceNum === null ||
+        isNaN(parkingSpace.availableSpaceNum) ||
+        parkingSpace.availableSpaceNum <= 0
+      ) {
+        return '주차 공간 수를 올바르게 작성해주세요'
+      }
+
+      if (!parkingSpace.carTypeId || isNaN(parkingSpace.carTypeId)) {
+        return '차종 ID를 선택해주세요'
+      }
+
+      if (
+        parkingSpace.weekdaysPrice === null ||
+        isNaN(parkingSpace.weekdaysPrice) ||
+        parkingSpace.weekdaysPrice <= 0
+      ) {
+        return '평일 요금을 올바르게 작성해주세요'
+      }
+      if (
+        parkingSpace.weekAllDayPrice === null ||
+        isNaN(parkingSpace.weekAllDayPrice) ||
+        parkingSpace.weekAllDayPrice <= 0
+      ) {
+        return '평일 종일 요금을 올바르게 작성해주세요'
+      }
+      if (
+        parkingSpace.weekendPrice === null ||
+        isNaN(parkingSpace.weekendPrice) ||
+        parkingSpace.weekendPrice <= 0
+      ) {
+        return '주말 요금을 올바르게 작성해주세요'
+      }
+      if (
+        parkingSpace.weekendAllDayPrice === null ||
+        isNaN(parkingSpace.weekendAllDayPrice) ||
+        parkingSpace.weekendAllDayPrice <= 0
+      ) {
+        return '주말 종일 요금을 올바르게 작성해주세요'
+      }
+
+      if (parkingSpace.washService === null || typeof parkingSpace.washService !== 'boolean') {
+        return '세차 서비스 지원 여부를 선택해주세요'
+      }
+
+      if (
+        parkingSpace.washPrice === null ||
+        isNaN(parkingSpace.washPrice) ||
+        (parkingSpace.washService && parkingSpace.washPrice <= 0)
+      ) {
+        return '세차 요금을 올바르게 작성해주세요'
+      }
+
+      if (
+        parkingSpace.maintenanceService === null ||
+        typeof parkingSpace.maintenanceService !== 'boolean'
+      ) {
+        return '정비 서비스 지원 여부를 선택해주세요'
+      }
+
+      if (
+        parkingSpace.maintenancePrice === null ||
+        isNaN(parkingSpace.maintenancePrice) ||
+        (parkingSpace.maintenanceService && parkingSpace.maintenancePrice <= 0)
+      ) {
+        return '정비 요금을 올바르게 작성해주세요'
+      }
+
+      return null
     }
   },
-  mounted() {
+  async mounted() {
     this.getParkingLotDetail()
+      .then(() => {
+        return this.getCarTypes()
+      })
+      .then(() => {
+        if (this.selectableCarTypes.length > 0) {
+          this.newParkingSpace.carTypeId = this.selectableCarTypes[0].id
+        }
+      })
   },
   watch: {
     selectedLotId() {
