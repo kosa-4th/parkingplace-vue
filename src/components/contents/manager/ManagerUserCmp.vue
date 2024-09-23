@@ -138,7 +138,7 @@
 <script>
 
 import axios from 'axios'
-import ShowDetailModal from '@/components/contents/manager/ShowDetailModal.vue'
+import ShowDetailModal from '@/components/contents/manager/ShowDetailUserModal.vue'
 export default {
   components: { ShowDetailModal },
 
