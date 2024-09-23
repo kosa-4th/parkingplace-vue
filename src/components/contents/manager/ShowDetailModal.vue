@@ -1,5 +1,4 @@
 <template>
-  <div class="modal-overlay">
     <div class="modal">
       <div class="modal-header">
         <h5 class="modal-title">사용자 상세 정보</h5>
@@ -13,7 +12,6 @@
         <button class="btn btn-secondary" @click="$emit('close-modal')">닫기</button>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -73,6 +71,7 @@ export default {
 }
 
 .modal {
+  position: relative;
   background: pink;
   padding: 20px;
   border-radius: 12px;

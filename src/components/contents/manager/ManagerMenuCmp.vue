@@ -39,10 +39,8 @@ export default {
       authStore: AuthStore(),
       localSelectedLotId: this.selectedLotId, // props로 받은 값을 로컬 데이터로 설정
       menuItems: [
-        { text: '수익 통계', link: '/manager/incomes' },
-        { text: '주차장 관리', link: '/manager/lots' },
-        { text: '예약 관리', link: '/manager/reservations' },
-        { text: '문의 관리', link: '/manager/qna' }
+        { text: '회원 관리', link: '/manager' },
+        { text: '주차장 관리', link: '/lot' },
       ]
     }
   },
