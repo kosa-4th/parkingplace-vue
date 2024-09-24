@@ -1,3 +1,9 @@
+<!--
+@Author김경민
+@Date 2024.09.23-24
+23일 주차장 데이터 가져오기
+24일 모달 및 수정하기
+-->
 <template>
   <div>
     <h3>주차장 관리</h3>
@@ -29,13 +35,13 @@
       </thead>
       <tbody v-if="lotData.length > 0">
       <tr v-for="(parkingLot, index) in lotData" :key="parkingLot.id">
-        <td>{{ index + 1 }}</td>
+        <td>{{ (index + 1) + ((currentPage - 1) * 10) }}</td>
         <td>{{ parkingLot.name }}</td>
         <td>{{ parkingLot.address }}</td>
         <td>{{ parkingLot.tel }}</td>
         <td>{{ parkingLot.user ? parkingLot.user.userName : 'N/A' }}</td>
         <td>
-          <button class="btn btn-info" @click="viewDetails(parkingLot.id)">자세히 보기</button>
+          <button class="btn btn-info" @click="viewDetails(parkingLot)">보기 및 수정</button>
         </td>
       </tr>
       </tbody>
@@ -66,13 +72,21 @@
         </li>
       </ul>
     </nav>
+    <ShowDetailLotModal
+      v-if="showModal"
+      :lotData="selectedLotData"
+    @close-modal="closeModal"
+      @refreshData="reloadParkingLotData"
+    />
   </div>
 </template>
 
 <script>
 import axios from 'axios'
+import ShowDetailLotModal from '@/components/contents/manager/ShowDetailLotModal.vue'
 
 export default {
+  components:{ ShowDetailLotModal },
   data() {
     return {
       searchOption: 'name', // 기본 검색 옵션 (주차장 이름)
@@ -83,25 +97,25 @@ export default {
       pageSize: 10,           // 한 페이지에 보여줄 데이터 수
       searchName: '',         // 검색할 주차장 이름
       searchAddress: '',       // 검색할 주소
-      paginationSize: 10  // 한번에 표시할 페이지 버튼 수
-
+      paginationSize: 10,  // 한번에 표시할 페이지 버튼 수
+      showModal: false,
+      selectedLotData: this.lotData, // 선택된 주차장 데이터
     }
-  },
-  computed: {
-    visiblePages() {
-      const start = Math.floor((this.currentPage - 1) / this.paginationSize) * this.paginationSize + 1
-      const end = Math.min(start + this.paginationSize - 1, this.totalPages)
-      const pages = []
-      for (let i = start; i <= end; i++) {
-        pages.push(i)
-      }
-      return pages
-    }
-  },
-  mounted() {
-    this.getParkingLotData(this.currentPage)  // 컴포넌트가 로드되면 주차장 데이터를 가져옴
   },
   methods: {
+    viewDetails(parkingLot) {
+      console.log('Opening Modal for userId : ', parkingLot)
+      this.selectedLotData = parkingLot;
+      this.showModal = true  // 모달을 열기
+    },
+    closeModal() {
+      this.showModal = false
+      this.selectedUserId = null
+    },
+    reloadParkingLotData() {
+      // 상위 컴포넌트의 데이터를 다시 불러오는 로직
+      this.getParkingLotData();
+    },
     // 주차장 데이터를 가져오는 메서드
     async getParkingLotData(page = 1) {
       let params = {
@@ -132,7 +146,20 @@ export default {
         this.getParkingLotData(page)  // 페이지 변경 시 데이터 다시 가져오기
       }
     }
-
+  },
+  computed: {
+    visiblePages() {
+      const start = Math.floor((this.currentPage - 1) / this.paginationSize) * this.paginationSize + 1
+      const end = Math.min(start + this.paginationSize - 1, this.totalPages)
+      const pages = []
+      for (let i = start; i <= end; i++) {
+        pages.push(i)
+      }
+      return pages
+    }
+  },
+  mounted() {
+    this.getParkingLotData(this.currentPage)  // 컴포넌트가 로드되면 주차장 데이터를 가져옴
   }
 }
 </script>
@@ -152,7 +179,7 @@ export default {
 }
 
 .search-input {
-  width:500px
+  width: 500px
 }
 
 
