@@ -1,77 +1,96 @@
 <template>
   <div>
-    <h3>주차 추천</h3>
-    <div>
-      <div>
-        <label>주차 예정 일자</label>
-        <DatePicker
-          locale="ko"
-          v-model="selectedDate"
-          :min-date="today"
-          :max-date="maxDate"
-          :enable-time-picker="false"
-          :format="'yyyy-MM-dd'"
-        >
-        </DatePicker>
-      </div>
-      <div v-if="selectedDate">
-        <label>입차 예정 시간</label>
-        <DatePicker
-          v-model="selectedStartTime"
-          time-picker
-          ref="startTime"
-          :is-24="false"
-          :minutes-increment="30"
-          :minutes-grid-increment="30"
-          :start-time="startTime"
-        >
-        </DatePicker>
-      </div>
-      <div v-if="selectedStartTime">
-        <label>출차 예정 시간</label>
-        <DatePicker
-          v-model="selectedEndTime"
-          time-picker
-          ref="endTime"
-          :is-24="false"
-          :minutes-increment="30"
-          :minutes-grid-increment="30"
-          :start-time="startTime"
-          @update:model-value="handleDate()"
-        >
-        </DatePicker>
-      </div>
-      <div>
-        <label>차량 종류</label><br />
-        <select v-model="selectedCarTypeId">
-          <option v-for="(carType, index) in selectableCarTypes" :key="index" :value="carType.id">
-            {{ carType.carTypeKor }}
-          </option>
-        </select>
-      </div>
-      <div>
-        <label>검색 범위</label>
-        <fieldset>
-          <label class="range-btn">
-            <input type="radio" name="range" value="100" v-model="selectedMaxDistance" />
-            <span>100m</span>
-          </label>
-          <label class="range-btn">
-            <input type="radio" name="range" value="250" v-model="selectedMaxDistance" />
-            <span>250m</span>
-          </label>
-          <label class="range-btn">
-            <input type="radio" name="range" value="500" v-model="selectedMaxDistance" />
-            <span>500m</span>
-          </label>
-          <label class="range-btn">
-            <input type="radio" name="range" value="1000" v-model="selectedMaxDistance" />
-            <span>1km</span>
-          </label>
-        </fieldset>
+    <div v-if="recommends">
+      <div v-for="(parkingLot, index) in recommends" :key="index">
+        <div>
+          {{ parkingLot.parkingLotName }}
+        </div>
+        <div>
+          {{ parkingLot.address }}
+        </div>
+        <div>
+          {{ parkingLot.distnace }}
+        </div>
+        <div>
+          {{ parkingLot.price }}
+        </div>
+        <hr />
       </div>
     </div>
-    <button @click="getRecommends">조회</button>
+    <div v-else>
+      <h3>주차 추천</h3>
+      <div>
+        <div>
+          <label>주차 예정 일자</label>
+          <DatePicker
+            locale="ko"
+            v-model="selectedDate"
+            :min-date="today"
+            :max-date="maxDate"
+            :enable-time-picker="false"
+            :format="'yyyy-MM-dd'"
+          >
+          </DatePicker>
+        </div>
+        <div v-if="selectedDate">
+          <label>입차 예정 시간</label>
+          <DatePicker
+            v-model="selectedStartTime"
+            time-picker
+            ref="startTime"
+            :is-24="false"
+            :minutes-increment="30"
+            :minutes-grid-increment="30"
+            :start-time="startTime"
+          >
+          </DatePicker>
+        </div>
+        <div v-if="selectedStartTime">
+          <label>출차 예정 시간</label>
+          <DatePicker
+            v-model="selectedEndTime"
+            time-picker
+            ref="endTime"
+            :is-24="false"
+            :minutes-increment="30"
+            :minutes-grid-increment="30"
+            :start-time="startTime"
+            @update:model-value="handleDate()"
+          >
+          </DatePicker>
+        </div>
+        <div>
+          <label>차량 종류</label><br />
+          <select v-model="selectedCarTypeId">
+            <option v-for="(carType, index) in selectableCarTypes" :key="index" :value="carType.id">
+              {{ carType.carTypeKor }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label>검색 범위</label>
+          <fieldset>
+            <label class="range-btn">
+              <input type="radio" name="range" value="100" v-model="selectedMaxDistance" />
+              <span>100m</span>
+            </label>
+            <label class="range-btn">
+              <input type="radio" name="range" value="250" v-model="selectedMaxDistance" />
+              <span>250m</span>
+            </label>
+            <label class="range-btn">
+              <input type="radio" name="range" value="500" v-model="selectedMaxDistance" />
+              <span>500m</span>
+            </label>
+            <label class="range-btn">
+              <input type="radio" name="range" value="1000" v-model="selectedMaxDistance" />
+              <span>1km</span>
+            </label>
+          </fieldset>
+        </div>
+      </div>
+      <button @click="getRecommends">조회</button>
+    </div>
   </div>
 </template>
 
@@ -94,7 +113,8 @@ export default {
       selectedStartTime: null,
       selectedEndTime: null,
       selectedCarTypeId: null,
-      selectedMaxDistance: null
+      selectedMaxDistance: null,
+      recommends: null
     }
   },
   mounted() {
@@ -123,6 +143,7 @@ export default {
       }
     },
     getRecommends() {
+      //콘솔 로그
       console.log('=============================')
       console.log('위도 ' + this.centerPosition.latitude)
       console.log('경도 ' + this.centerPosition.longitude)
@@ -133,6 +154,15 @@ export default {
       console.log('날짜' + this.selectedDate)
       console.log('=============================')
 
+      const startDateTime = this.formatDate(this.selectedDate, this.selectedStartTime)
+      const endDateTime = this.formatDate(this.selectedDate, this.selectedStartTime)
+
+      const validationError = this.getValidationError()
+      if (validationError) {
+        alert(validationError)
+        return
+      }
+
       axios({
         method: 'get',
         url: '/api/parkinglots/recommend',
@@ -141,13 +171,14 @@ export default {
           latitude: this.centerPosition.latitude,
           // maxDistance: this.selectedMaxDistance,
           maxDistance: 10000,
-          startDateTime: this.formatDate(this.selectedDate, this.selectedStartTime),
-          endDateTime: this.formatDate(this.selectedDate, this.selectedEndTime),
+          startDateTime: startDateTime,
+          endDateTime: endDateTime,
           carTypeId: this.selectedCarTypeId
         }
       })
         .then((response) => {
-          console.log(response.data)
+          this.recommends = response.data.parkingLots
+          console.log(this.recommends)
         })
         .catch(function (e) {
           console.error(e)
@@ -178,6 +209,30 @@ export default {
       const seconds = ('0' + timeObject.seconds).slice(-2)
 
       return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
+    },
+    getValidationError() {
+      // 필수 값 검증
+      if (!this.selectedDate) {
+        return '주차 예정일자를 선택해주세요.'
+      }
+
+      if (!this.selectedStartTime) {
+        return '입차 예정 시간을 선택해주세요.'
+      }
+
+      if (!this.selectedEndTime) {
+        return '출차 예정 시간을 선택해주세요.'
+      }
+
+      if (!this.selectedCarTypeId) {
+        return '차량 종류를 선택해주세요.'
+      }
+
+      if (!this.selectedMaxDistance) {
+        return '검색 범위를 선택해주세요.'
+      }
+
+      return null
     }
   }
 }

@@ -32,14 +32,6 @@
         <button id="search-btn" type="button" @click="showRecommSelect()" v-if="searchResultMarker">
           보이기
         </button>
-        <button
-          id="search-btn"
-          type="button"
-          @click="toggleRecommSelect()"
-          v-if="searchResultMarker"
-        >
-          더보기
-        </button>
         <button id="search-btn" type="button" @click="clearResult" v-if="showResult">
           <svg
             xmlns="http://www.w3.org/2000/svg"
