@@ -64,12 +64,11 @@ const to = ref(null);
 // 문의 가져오기
 const getParkingInquiries = async () => {
   try {
-    const response = await axios.get("/api/parking-manager/inquiries/protected",
+    const response = await axios.get("/api/parking-manager/parkinglots/1/inquiries/protected",
       {
         params: {
           page: page.value,
           size: size,
-          parkinglotId: 1,
           from: from.value,
           to: to.value,
           actionType: 'All'
@@ -81,9 +80,51 @@ const getParkingInquiries = async () => {
     console.log(error);
   }
 }
+// 상세 문의 가져오기 / 다른 모달로 갈듯?
+const getParkingInquiriyDetails = async () => {
+  try {
+    const response = await axios.get("/api/parking-manager/parkinglots/1/inquiries/6/protected"
+    );
+    console.log(response.data);
+  } catch (error) {
+    console.log(error.response.data.message);
+  }
+}
+
+// 문의 등록하기
+const registerParkingInquiry = async () => {
+  try {
+    const response = await axios.post("/api/parking-manager/parkinglots/1/inquiries/7/protected",
+    {
+      answer: 'api 답변 등록 테스트'
+    }
+    );
+    console.log(response.data);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// 문의 수정하기
+const modifyParkingInquiry = async () => {
+  try {
+    const response = await axios.put("/api/parking-manager/parkinglots/1/inquiries/2/protected",
+    {
+      answer: 'api 답변 수정 테스트'
+    }
+    );
+    console.log(response.data);
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 onMounted(() => {
   getParkingInquiries();
+  getParkingInquiriyDetails();
+  registerParkingInquiry();
+  modifyParkingInquiry();
+
 })
 // import Datepicker from '@vuepic/vue-datepicker' // Datepicker 컴포넌트 불러오기
 // import '@vuepic/vue-datepicker/dist/main.css' // Datepicker의 CSS 불러오기
