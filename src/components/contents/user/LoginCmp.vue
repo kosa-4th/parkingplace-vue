@@ -260,6 +260,8 @@ label {
 
 .find-password {
   font-size: 12px;
+  text-decoration: underline;
+  color: #4A4A4A;
 }
 
 .login-button {
@@ -279,6 +281,7 @@ label {
 
 .sign-up-link {
   font-weight: 600;
+  color:#4A4A4A;
 }
 
 .google-login-button {

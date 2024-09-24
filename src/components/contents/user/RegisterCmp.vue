@@ -213,6 +213,7 @@ const handleSignup = async () => {
       const response = await axios.post("/api/users", user);
       console.log(response.data);
       if (response.status === 204 ) {
+        modal.confirm = true;
         modal.modalTitle = '회원가입';
         modal.modalMessage = '회원가입이 완료되었습니다.';
         modal.modalPath = '/login';
@@ -366,6 +367,13 @@ label {
 .check-group {
   display: flex;
   flex-direction: row;
+  justify-items: center;
+}
+
+.check-group label{
+  display: block;
+  text-decoration: underline;
+  margin-bottom: -1px;
 }
 
 .signup-button {

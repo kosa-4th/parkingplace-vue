@@ -70,7 +70,7 @@ label {
 }
 
 .footer a {
-  text-decoration: none;
+  color: #4A4A4A;
 }
 
 .footer a:hover {

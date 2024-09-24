@@ -222,6 +222,7 @@ onMounted(() => {
   display: block;
   font-size: 13px;
   margin-top: 30px;
+  text-decoration: underline;
 }
 
 /* 오버레이 스타일 */

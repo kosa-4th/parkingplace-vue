@@ -70,6 +70,7 @@ img {
 }
 
 .modal-overlay {
+  z-index: 20;
   position: fixed;
   top: 0;
   left: 0;
