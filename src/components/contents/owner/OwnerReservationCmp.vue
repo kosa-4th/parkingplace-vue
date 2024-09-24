@@ -98,10 +98,10 @@
                 <label class="form-check-label">정비</label>
               </div>
             </td>
-            <td>
+            <td class="center-text">
               <button class="btn btn-sm bg-green" @click="permitReservation(reservation.reservationId)">허가</button>
             </td>
-            <td>
+            <td class="center-text">
               <button class="btn btn-sm bg-red"
                       @click="ignoreReservation(reservation.reservationId, reservation.reservationUid)">거부
               </button>
@@ -176,7 +176,7 @@
                 <label class="form-check-label">정비</label>
               </div>
             </td>
-            <td>
+            <td class="center-text">
               <button class="btn btn-sm bg-red"
                       @click="ignoreReservation(reservation.reservationId, reservation.reservationUid)">취소
               </button>
@@ -420,6 +420,14 @@ export default {
   flex-direction: column;
   align-items: start;
   width: 80vw;
+}
+.center-text {
+  vertical-align: middle; /* 수직 가운데 정렬 */
+}
+
+.btn {
+  display: inline-block;
+  padding: 5px 10px;
 }
 
 .table {

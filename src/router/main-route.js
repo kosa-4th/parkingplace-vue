@@ -30,13 +30,13 @@ import MyReviewsCmp from '@/components/contents/user/my/MyReviewsCmp.vue'
 import RegisterCmp from '@/components/contents/user/RegisterCmp.vue'
 import ReservationCmp from '@/components/contents/user/ReservationCmp.vue'
 import UserCmp from '@/components/contents/user/UserCmp.vue'
-import ManagerCmp from '@/components/manager/ManagerCmp.vue'
+import ManagerCmp from '@/components/contents/manager/ManagerCmp.vue'
 import ReservationDetailCmp from '@/components/contents/user/reservation/ReservationDetailCmp.vue'
 import MyReservationDetailCmp from '@/components/contents/user/my/MyReservationDetailCmp.vue'
 import PageNotFound from '@/components/modal/PageNotFound.vue'
 import MyInquiriesCmp from '@/components/contents/user/my/MyInquiriesCmp.vue'
-import ManagerUserCmp from '@/components/manager/ManagerUserCmp.vue'
-import ManagerLotCmp from '@/components/manager/ManagerLotCmp.vue'
+import ManagerUserCmp from '@/components/contents/manager/ManagerUserCmp.vue'
+import ManagerLotCmp from '@/components/contents/manager/ManagerLotCmp.vue'
 import OwnerReviewCmp from '@/components/contents/owner/OwnerReviewCmp.vue'
 
 export default [
@@ -161,7 +161,7 @@ export default [
     component: ManagerCmp,
     children: [
       {
-        path: 'user',
+        path: '',
         component: ManagerUserCmp
       },
       {
