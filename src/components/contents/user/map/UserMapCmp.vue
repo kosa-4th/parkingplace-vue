@@ -29,9 +29,6 @@
             @input="searchBox"
           />
         </form>
-        <button id="search-btn" type="button" @click="showRecommSelect()" v-if="searchResultMarker">
-          보이기
-        </button>
         <button id="search-btn" type="button" @click="clearResult" v-if="showResult">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -47,6 +44,9 @@
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
+        </button>
+        <button id="search-btn" type="button" @click="showRecommSelect()" v-if="searchResultMarker">
+          <img src="@/assets/img/recommend.png" class="recommend-image" />
         </button>
       </div>
       <div id="place-list" v-if="showResult">
@@ -78,6 +78,7 @@
     <recommend-lots-cmp
       v-if="showRecommSelectModal"
       :location="searchResultLatLon"
+      @close-modal="hideRecommSelect()"
     ></recommend-lots-cmp>
   </div>
 </template>
@@ -257,7 +258,10 @@ export default {
       this.selectedLot = null
     },
     showRecommSelect() {
-      this.showRecommSelectModal = !this.showRecommSelectModal
+      this.showRecommSelectModal = true
+    },
+    hideRecommSelect() {
+      this.showRecommSelectModal = false // 모달 상태 변경
     }
   }
 }
@@ -284,10 +288,11 @@ export default {
   background-color: white;
   border: 2px solid #9a64e8;
   border-radius: 20px;
+  padding-right: 2%;
 }
 
 #search-input {
-  width: 82%;
+  width: calc(100% - 120px);
   margin-left: 2%;
   height: 40px;
   float: left;
@@ -314,12 +319,10 @@ input:-webkit-autofill:active {
 }
 
 #search-btn {
-  width: 10%;
+  width: 30px;
   height: 40px;
-  margin-right: 2%;
   float: right;
   border: 0;
-  border-radius: 20px;
   background-color: transparent;
   text-align: right;
 }
@@ -361,5 +364,10 @@ hr {
   margin: 0;
   padding: 0;
   margin-top: 10px;
+}
+
+.recommend-image {
+  width: 22px;
+  height: 22px;
 }
 </style>

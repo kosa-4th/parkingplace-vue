@@ -1,110 +1,142 @@
 <template>
   <div id="wrapper">
-    <div id="modal">
-      <div v-if="recommends">
-        <div v-for="(parkingLot, index) in recommends" :key="index">
-          <div>
-            {{ parkingLot.parkingLotName }}
+    <div id="modal" :class="{ 'slide-up': isModalVisible, 'slide-down': !isModalVisible }">
+      <div class="close">
+        <button @click="closeModal">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#9A64E8"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            width="24"
+            height="24"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div id="modal-content" :class="{ 'input-screen': !recommends, 'result-screen': recommends }">
+        <div v-if="recommends">
+          <div class="modal-header">추천 주차장</div>
+          <div
+            v-for="(parkingLot, index) in recommends"
+            :key="index"
+            @click="toDetail(parkingLot.parkingLotId)"
+            class="parking-lot"
+          >
+            <div class="parking-lot-name">
+              <b>{{ parkingLot.parkingLotName }}</b>
+            </div>
+            <div>
+              {{ parkingLot.address }}
+            </div>
+            <div>
+              {{
+                parkingLot.distance < 1000
+                  ? parkingLot.distance + 'm'
+                  : convertToKm(parkingLot.distance)
+              }}
+            </div>
+            <div>{{ parkingLot.price }}원</div>
           </div>
+        </div>
+        <div v-else>
           <div>
-            {{ parkingLot.address }}
+            <div class="field">
+              <label>주차 예정 일자</label>
+              <DatePicker
+                locale="ko"
+                v-model="selectedDate"
+                :min-date="today"
+                :max-date="maxDate"
+                :enable-time-picker="false"
+                :auto-position="false"
+                :format="'yyyy-MM-dd'"
+              >
+              </DatePicker>
+            </div>
+            <div v-if="selectedDate" class="field">
+              <label>입차 예정 시간</label>
+              <DatePicker
+                v-model="selectedStartTime"
+                time-picker
+                ref="startTime"
+                :is-24="false"
+                :minutes-increment="30"
+                :minutes-grid-increment="30"
+                :start-time="startTime"
+                :auto-position="false"
+                class="date-picker"
+              >
+              </DatePicker>
+            </div>
+            <div v-if="selectedStartTime" class="field">
+              <label>출차 예정 시간</label>
+              <DatePicker
+                v-model="selectedEndTime"
+                time-picker
+                ref="endTime"
+                :is-24="false"
+                :minutes-increment="30"
+                :minutes-grid-increment="30"
+                :start-time="startTime"
+                @update:model-value="handleDate()"
+                :auto-position="false"
+                class="date-picker"
+              >
+              </DatePicker>
+            </div>
+            <div class="field">
+              <label>차량 종류</label><br />
+              <select v-model="selectedCarTypeId">
+                <option
+                  v-for="(carType, index) in selectableCarTypes"
+                  :key="index"
+                  :value="carType.id"
+                >
+                  {{ carType.carTypeKor }}
+                </option>
+              </select>
+            </div>
+            <div class="field">
+              <label>최대 거리</label>
+              <fieldset>
+                <label class="range-btn">
+                  <input type="radio" name="range" value="100" v-model="selectedMaxDistance" />
+                  <span>100m</span>
+                </label>
+                <label class="range-btn">
+                  <input type="radio" name="range" value="250" v-model="selectedMaxDistance" />
+                  <span>250m</span>
+                </label>
+                <label class="range-btn">
+                  <input type="radio" name="range" value="500" v-model="selectedMaxDistance" />
+                  <span>500m</span>
+                </label>
+                <label class="range-btn">
+                  <input type="radio" name="range" value="1000" v-model="selectedMaxDistance" />
+                  <span>1km</span>
+                </label>
+              </fieldset>
+            </div>
           </div>
-          <div>
-            {{
-              parkingLot.distance < 1000
-                ? parkingLot.distance + 'm'
-                : convertToKm(parkingLot.distance)
-            }}
-          </div>
-          <div>
-            {{ parkingLot.price }}
-          </div>
-          <hr />
         </div>
       </div>
-      <div v-else>
-        <h3>주차 추천</h3>
-        <div>
-          <div>
-            <label>주차 예정 일자</label>
-            <DatePicker
-              locale="ko"
-              v-model="selectedDate"
-              :min-date="today"
-              :max-date="maxDate"
-              :enable-time-picker="false"
-              :format="'yyyy-MM-dd'"
-            >
-            </DatePicker>
-          </div>
-          <div v-if="selectedDate">
-            <label>입차 예정 시간</label>
-            <DatePicker
-              v-model="selectedStartTime"
-              time-picker
-              ref="startTime"
-              :is-24="false"
-              :minutes-increment="30"
-              :minutes-grid-increment="30"
-              :start-time="startTime"
-            >
-            </DatePicker>
-          </div>
-          <div v-if="selectedStartTime">
-            <label>출차 예정 시간</label>
-            <DatePicker
-              v-model="selectedEndTime"
-              time-picker
-              ref="endTime"
-              :is-24="false"
-              :minutes-increment="30"
-              :minutes-grid-increment="30"
-              :start-time="startTime"
-              @update:model-value="handleDate()"
-            >
-            </DatePicker>
-          </div>
-          <div>
-            <label>차량 종류</label><br />
-            <select v-model="selectedCarTypeId">
-              <option
-                v-for="(carType, index) in selectableCarTypes"
-                :key="index"
-                :value="carType.id"
-              >
-                {{ carType.carTypeKor }}
-              </option>
-            </select>
-          </div>
-          <div>
-            <label>검색 범위</label>
-            <fieldset>
-              <label class="range-btn">
-                <input type="radio" name="range" value="100" v-model="selectedMaxDistance" />
-                <span>100m</span>
-              </label>
-              <label class="range-btn">
-                <input type="radio" name="range" value="250" v-model="selectedMaxDistance" />
-                <span>250m</span>
-              </label>
-              <label class="range-btn">
-                <input type="radio" name="range" value="500" v-model="selectedMaxDistance" />
-                <span>500m</span>
-              </label>
-              <label class="range-btn">
-                <input type="radio" name="range" value="1000" v-model="selectedMaxDistance" />
-                <span>1km</span>
-              </label>
-            </fieldset>
-          </div>
+      <div id="modal-submit" v-if="!recommends">
+        <div class="field">
+          <button @click="getRecommends" class="recomm-search-btn mt-20">추천 주차장 조회</button>
         </div>
-        <button @click="getRecommends">조회</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import router from '@/router'
 import axios from 'axios'
 
 export default {
@@ -124,7 +156,8 @@ export default {
       selectedEndTime: null,
       selectedCarTypeId: null,
       selectedMaxDistance: null,
-      recommends: null
+      recommends: null,
+      isModalVisible: true
     }
   },
   mounted() {
@@ -239,7 +272,7 @@ export default {
       }
 
       if (!this.selectedMaxDistance) {
-        return '검색 범위를 선택해주세요.'
+        return '최대 거리를 선택해주세요.'
       }
 
       return null
@@ -248,6 +281,16 @@ export default {
       const km = Math.floor(distance / 1000)
       const meters = Math.floor((distance % 1000) / 100)
       return km + '.' + meters + 'km'
+    },
+    closeModal() {
+      this.isModalVisible = false
+      setTimeout(() => {
+        this.$el.querySelector('#modal').style.display = 'none'
+        this.$emit('close-modal')
+      }, 500)
+    },
+    toDetail(parkingLotId) {
+      router.push(`/lot/${parkingLotId}`)
     }
   }
 }
@@ -264,28 +307,50 @@ export default {
   border-top-right-radius: 20px;
   background-color: white;
   position: absolute;
-  height: 50vh;
+  height: 55vh;
   z-index: 300;
   bottom: 0;
-  animation: slideUp 0.5s ease-out; /* 애니메이션 적용 */
+  animation: slideUp 0.08s ease-out;
+  transition: transform 0.08s ease-out;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* 애니메이션 키프레임 */
-@keyframes slideUp {
-  from {
-    transform: translateY(100%); /* 화면 아래에서 시작 */
-  }
-  to {
-    transform: translateY(0); /* 제자리로 이동 */
-  }
+#modal-content {
+  overflow: scroll;
+}
+
+.input-screen {
+  height: calc(50vh - 40px - 30px);
+}
+
+.result-screen {
+  height: calc(55vh - 45px);
+}
+
+#modal-submit {
+  height: 40px;
+}
+
+#modal::-webkit-scrollbar {
+  display: none;
+}
+
+.slide-down {
+  transform: translateY(100%);
+}
+
+.range-btn {
+  width: 25%;
 }
 
 .range-btn input[type='radio'] {
   display: none;
+  width: 25%;
 }
 
 .range-btn input[type='radio'] + span {
-  display: inline-block;
+  display: block;
   padding: 15px 10px;
   border: 1px solid #dfdfdf;
   background-color: #ffffff;
@@ -294,13 +359,23 @@ export default {
 }
 
 .range-btn input[type='radio']:checked + span {
-  background-color: #113a6b;
+  background-color: #9a64e8;
   color: #ffffff;
 }
 
 @media (orientation: landscape) {
   #modal {
-    max-width: 800px;
+    width: 800px;
+    transform: translateX(25%);
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateX(25%) translateY(100%); /* 화면 아래에서 시작 */
+    }
+    to {
+      transform: translateX(25%) translateY(0); /* 제자리로 이동 */
+    }
   }
 }
 
@@ -308,5 +383,82 @@ export default {
   #modal {
     width: 100%;
   }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%); /* 화면 아래에서 시작 */
+    }
+    to {
+      transform: translateY(0); /* 제자리로 이동 */
+    }
+  }
+}
+
+button {
+  border: none;
+  background-color: transparent;
+}
+
+.close {
+  text-align: right;
+}
+
+select {
+  display: block;
+  width: 100%;
+  padding: 5px;
+  border: 0.5px solid #dddddd;
+  border-radius: 3px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: auto;
+  background-color: white;
+}
+
+.recomm-search-btn {
+  display: block;
+  width: 100%;
+  height: 40px;
+  background-color: #9a64e8;
+  color: white;
+  border-radius: 5px;
+  font-weight: 400;
+  font-size: 17px;
+  padding-top: 2px;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.field {
+  margin-top: 7px;
+}
+
+.parking-lot {
+  padding: 5px;
+  width: 100%;
+  border: 1px solid #9a64e8;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+.modal-header {
+  display: block;
+  font-size: 19px;
+  font-weight: 600;
+  text-align: left;
+  color: #9a64e8;
+  padding-left: 10px;
+  margin-left: 5px;
+  margin-bottom: 10px;
+  border-left: 5px solid #9a64e8;
+}
+
+.parking-lot-name {
+  background-color: #f1ebfc;
+  border-radius: 5px;
+  padding: 5px;
 }
 </style>
