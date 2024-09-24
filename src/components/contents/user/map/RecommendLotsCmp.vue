@@ -9,11 +9,13 @@
           {{ parkingLot.address }}
         </div>
         <div>
-          {{ parkingLot.distnace }}
+          {{
+            parkingLot.distance < 1000
+              ? parkingLot.distance + 'm'
+              : convertToKm(parkingLot.distance)
+          }}
         </div>
-        <div>
-          {{ parkingLot.price }}
-        </div>
+        <div>{{ parkingLot.price }}원</div>
         <hr />
       </div>
     </div>
@@ -233,6 +235,11 @@ export default {
       }
 
       return null
+    },
+    convertToKm(distance) {
+      const km = Math.floor(distance / 1000)
+      const meters = Math.floor((distance % 1000) / 100)
+      return km + '.' + meters + 'km'
     }
   }
 }
