@@ -1,11 +1,11 @@
 <!--
 @Author김경민
-@Date 2024.09.19-2023.09.20
+@Date 2024.09.19-2023.09.22
 디자인 및 데이터 가져오기 및 승인 및 취소
+@Date 2024.09.23 - 모달창 처리
 -->
 
 <template>
-
     <div class="tabs-container">
       <!-- 부트스트랩 네비게이션 탭 -->
       <ul class="nav nav-tabs">
@@ -138,7 +138,7 @@
 <script>
 
 import axios from 'axios'
-import ShowDetailModal from '@/components/contents/manager/ShowDetailModal.vue'
+import ShowDetailModal from '@/components/contents/manager/ShowDetailUserModal.vue'
 export default {
   components: { ShowDetailModal },
 
