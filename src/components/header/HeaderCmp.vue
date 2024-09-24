@@ -52,7 +52,7 @@
               </li>
               <li>
                 <span class="logout" @click="HandelLogout">로그아웃</span>
-              </li> 
+              </li>
             </ul>
           </div>
 
@@ -96,7 +96,6 @@ const menus = [
 { path: "/my/cars", name: "내 차량 관리" },
 { path: "/my/favorites", name: "즐겨찾기한 주차장" },
 { path: "/my/reviews", name: "내 리뷰" },
-{ path: "/my/inquiries" , name: "내 문의"}
 ]
 
 const closeNavigation = () => {
@@ -143,8 +142,8 @@ onMounted(() => {
   flex-direction: row;
   justify-content: space-between;
   background-color: white;
-  border: 1px solid #9A64E8;
-  border-radius: 3px;
+  border: 1px solid #ddd;
+  border-radius: 2px;
   margin: 10px 0;
   padding: 10px;
   align-items: center;
@@ -209,7 +208,7 @@ onMounted(() => {
 
 .menu-name {
   text-decoration: none;
-  color: #4A4A4A;
+  /* color: #757575; */
 }
 
 /* hover -> 선택 된 배색  */
@@ -222,6 +221,7 @@ onMounted(() => {
   display: block;
   font-size: 13px;
   margin-top: 30px;
+  text-decoration: underline;
 }
 
 /* 오버레이 스타일 */

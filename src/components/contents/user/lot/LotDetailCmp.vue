@@ -159,8 +159,10 @@ const removeFileProtocol = (path) => {
 }
 
 .parking-info div {
+  width: 100%;
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   gap: 10px;
   align-items: center;
 }
@@ -175,6 +177,7 @@ const removeFileProtocol = (path) => {
 .parking-type {
   font-size: 12px;
   flex: 1.2;
+  
 }
 
 .tab-buttons {
@@ -190,7 +193,7 @@ const removeFileProtocol = (path) => {
   text-decoration: none;
   background-color: white;
   cursor: pointer;
-  /* color: black; */
+  color: #4A4A4A;
 }
 
 .tab-buttons .tab.active {

@@ -182,7 +182,7 @@
             class="btn bg-purple btn-spacing"
             v-if="totalTime !== '00:00' && totalTime !== ''"
             @click="getCheckingParkingAndTotalFee"
-            style="padding: 5px 10px; font-size: 12px"
+            style="padding: 5px 10px; font-size: 17px"
             :disabled="isButtonDisabled"
           >
             요금 조회하기
@@ -194,8 +194,8 @@
           <h5 class="small-text">{{ totalFee }} 원</h5>
           <hr />
           <h6 class="body-text">주차 여부</h6>
-          <h5 v-if="available" class="text-success small-text">이용할 수 있습니다.</h5>
-          <h5 v-else class="text-danger small-text">이용할 수 없습니다.</h5>
+          <h5 v-if="available" class="text-success small-text" style="color: #76D672">이용할 수 있습니다.</h5>
+          <h5 v-else class="text-danger small-text" style="color: #F93A41">이용할 수 없습니다.</h5>
         </div>
       </div>
       <button
@@ -203,8 +203,8 @@
         :disabled="reservationBtn"
         class="btn bg-purple btn-spacing"
         @click="reservationAndPayment"
-        style="padding: 5px 10px; font-size: 12px"
-      >
+        style="padding: 5px 10px; font-size: 17px"
+        >
         예약하기 및 결제하기
       </button>
     </div>
@@ -660,6 +660,7 @@ export default {
 .title {
   font-size: 22px;
   font-weight: bold;
+  margin-bottom: 20px;
 }
 
 /* 부제목 스타일 */
@@ -676,21 +677,21 @@ export default {
 
 /* 작은 글씨 스타일 */
 .small-text {
-  font-size: 12px;
+  font-size: 17px;
   font-weight: normal;
 }
 
 .time-picker-btn {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   margin-bottom: 6px;
   margin-left: 6%;
   margin-right: 6%;
   border-radius: 50%;
-  border: 1px solid hsl(265, 74%, 65%);
+  border: 1px solid #9a64e8;
   background-color: white;
   color: #9a64e8;
-  font-size: 11px;
+  font-size: 15px;
   text-align: center;
   display: flex;
   align-items: center;
@@ -708,17 +709,17 @@ export default {
 }
 
 .confirm-btn {
-  background-color: #28a745;
+  background-color: #76D672;
   color: white;
   padding: 3px 20px;
   border-radius: 50px;
-  font-size: 12px;
+  font-size: 17px;
   border: none;
   transition: background-color 0.3s;
 }
 
 .confirm-btn:hover {
-  background-color: #218838;
+  background-color: #76D672;
 }
 
 .time-picker-grid {
@@ -729,7 +730,7 @@ export default {
 }
 
 .time-picker-container {
-  border: 2px solid #be96ff; /* 테두리 색상 */
+  border: 2px solid #9a64e8; /* 테두리 색상 */
   border-radius: 15px; /* 둥근 모서리 */
   padding: 10px; /* 내부 여백 */
   margin-top: 10px; /* 위쪽 여백 */
@@ -749,7 +750,7 @@ export default {
 }
 
 .datepicker-btn:hover {
-  background-color: #7a52b6 !important; /* hover 시 더 어두운 보라색 */
+  background-color: #9a64e8 !important; /* hover 시 더 어두운 보라색 */
 }
 
 .datepicker-btn:focus {

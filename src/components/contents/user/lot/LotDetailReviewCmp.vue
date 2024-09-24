@@ -211,6 +211,11 @@ const modifyReview = (review) => {
     review.isEditing = true;
     editingReview.value = review.review;
     editingReviewId.value = review.id;
+
+    nextTick(() => {
+      const textarea = document.querySelector(`textarea.editable`);
+      autoResize({ target: textarea });
+    });
   }
 }
 

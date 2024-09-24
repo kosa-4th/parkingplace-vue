@@ -73,7 +73,7 @@
 
           <button v-if="reservationInfo.reservationConfirmed === 'C' || reservationInfo.reservationConfirmed==='Y'"
                   type="button" class="bg-purple btn btn-spacing"
-                  @click="openModal('결제 및 예약 취소')">결제 및 예약 취소
+                  @click="openModal('결제 및 예약 취소')">예약 취소
           </button>
 
           <!-- 모달 창 -->
@@ -335,7 +335,7 @@ export default {
 
 /* 원의 배경색 (동적 클래스) */
 .bg-purple {
-  fill: #a678e1; /* 보라색 배경 */
+  fill: #9a64e8; /* 보라색 배경 */
 }
 
 .bg-secondary {
@@ -354,12 +354,12 @@ export default {
 
 /* 버튼 hover 시 효과 */
 .bg-purple {
-  background-color: #9b59b6; /* 기본 보라색 */
+  background-color: #9a64e8; /* 기본 보라색 */
   color: white;
 }
 
 .bg-purple:hover {
-  background-color: #8e44ad; /* hover 시 보라색을 더 진하게 */
+  background-color: #9a64e8; /* hover 시 보라색을 더 진하게 */
   color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
 }
 

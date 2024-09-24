@@ -33,7 +33,7 @@
       <div class="sheet-content">
         <div class="info-box info-box-flex">
           <div id="name-address">
-            <h2 class="lot-big">{{ currentLotInfo.name }}</h2>
+            <div class="lot-big">{{ currentLotInfo.name }}</div>
             <p class="lot-standard">{{ currentLotInfo.address }}</p>
           </div>
           <div id="favorite" v-if="authStore.isLoggedIn">
@@ -65,16 +65,17 @@
         </div>
         <br />
         <div class="info-box">
-          <p class="lot-standard" style="text-align: center"><b>요금 안내</b></p>
-          <div id="fee-box" v-for="space in currentLotInfo.parkingSpaces" :key="space">
+          <!-- style="text-align: center" -->
+          <p class="lot-standard" ><b>요금 안내</b></p> 
+          <div id="fee-box" v-for="space in currentLotInfo.parkingSpaces" :key="space" class="lot-prices">
             <p class="lot-standard">
               <b>{{ space.carType }}</b>
             </p>
             <p class="lot-standard indent">
-              주중요금 {{ space.weekdaysPrice }}원 (최대 {{ space.weekAllDayPrice }}원)
+              * 주중요금 {{ space.weekdaysPrice }}원 (최대 {{ space.weekAllDayPrice }}원)
             </p>
             <p class="lot-standard indent">
-              주말요금 {{ space.weekdaysPrice }}원 (최대 {{ space.weekendAllDayPrice }}원)
+              * 주말요금 {{ space.weekdaysPrice }}원 (최대 {{ space.weekendAllDayPrice }}원)
             </p>
           </div>
         </div>
@@ -276,15 +277,29 @@ export default {
 
 .lot-big {
   font-size: 20px;
-  margin: 0;
+  font-weight: 700;
+  margin-bottom: 5px;
 }
 
 .lot-standard {
   font-size: 17px;
+  margin-bottom: 3px;
+}
+
+.lot-prices {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 8px;
 }
 
 .lot-small {
+  display: block;
+  width: 100%;
   font-size: 12px;
+  align-items: left;
+  margin-top: 20px;
+  margin-bottom: 8px;
 }
 
 .lot-review {
@@ -294,7 +309,8 @@ export default {
 }
 
 .indent {
-  margin-left: 1rem;
+  /* margin-left: 1rem; */
+  margin-bottom: 0px;
 }
 
 #recent-review {
