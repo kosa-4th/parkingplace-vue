@@ -29,6 +29,9 @@
             @input="searchBox"
           />
         </form>
+        <button id="search-btn" type="button" @click="showRecommSelect()" v-if="searchResultMarker">
+          보이기
+        </button>
         <button id="search-btn" type="button" @click="clearResult" v-if="showResult">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -72,15 +75,20 @@
       :visible="showLotPreview"
       @close="closeLotPreview"
     ></lot-preview-cmp>
+    <recommend-lots-cmp
+      v-if="showRecommSelectModal"
+      :location="searchResultLatLon"
+    ></recommend-lots-cmp>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
 import LotPreviewCmp from './LotPreviewCmp.vue'
+import RecommendLotsCmp from './RecommendLotsCmp.vue'
 
 export default {
-  components: { LotPreviewCmp },
+  components: { LotPreviewCmp, RecommendLotsCmp },
   data() {
     return {
       keyword: '',
@@ -89,11 +97,13 @@ export default {
       showResult: false,
       searchResultMarker: null,
       searchResultName: null,
+      searchResultLatLon: null,
       lots: [],
       lotsMarker: [],
       lotsName: [],
       markerAndIdMap: null,
-      selectedLot: null
+      selectedLot: null,
+      showRecommSelectModal: false
     }
   },
   mounted() {
@@ -149,6 +159,10 @@ export default {
 
       //위치, 지도 정보 설정
       var moveLatLon = new kakao.maps.LatLng(item.y, item.x)
+      this.searchResultLatLon = {
+        latitude: item.y,
+        longitude: item.x
+      }
       this.map.setLevel(2)
 
       //마커 생성
@@ -191,16 +205,8 @@ export default {
             })
           }
 
-          // //기존 오버레이 삭제
-          // if (this.lotsName.length > 0) {
-          //   this.lotsName.map((item) => {
-          //     item.setMap(null)
-          //   })
-          // }
-
           this.markerAndIdMap = new Map()
           this.lotsMarker = []
-          // this.lotsName = []
 
           //마커, 인포 윈도우 생성, id Mapping
           this.lots.forEach((item, index) => {
@@ -223,18 +229,10 @@ export default {
               this.markerClickEvent(marker)
             })
 
-            // const overlay = `<div class='overlay'>${item.name}</div>`
-            // const markerName = new kakao.maps.CustomOverlay({
-            //   position: latLon,
-            //   content: overlay
-            // })
-
             marker.setMap(this.map)
-            //markerName.setMap(this.map)
 
             this.markerAndIdMap.set(marker, item.id)
             this.lotsMarker.push(marker)
-            //this.lotsName.push(markerName)
           })
         })
         .catch(function (e) {
@@ -257,6 +255,9 @@ export default {
     closeLotPreview() {
       this.showLotPreview = false // 바텀 시트 닫기
       this.selectedLot = null
+    },
+    showRecommSelect() {
+      this.showRecommSelectModal = !this.showRecommSelectModal
     }
   }
 }
