@@ -79,7 +79,7 @@
 import axios from 'axios'
 
 export default {
-  props: ['visible', 'location'],
+  props: ['location'],
   data() {
     return {
       selectableCarTypes: [],
@@ -217,53 +217,4 @@ export default {
     width: 100%;
   }
 } */
-
-.bottom-sheet {
-  position: fixed;
-  bottom: -100%; /* 기본적으로 화면 아래 숨겨져 있음 */
-  left: 0;
-  width: 100%;
-  height: 40%;
-  background-color: white;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  box-shadow: 0px -5px 15px rgba(0, 0, 0, 0.3);
-  transition: bottom 0.3s ease-in-out;
-  z-index: 1000;
-}
-
-.bottom-sheet.show {
-  bottom: 0; /* visible 상태일 때 화면 위로 슬라이딩 */
-}
-
-.bottom-sheet-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  background-color: #f0f0f0;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-}
-
-.bottom-sheet-content {
-  padding: 15px;
-}
-
-.close-btn {
-  background-color: transparent;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-}
 </style>
