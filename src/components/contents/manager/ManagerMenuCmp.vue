@@ -64,7 +64,7 @@ p {
 
 /* 메뉴 전체 박스 스타일 */
 .manager-menu {
-  background: #f8f4ec; /* 연한 보라색 배경 */
+  background: #faf6ff; /* 연한 보라색 배경 */
   display: flex;
   flex-direction: column; /* 세로 배치 */
   justify-content: space-between;
@@ -74,7 +74,7 @@ p {
   top: 0; /* 상단 고정 */
   height: 100%; /* 화면 전체 높이 */
   width: 240px; /* 메뉴 너비 */
-  z-index: 2000; /* 다른 요소 위에 표시될 수 있도록 z-index 설정 */
+  z-index: 1050; /* 다른 요소 위에 표시될 수 있도록 z-index 설정 */
 }
 
 /* 메뉴 내용 컨테이너 */
@@ -96,6 +96,7 @@ p {
   margin-top: 50px;
   justify-content: space-around; /* 가운데 정렬 */
 }
+
 
 /* 상단 메뉴 섹션 */
 .manager-side-top {

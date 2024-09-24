@@ -1,95 +1,101 @@
 <template>
-  <div>
-    <div v-if="recommends">
-      <div v-for="(parkingLot, index) in recommends" :key="index">
-        <div>
-          {{ parkingLot.parkingLotName }}
-        </div>
-        <div>
-          {{ parkingLot.address }}
-        </div>
-        <div>
-          {{ parkingLot.distnace }}
-        </div>
-        <div>
-          {{ parkingLot.price }}
-        </div>
-        <hr />
-      </div>
-    </div>
-    <div v-else>
-      <h3>주차 추천</h3>
-      <div>
-        <div>
-          <label>주차 예정 일자</label>
-          <DatePicker
-            locale="ko"
-            v-model="selectedDate"
-            :min-date="today"
-            :max-date="maxDate"
-            :enable-time-picker="false"
-            :format="'yyyy-MM-dd'"
-          >
-          </DatePicker>
-        </div>
-        <div v-if="selectedDate">
-          <label>입차 예정 시간</label>
-          <DatePicker
-            v-model="selectedStartTime"
-            time-picker
-            ref="startTime"
-            :is-24="false"
-            :minutes-increment="30"
-            :minutes-grid-increment="30"
-            :start-time="startTime"
-          >
-          </DatePicker>
-        </div>
-        <div v-if="selectedStartTime">
-          <label>출차 예정 시간</label>
-          <DatePicker
-            v-model="selectedEndTime"
-            time-picker
-            ref="endTime"
-            :is-24="false"
-            :minutes-increment="30"
-            :minutes-grid-increment="30"
-            :start-time="startTime"
-            @update:model-value="handleDate()"
-          >
-          </DatePicker>
-        </div>
-        <div>
-          <label>차량 종류</label><br />
-          <select v-model="selectedCarTypeId">
-            <option v-for="(carType, index) in selectableCarTypes" :key="index" :value="carType.id">
-              {{ carType.carTypeKor }}
-            </option>
-          </select>
-        </div>
-        <div>
-          <label>검색 범위</label>
-          <fieldset>
-            <label class="range-btn">
-              <input type="radio" name="range" value="100" v-model="selectedMaxDistance" />
-              <span>100m</span>
-            </label>
-            <label class="range-btn">
-              <input type="radio" name="range" value="250" v-model="selectedMaxDistance" />
-              <span>250m</span>
-            </label>
-            <label class="range-btn">
-              <input type="radio" name="range" value="500" v-model="selectedMaxDistance" />
-              <span>500m</span>
-            </label>
-            <label class="range-btn">
-              <input type="radio" name="range" value="1000" v-model="selectedMaxDistance" />
-              <span>1km</span>
-            </label>
-          </fieldset>
+  <div id="wrapper">
+    <div id="modal">
+      <div v-if="recommends">
+        <div v-for="(parkingLot, index) in recommends" :key="index">
+          <div>
+            {{ parkingLot.parkingLotName }}
+          </div>
+          <div>
+            {{ parkingLot.address }}
+          </div>
+          <div>
+            {{ parkingLot.distnace }}
+          </div>
+          <div>
+            {{ parkingLot.price }}
+          </div>
+          <hr />
         </div>
       </div>
-      <button @click="getRecommends">조회</button>
+      <div v-else>
+        <h3>주차 추천</h3>
+        <div>
+          <div>
+            <label>주차 예정 일자</label>
+            <DatePicker
+              locale="ko"
+              v-model="selectedDate"
+              :min-date="today"
+              :max-date="maxDate"
+              :enable-time-picker="false"
+              :format="'yyyy-MM-dd'"
+            >
+            </DatePicker>
+          </div>
+          <div v-if="selectedDate">
+            <label>입차 예정 시간</label>
+            <DatePicker
+              v-model="selectedStartTime"
+              time-picker
+              ref="startTime"
+              :is-24="false"
+              :minutes-increment="30"
+              :minutes-grid-increment="30"
+              :start-time="startTime"
+            >
+            </DatePicker>
+          </div>
+          <div v-if="selectedStartTime">
+            <label>출차 예정 시간</label>
+            <DatePicker
+              v-model="selectedEndTime"
+              time-picker
+              ref="endTime"
+              :is-24="false"
+              :minutes-increment="30"
+              :minutes-grid-increment="30"
+              :start-time="startTime"
+              @update:model-value="handleDate()"
+            >
+            </DatePicker>
+          </div>
+          <div>
+            <label>차량 종류</label><br />
+            <select v-model="selectedCarTypeId">
+              <option
+                v-for="(carType, index) in selectableCarTypes"
+                :key="index"
+                :value="carType.id"
+              >
+                {{ carType.carTypeKor }}
+              </option>
+            </select>
+          </div>
+          <div>
+            <label>검색 범위</label>
+            <fieldset>
+              <label class="range-btn">
+                <input type="radio" name="range" value="100" v-model="selectedMaxDistance" />
+                <span>100m</span>
+              </label>
+              <label class="range-btn">
+                <input type="radio" name="range" value="250" v-model="selectedMaxDistance" />
+                <span>250m</span>
+              </label>
+              <label class="range-btn">
+                <input type="radio" name="range" value="500" v-model="selectedMaxDistance" />
+                <span>500m</span>
+              </label>
+              <label class="range-btn">
+                <input type="radio" name="range" value="1000" v-model="selectedMaxDistance" />
+                <span>1km</span>
+              </label>
+            </fieldset>
+          </div>
+        </div>
+        <button @click="getRecommends">조회</button>
+      </div>
     </div>
   </div>
 </template>
@@ -239,8 +245,30 @@ export default {
 </script>
 
 <style scoped>
-#wrapper {
-  background-color: #c77476;
+#wrapeer {
+  position: relative;
+}
+
+#modal {
+  padding: 10px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  background-color: white;
+  position: absolute;
+  height: 50vh;
+  z-index: 300;
+  bottom: 0;
+  animation: slideUp 0.5s ease-out; /* 애니메이션 적용 */
+}
+
+/* 애니메이션 키프레임 */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%); /* 화면 아래에서 시작 */
+  }
+  to {
+    transform: translateY(0); /* 제자리로 이동 */
+  }
 }
 
 .range-btn input[type='radio'] {
@@ -261,15 +289,15 @@ export default {
   color: #ffffff;
 }
 
-/* @media (orientation: landscape) {
-  #wrapper {
+@media (orientation: landscape) {
+  #modal {
     max-width: 800px;
   }
 }
 
 @media (orientation: portrait) {
-  #wrapper {
+  #modal {
     width: 100%;
   }
-} */
+}
 </style>

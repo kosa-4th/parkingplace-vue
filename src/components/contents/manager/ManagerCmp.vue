@@ -35,7 +35,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .manager-container {
   width: 100%;
   display: flex;
@@ -69,7 +69,7 @@ export default {
   flex-grow: 1;
   margin-left: 20px;
   padding: 20px;
-  min-height: 1vh;
+  min-height: 100vh;
   overflow-y: auto;
 }
 
