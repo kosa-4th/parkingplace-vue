@@ -232,15 +232,25 @@ const saveReview = async (review) => {
     await axios.put(`/api/parkinglots/${parkinglotId}/reviews/${review.id}/protected`,
       {newReview: editingReview.value}
     );
+    
     review.review = editingReview.value;
     review.isEditing = false;
     editingReview.value = '';
     editingReviewId.value = null;
-    // resetData();
+    
+    // 리뷰 수정 완료 모달 표시
     showConfirmModal("리뷰 수정이 완료되었습니다.");
-  } catch {
-    // 리뷰 수정 에러
-    showErrorModal("잠시 후 다시 시도해주세요.")
+
+    // DOM 업데이트 후 자동 리사이즈 적용
+    await nextTick(() => {
+      document.querySelectorAll('textarea.read-only-textarea').forEach(textarea => {
+        autoResize({ target: textarea });
+      });
+    });
+    
+  } catch (error) {
+    // 리뷰 수정 에러 처리
+    showErrorModal("잠시 후 다시 시도해주세요.");
   }
 }
 

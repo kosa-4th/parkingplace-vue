@@ -41,6 +41,45 @@ export async function  signIn(user) {
     }
 }
 
+
+// 구글 로그인
+export async function  googleSignIn(token, tokenType, expiresIn) {
+    try {
+        const response = await axios.post("/api/users/google-authorize", 
+            {
+                accessToken: token,
+                tokenType: tokenType,
+                expiresIn: expiresIn
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        const accessToken = response.data.accessToken;
+        const refreshToken = response.data.refreshToken;
+
+        //토큰이 존재하는지 확인
+        if (accessToken && typeof accessToken === 'string' ) {
+            //jwt 토큰에서 사용자 정보 추출
+            const decodedToken = jwtDecode(accessToken);
+            const username = decodedToken.username;
+            const email = decodedToken.email;
+            const auth = decodedToken.auth;
+
+            // pinia의 authStore에 로그인 정보 저장
+            const authStore = AuthStore();
+            authStore.setAuthData({username, email, token:accessToken, refreshToken, auth});
+
+        }
+
+        return true;
+    } catch (error) {
+        console.log("Login failed", error);
+        return error.response.data.message;
+    }
+}
+
 // 로그아웃
 export function logout() {
     const authStore = AuthStore();

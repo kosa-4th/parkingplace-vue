@@ -84,12 +84,16 @@
       @close="modal.handleModalClose"
       />
 
-    <button @click="signupWithGoogle" class="google-signup-button">구글 계정으로 로그인</button>
+    <button @click="handleGoogleLogin" class="google-signup-button">
+      <img src="@/assets/img/google-logo.png" alt="google" class="google-img">구글 계정으로 로그인
+    </button>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue';
+import { googleSignIn } from '@/service/authService';
+import router from '@/router';
 import axios from 'axios';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
@@ -238,8 +242,47 @@ modal.handleModalClose = () => {
   modal.confirm = false;
 }
 
+// 구글 로그인 처리 함수
+const handleGoogleLogin = () => {
+  // Google OAuth  로그인 창 띄우기
+  const clientId = '1088898736830-18dd892tdheuuaqdimgq4cecn7164edk.apps.googleusercontent.com'; // Google 클라이언트 ID
+  const redirectUri = "http://localhost:5173/login"; 
+  const scope = 'email profile';
+
+  const googleLoginUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}&include_granted_scopes=true`;
+  // Google 로그인 페이지로 리디렉션
+  window.location.href = googleLoginUrl;
+}
+
+
+const handleGoogleLoginCallback = async () => {
+  const hash = window.location.hash.substring(1);
+
+  const params = new URLSearchParams(hash);
+  const accessToken = params.get('access_token');
+  const tokenType = params.get('token_type');
+  const expiresIn = params.get('expires_in');
+
+  if (accessToken) {
+    try {
+      const success = await googleSignIn(accessToken, tokenType, expiresIn);
+      if (success === true) {
+        router.push('/');
+      } else {
+        modal.modalMessage = success;
+        modal.isModalVisible = true;
+      }
+    } catch {
+      modal.modalMessage = '잘못된 접근입니다.<br/>잠시 후 다시 시도해 주세요.';
+      modal.modalPath = "/";
+      modal.isModalVisible = true;
+    }
+  }
+}
+
 onMounted(() => {
   getCarTypes();
+  handleGoogleLoginCallback();
 })
 
 </script>
@@ -392,6 +435,11 @@ label {
   padding: 10px auto;
   font-size: 17px;
   cursor: pointer;
+}
+
+.google-img {
+  height: 25px;
+  margin-right: 10px;
 }
 
 /* buttons */

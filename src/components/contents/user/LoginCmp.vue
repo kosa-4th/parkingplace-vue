@@ -46,7 +46,7 @@
 
     <!-- 소셜 로그인 -->
     <button class="google-login-button" @click="handleGoogleLogin">
-      구글 계정으로 로그인
+      <img src="@/assets/img/google-logo.png" alt="google" class="google-img">구글 계정으로 로그인
     </button>
     <p class="sign-up">
       아직 계정이 없으신가요?      <router-link to="/register" class="sign-up-link">간편 가입하기</router-link>
@@ -57,8 +57,9 @@
 <script setup>
 import { onMounted, reactive } from 'vue';
 import router from '@/router';
-import { signIn } from '@/service/authService';
+import { googleSignIn, signIn } from '@/service/authService';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
+import axios from 'axios';
 
 const user = reactive({
   email: "",
@@ -100,7 +101,7 @@ const handleGoogleLogin = () => {
   // Google OAuth  로그인 창 띄우기
   const clientId = '1088898736830-18dd892tdheuuaqdimgq4cecn7164edk.apps.googleusercontent.com'; // Google 클라이언트 ID
   const redirectUri = "http://localhost:5173/login"; 
-  const scope = 'openid email profile';
+  const scope = 'email profile';
 
   const googleLoginUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}&include_granted_scopes=true`;
   // Google 로그인 페이지로 리디렉션
@@ -116,7 +117,19 @@ const handleGoogleLoginCallback = async () => {
   const expiresIn = params.get('expires_in');
 
   if (accessToken) {
-    console.log(accessToken);
+    try {
+      const success = await googleSignIn(accessToken, tokenType, expiresIn);
+      if (success === true) {
+        router.push('/');
+      } else {
+        modal.modalMessage = success;
+        modal.isModalVisible = true;
+      }
+    } catch {
+      modal.modalMessage = '잘못된 접근입니다.<br/>잠시 후 다시 시도해 주세요.';
+      modal.modalPath = "/";
+      modal.isModalVisible = true;
+    }
   }
 }
 
@@ -289,5 +302,10 @@ label {
   border: 1px solid #ddd;
   background-color: white;
   margin-bottom: 15px;
+}
+
+.google-img {
+  height: 25px;
+  margin-right: 10px;
 }
 </style>
