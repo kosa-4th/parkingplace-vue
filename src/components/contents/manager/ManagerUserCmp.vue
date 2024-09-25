@@ -6,128 +6,130 @@
 -->
 
 <template>
-    <div class="tabs-container">
-      <!-- 부트스트랩 네비게이션 탭 -->
-      <ul class="nav nav-tabs">
-        <li class="nav-item">
-          <a
-            class="nav-link subtitle"
-            :class="{ active: activeTab === 'parkingManager' }"
-            @click="switchTab('parkingManager')"
+  <div class="tabs-container">
+    <!-- 부트스트랩 네비게이션 탭 -->
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a
+          class="nav-link subtitle"
+          :class="{ active: activeTab === 'parkingManager' }"
+          @click="switchTab('parkingManager')"
+        >
+          주차장 회원 정보
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link subtitle"
+          :class="{ active: activeTab === 'user' }"
+          @click="switchTab('user')"
+        >
+          일반 회원 정보
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="tab-content">
+    <div v-if="activeTab === 'parkingManager'">
+      <table class="table table-bordered table-hover text-center">
+        <thead class="thead-dark">
+        <tr>
+          <th scope="col">NO</th>
+          <th scope="col">E-mail</th>
+          <th scope="col">주차장 업주명</th>
+          <th scope="col">자세히 보기</th>
+        </tr>
+        </thead>
+        <tbody v-if="userData.length > 0">
+        <tr v-for="(user, index) in userData" :key="user.id">
+          <td>{{ index + 1 }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.userName }}</td>
+          <td>
+            <button class="btn btn-sm bg-purple" @click="viewDetails(user.userId)">자세히 보기</button>
+          </td>
+        </tr>
+        </tbody>
+        <tbody v-else>
+        <tr>
+          <td colspan="4">데이터가 존재하지 않습니다.</td>
+        </tr>
+        </tbody>
+      </table>
+
+      <!-- 페이지네이션 -->
+      <nav>
+        <ul class="pagination justify-content-center">
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
+          </li>
+
+          <li
+            class="page-item"
+            v-for="page in visiblePages"
+            :key="page"
+            :class="{ active: currentPage === page }"
           >
-            주차장 회원 정보
-          </a>
-        </li>
-        <li class="nav-item">
-          <a
-            class="nav-link subtitle"
-            :class="{ active: activeTab === 'user' }"
-            @click="switchTab('user')"
+            <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+          </li>
+
+          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+            <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <!-- 승인된 예약 탭 -->
+    <div v-if="activeTab === 'user'">
+      <table class="table table-bordered table-hover text-center">
+        <thead class="thead-dark">
+        <tr>
+          <th scope="col">NO</th>
+          <th scope="col">E-mail</th>
+          <th scope="col">주차장 업주명</th>
+          <th scope="col">자세히 보기</th>
+        </tr>
+        </thead>
+        <tbody v-if="userData.length > 0">
+        <tr v-for="(user, index) in userData" :key="user.id">
+          <td>{{ (index + 1) + ((currentPage - 1) * pageSize) }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.userName }}</td>
+          <td>
+            <button class="btn btn-sm bg-purple" @click="viewDetails(user.userId)">자세히 보기</button>
+          </td>
+        </tr>
+        </tbody>
+        <tbody v-else>
+        <tr>
+          <td colspan="4">데이터가 존재하지 않습니다.</td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- 페이지네이션 -->
+      <nav>
+        <ul class="pagination justify-content-center">
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
+          </li>
+
+          <li
+            class="page-item"
+            v-for="page in visiblePages"
+            :key="page"
+            :class="{ active: currentPage === page }"
           >
-            일반 회원 정보
-          </a>
-        </li>
-      </ul>
+            <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+          </li>
+
+          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+            <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
+          </li>
+        </ul>
+      </nav>
     </div>
-
-    <div class="tab-content">
-      <div v-if="activeTab === 'parkingManager'">
-        <table class="table table-bordered table-hover text-center">
-          <thead class="thead-dark">
-          <tr>
-            <th scope="col">NO</th>
-            <th scope="col">E-mail</th>
-            <th scope="col">주차장 업주명</th>
-            <th scope="col">자세히 보기</th>
-          </tr>
-          </thead>
-          <tbody v-if="userData.length > 0">
-          <tr v-for="(user, index) in userData" :key="user.id">
-            <td>{{ index + 1 }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.userName }}</td>
-            <td>
-              <button class="btn btn-info" @click="viewDetails(user.userId)">자세히 보기</button>
-            </td>
-          </tr>
-          </tbody>
-          <tbody v-else>
-          <tr>
-            <td colspan="4">데이터가 존재하지 않습니다.</td>
-          </tr>
-          </tbody>
-        </table>
-
-        <!-- 페이지네이션 -->
-        <nav>
-          <ul class="pagination justify-content-center">
-            <li class="page-item" :class="{ disabled: currentPage === 1 }">
-              <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
-            </li>
-            <li
-              class="page-item"
-              v-for="page in totalPages"
-              :key="page"
-              :class="{ active: currentPage === page }"
-            >
-              <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-            </li>
-            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-              <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
-            </li>
-          </ul>
-        </nav>
-      </div>
-
-      <!-- 승인된 예약 탭 -->
-      <div v-if="activeTab === 'user'">
-        <table class="table table-bordered table-hover text-center">
-          <thead class="thead-dark">
-          <tr>
-            <th scope="col">NO</th>
-            <th scope="col">E-mail</th>
-            <th scope="col">주차장 업주명</th>
-            <th scope="col">자세히 보기</th>
-          </tr>
-          </thead>
-          <tbody v-if="userData.length > 0">
-          <tr v-for="(user, index) in userData" :key="user.id">
-            <td>{{ index + 1 }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.userName }}</td>
-            <td>
-              <button class="btn btn-info" @click="viewDetails(user.userId)">자세히 보기</button>
-            </td>
-          </tr>
-          </tbody>
-          <tbody v-else>
-          <tr>
-            <td colspan="4">데이터가 존재하지 않습니다.</td>
-          </tr>
-          </tbody>
-        </table>
-
-        <!-- 페이지네이션 -->
-        <nav>
-          <ul class="pagination justify-content-center">
-            <li class="page-item" :class="{ disabled: currentPage === 1 }">
-              <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
-            </li>
-            <li
-              class="page-item"
-              v-for="page in totalPages"
-              :key="page"
-              :class="{ active: currentPage === page }"
-            >
-              <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-            </li>
-            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-              <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </div>
+  </div>
   <!-- 외부 모달 창 -->
   <ShowDetailModal
     v-if="showModal"
@@ -139,6 +141,7 @@
 
 import axios from 'axios'
 import ShowDetailModal from '@/components/contents/manager/ShowDetailUserModal.vue'
+
 export default {
   components: { ShowDetailModal },
 
@@ -151,18 +154,19 @@ export default {
       selectedUserId: null, // 선택된 사용자 ID
       currentPage: 1,
       totalPages: 0,
-      pageSize: 5
+      pageSize: 10,
+      paginationSize: 10,  // 한번에 표시할 페이지 버튼 수
     }
   },
   methods: {
     viewDetails(userId) {
       console.log('Opening Modal for userId : ', userId)
-      this.selectedUserId = userId;  // 선택된 사용자 ID를 설정
-      this.showModal = true;  // 모달을 열기
+      this.selectedUserId = userId  // 선택된 사용자 ID를 설정
+      this.showModal = true  // 모달을 열기
     },
     closeModal() {
-      this.showModal = false;
-      this.selectedUserId = null;
+      this.showModal = false
+      this.selectedUserId = null
     },
     async getAllUserData() {
       try {
@@ -183,7 +187,7 @@ export default {
     changePage(page) {
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page
-        this.getAllUserData(this.getUserRole(), this.currentPage, this.pageSize)
+        this.getAllUserData(this.getUserRole())
       }
     },
 
@@ -197,9 +201,19 @@ export default {
       if (this.activeTab === 'parkingManager') return 'ROLE_PARKING_MANAGER'
       if (this.activeTab === 'user') return 'ROLE_USER'
       return ''
+    },
+
+  },
+  computed: {
+    visiblePages() {
+      const start = Math.floor((this.currentPage - 1) / this.paginationSize) * this.paginationSize + 1
+      const end = Math.min(start + this.paginationSize - 1, this.totalPages)
+      const pages = []
+      for (let i = start; i <= end; i++) {
+        pages.push(i)
+      }
+      return pages
     }
-
-
   },
   mounted() {
     this.getAllUserData()
@@ -260,6 +274,7 @@ export default {
 .pagination {
   margin-top: 20px;
 }
+
 /* active 페이지에 보라색 배경 적용 */
 .pagination .page-item.active .page-link {
   background-color: #9A64E8; /* 보라색 */
@@ -281,5 +296,13 @@ export default {
 
 .pagination .page-item.disabled .page-link {
   color: #6c757d; /* 비활성화된 버튼 색상 */
+}
+.bg-purple {
+  background-color: #9A64E8; /* 기본 보라색 */
+  color: white;
+}
+.btn.btn-sm:hover{
+  background-color: #9A64E8; /* 기본 보라색 */
+  color: white;
 }
 </style>
