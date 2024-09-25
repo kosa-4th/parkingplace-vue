@@ -66,6 +66,9 @@ export const AuthStore = defineStore('userAuth', {
         }
       }
       return '';
+    },
+    getEmail: (state) => {
+      return jwtDecode(state.token).email;
     }
   }
 })

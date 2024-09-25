@@ -4,7 +4,7 @@
 
     <div v-if="inquiries.length === 0">작성된 문의가 없습니다.</div>
 
-    <div v-for="(inquiry, index) in inquiries" :key="index" class="inquiry-box" @click="gotoinquiry(inquiry.parkinglotId)">
+    <div v-for="(inquiry, index) in inquiries" :key="index" class="inquiry-box" @click="gotoinquiry(inquiry.inquiryId)">
       <div class="inquiry-header">
         <div class="parking-name">{{ inquiry.parkingLotName }}</div>
         <div class="inquiry-date">{{ inquiry.inquiryDate }}</div>
@@ -62,8 +62,8 @@ const getMoreinquiries = () => {
   getinquiries();
 }
 
-const gotoinquiry = (parkinglotId) => {
-  router.push(`/lot/${parkinglotId}/inquiry`);
+const gotoinquiry = (inquiryId) => {
+  router.push(`/my/inquiries/${inquiryId}`);
 }
 
 onMounted(() => {
