@@ -11,7 +11,6 @@
       <div class="manager-side-top">
         <div class="manager-name-box">
           <p>{{ authStore.getUsername }}님 &nbsp;</p>
-          <p @click="logout()"> <small>로그아웃</small></p>
         </div>
         <div>
         </div>
@@ -25,6 +24,7 @@
           </li>
         </ul>
       </div>
+      <div class="logout" @click="logout()">로그아웃</div>
     </div>
   </div>
 </template>
@@ -64,6 +64,7 @@ p {
 
 /* 메뉴 전체 박스 스타일 */
 .manager-menu {
+  padding: 20px;
   background: #faf6ff; /* 연한 보라색 배경 */
   display: flex;
   flex-direction: column; /* 세로 배치 */
@@ -159,10 +160,17 @@ p {
 /* 활성화된 메뉴 항목의 링크 텍스트 스타일 */
 .manager-side-top ul li.active a {
   color: #fff; /* 활성화된 항목의 텍스트 색상 */
+  font-weight: 700;
 }
 
 /* 활성화된 메뉴 항목은 hover 시 크기 변화 없음 */
 .manager-side-top ul li.active:hover {
   transform: none;
+}
+.logout {
+  font-size: 13px;
+  margin: auto;
+  cursor: pointer;
+  text-decoration: underline;
 }
 </style>

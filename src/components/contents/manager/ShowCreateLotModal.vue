@@ -2,39 +2,39 @@
   <div class="modal-overlay">
     <div class="modal">
       <div class="modal-header">
-        <h5>주차장 상세 정보</h5>
+        <h5>새로운 주차장 등록</h5>
         <button type="button" class="close" @click="$emit('close-modal')">×</button>
       </div>
       <div class="modal-body">
         <!-- 한 줄로 정렬된 입력 필드와 레이블 -->
         <div class="input-container">
           <label><strong>주차장 이름:</strong></label>
-          <input v-model="editableLotData.name" class="form-control" />
+          <input v-model="editableLotData.name" class="form-control" placeholder="주차장 이름 입력" />
         </div>
 
         <div class="input-container">
           <label><strong>주소:</strong></label>
-          <p>{{ lotData.address }}</p> <!-- 읽기 전용 -->
+          <input v-model="editableLotData.address" class="form-control" placeholder="주소 입력" />
         </div>
 
         <div class="input-container">
           <label><strong>전화번호:</strong></label>
-          <input v-model="editableLotData.tel" class="form-control" />
+          <input v-model="editableLotData.tel" class="form-control" placeholder="전화번호 입력" />
         </div>
 
         <div class="input-container">
           <label><strong>주차장 타입:</strong></label>
-          <input v-model="editableLotData.parkingType" class="form-control" />
+          <input v-model="editableLotData.parkingType" class="form-control" placeholder="주차장 타입 입력" />
         </div>
 
         <div class="input-container">
           <label><strong>위도:</strong></label>
-          <input v-model="editableLotData.latitude" class="form-control" />
+          <input v-model="editableLotData.latitude" class="form-control" placeholder="위도 입력" />
         </div>
 
         <div class="input-container">
           <label><strong>경도:</strong></label>
-          <input v-model="editableLotData.longitude" class="form-control" />
+          <input v-model="editableLotData.longitude" class="form-control" placeholder="경도 입력" />
         </div>
 
         <!-- 시간 입력 필드도 한 줄로 정렬 -->
@@ -44,8 +44,9 @@
             v-model="editableLotData.weekdaysOpenTime"
             format="HH:mm"
             is24hr
-            :step="1800" :manual-input="true"
-          ></TimePicker>
+            :step="1800"
+            :manual-input="true"
+          />
           <label><strong>주중 Close:</strong></label>
           <TimePicker
             v-model="editableLotData.weekdaysCloseTime"
@@ -53,7 +54,7 @@
             is24hr
             :step="1800"
             :manual-input="true"
-          ></TimePicker>
+          />
         </div>
 
         <div class="input-container">
@@ -62,15 +63,17 @@
             v-model="editableLotData.weekendOpenTime"
             format="HH:mm"
             is24hr
-            :step="1800" :manual-input="true"
-          ></TimePicker>
+            :step="1800"
+            :manual-input="true"
+          />
           <label><strong>주말 Close:</strong></label>
           <TimePicker
             v-model="editableLotData.weekendCloseTime"
             format="HH:mm"
             is24hr
-            :step="1800" :manual-input="true"
-          ></TimePicker>
+            :step="1800"
+            :manual-input="true"
+          />
         </div>
 
         <div class="input-container">
@@ -90,24 +93,17 @@
         <!-- 관리자 이메일 -->
         <div class="input-container">
           <label><strong>관리자 이메일:</strong></label>
-          <input v-model="editableLotData.user.email" class="form-control" />
-        </div>
-
-        <!-- 사용 여부 -->
-        <div class="input-container">
-          <label><strong>관리 여부:</strong></label>
-          <p>{{ lotData.usable }}</p>
+          <input v-model="editableLotData.user.email" class="form-control" placeholder="관리자 이메일 입력" />
         </div>
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-sm btn-secondary" @click="saveChanges">수정</button>
-        <button class="btn btn-sm btn-secondary" @click="$emit('close-modal')">닫기</button>
+        <button class="btn btn-secondary btn-sm " @click="createNewParkingLot">등록</button>
+        <button class="btn btn-secondary btn-sm " @click="$emit('close-modal')">닫기</button>
       </div>
     </div>
   </div>
 </template>
-
 
 <script>
 import axios from 'axios'
@@ -115,24 +111,34 @@ import TimePicker from 'vue3-timepicker'
 
 export default {
   components: { TimePicker },
-  props: {
-    lotData: {
-      type: Object,
-      required: true
-    }
-  },
   data() {
     return {
-      editableLotData: { ...this.lotData } // lotData 복사하여 편집 가능하게
+      editableLotData: {
+        name: '',
+        address: '',
+        tel: '',
+        parkingType: '',
+        latitude: '',
+        longitude: '',
+        weekdaysOpenTime: '',
+        weekdaysCloseTime: '',
+        weekendOpenTime: '',
+        weekendCloseTime: '',
+        wash: 'N',
+        maintenance: 'N',
+        user: {
+          email: ''
+        }
+      }
     }
   },
   methods: {
-    async saveChanges() {
+    async createNewParkingLot() {
       try {
-        // PUT 요청으로 editableLotData의 수정된 데이터를 서버로 전송
-        const response = await axios.put('/api/System-Manager/parkingLotData/modify/protected', {
-          id: this.editableLotData.id,
+        // POST 요청으로 새로운 주차장 데이터를 생성
+        const response = await axios.post('/api/System-Manager/parkingLotData/create/protected', {
           name: this.editableLotData.name,
+          address: this.editableLotData.address,
           tel: this.editableLotData.tel,
           parkingType: this.editableLotData.parkingType,
           latitude: this.editableLotData.latitude,
@@ -143,21 +149,19 @@ export default {
           weekendCloseTime: this.editableLotData.weekendCloseTime,
           wash: this.editableLotData.wash,
           maintenance: this.editableLotData.maintenance,
-          userEmail: this.editableLotData.user.email // 수정된 관리자 이메일
+          userEmail: this.editableLotData.user.email
         })
 
         // 요청 성공 시 처리
         if (response.status === 200) {
-          alert('주차장 정보가 성공적으로 수정되었습니다.')
-          // 필요하다면, 수정된 데이터를 다시 로드하거나 상태를 업데이트
+          alert('새로운 주차장이 성공적으로 등록되었습니다.')
           this.$emit('refreshData')
-          this.$emit('close-modal') // 모달 창을 닫음
-
+          this.$emit('close-modal')
         } else {
-          alert('수정에 실패했습니다.')
+          alert('주차장 등록에 실패했습니다.')
         }
       } catch (error) {
-        console.error('주차장 정보 수정 중 오류 발생:', error)
+        console.error('주차장 등록 중 오류 발생:', error)
         alert('오류가 발생했습니다.')
       }
     }
@@ -194,6 +198,7 @@ export default {
   z-index: 1050; /* 모달이 overlay 위에 오도록 z-index 설정 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 가벼운 그림자 */
 }
+
 .modal-header {
   display: flex;
   justify-content: space-between;

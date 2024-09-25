@@ -6,8 +6,11 @@
 -->
 <template>
   <div>
-    <h3>주차장 관리</h3>
     <div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h3 style="margin: 0;">주차장 관리</h3>
+        <button class="btn bg-purple btn-sm" @click="openCreateModal">신규 주차장 등록</button>
+      </div>
       <div class="search-container">
         <select v-model="searchOption" class="form-control search-select">
           <option value="name">주차장 이름</option>
@@ -35,13 +38,13 @@
       </thead>
       <tbody v-if="lotData.length > 0">
       <tr v-for="(parkingLot, index) in lotData" :key="parkingLot.id">
-        <td>{{ (index + 1) + ((currentPage - 1) * 10) }}</td>
+        <td>{{ (index + 1) + ((currentPage - 1) * pageSize) }}</td>
         <td>{{ parkingLot.name }}</td>
         <td>{{ parkingLot.address }}</td>
         <td>{{ parkingLot.tel }}</td>
         <td>{{ parkingLot.user ? parkingLot.user.userName : 'N/A' }}</td>
         <td>
-          <button class="btn btn-info" @click="viewDetails(parkingLot)">보기 및 수정</button>
+          <button class="btn bg-purple btn-sm" @click="viewDetails(parkingLot)">보기 및 수정</button>
         </td>
       </tr>
       </tbody>
@@ -73,9 +76,15 @@
       </ul>
     </nav>
     <ShowDetailLotModal
-      v-if="showModal"
+      v-if="showModifyModal"
       :lotData="selectedLotData"
-    @close-modal="closeModal"
+      @close-modal="closeModifyModal"
+      @refreshData="reloadParkingLotData"
+    />
+    <!-- 신규 주차장 등록 모달 -->
+    <ShowCreateLotModal
+      v-if="showCreateModal"
+      @close-modal="closeCreateModal"
       @refreshData="reloadParkingLotData"
     />
   </div>
@@ -84,9 +93,10 @@
 <script>
 import axios from 'axios'
 import ShowDetailLotModal from '@/components/contents/manager/ShowDetailLotModal.vue'
+import ShowCreateLotModal from '@/components/contents/manager/ShowCreateLotModal.vue'
 
 export default {
-  components:{ ShowDetailLotModal },
+  components: { ShowCreateLotModal, ShowDetailLotModal },
   data() {
     return {
       searchOption: 'name', // 기본 검색 옵션 (주차장 이름)
@@ -98,23 +108,30 @@ export default {
       searchName: '',         // 검색할 주차장 이름
       searchAddress: '',       // 검색할 주소
       paginationSize: 10,  // 한번에 표시할 페이지 버튼 수
-      showModal: false,
-      selectedLotData: this.lotData, // 선택된 주차장 데이터
+      showModifyModal: false, //상세보기 모달
+      showCreateModal: false, //주자장 만들기 모달
+      selectedLotData: this.lotData // 선택된 주차장 데이터
     }
   },
   methods: {
+    openCreateModal() {
+      this.showCreateModal = true
+    },
+    closeCreateModal() {
+      this.showCreateModal = false
+    },
     viewDetails(parkingLot) {
       console.log('Opening Modal for userId : ', parkingLot)
-      this.selectedLotData = parkingLot;
-      this.showModal = true  // 모달을 열기
+      this.selectedLotData = parkingLot
+      this.showModifyModal = true  // 모달을 열기
     },
-    closeModal() {
-      this.showModal = false
+    closeModifyModal() {
+      this.showModifyModal = false
       this.selectedUserId = null
     },
     reloadParkingLotData() {
       // 상위 컴포넌트의 데이터를 다시 불러오는 로직
-      this.getParkingLotData();
+      this.getParkingLotData()
     },
     // 주차장 데이터를 가져오는 메서드
     async getParkingLotData(page = 1) {
@@ -214,11 +231,9 @@ export default {
   border-color: #9A64E8; /* 보라색 테두리 */
 }
 
-/* hover 시에도 동일한 스타일 유지 */
-.pagination .page-item .page-link:hover {
-  background-color: #9A64E8;
+.btn.btn-sm:hover{
+  background-color: #9A64E8; /* 기본 보라색 */
   color: white;
-  border-color: #9A64E8;
 }
 
 /* 이전, 다음 버튼에 보라색 적용 */
