@@ -6,13 +6,22 @@
  2024.09.02 김경민 : 메인 헤더 작성
  2024.09.11 양건모 : a 태그 router-link로 변환, 관련 메서드 수정 삭제
  2024.09.19 오지수 : header 디자인 수정, 회원 정보 라우터 추가
+ 2024.09.25 양건모 : 알림 컴포넌트 연결
+ 2024.09.26 양건모 : url 변경 감지에 대한 watch 속성을 추가해 알림 창 자동 닫기
+ 2024.09.26 양건모 : 로그인 여부와 권한에 따라 메뉴, 알림 버튼 비활성화
  -->
 <template>
   <nav class="navbar bg-light fixed-top">
     <div class="container-fluid">
-      <button class="navbar-toggler" type="button" @click="toggleSidebar">
+      <button
+        class="navbar-toggler"
+        type="button"
+        @click="toggleSidebar"
+        v-if="authStore.isLoggedIn && authStore.getAuth !== 'ROLE_PARKING_MANAGER'"
+      >
         <span class="navbar-toggler-icon"></span>
       </button>
+      <div v-else></div>
 
       <!-- 로고 클릭 시 홈으로 이동 -->
       <router-link to="/" class="navbar-brand position-absolute start-50 translate-middle-x">
@@ -20,11 +29,16 @@
       </router-link>
       <!-- 알림 버튼 -->
 
-      <div class="d-flex">
-        <a href="#" class="nav-link text-dark">
+      <div class="d-flex" v-if="authStore.isLoggedIn && authStore.getAuth === 'ROLE_USER'">
+        <button href="#" class="nav-link text-dark" @click="toggleNotificationModal">
           <img src="@/assets/img/bell.svg" style="width: 20px; height: 20px; margin-right: 15px" />
-        </a>
+        </button>
+        <header-notification-cmp
+          v-if="isNotificationOpen"
+          @closed="closeNotificationModal"
+        ></header-notification-cmp>
       </div>
+      <div v-else></div>
 
       <!-- 사이드바 메뉴 -->
       <div :class="['sidebar', { active: isSidebarOpen }]">
@@ -35,19 +49,21 @@
           <div v-if="isLoggedIn">
             <div class="menu">메뉴</div>
             <div class="user-box" @click="handleAccount">
-              <div><strong>{{ username }}</strong> 님 안녕하세요!</div>
+              <div>
+                <strong>{{ username }}</strong> 님 안녕하세요!
+              </div>
               <svg width="15" height="30" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 30">
-              <g fill="none" stroke="#9a64e8" stroke-width="4" stroke-linecap="round">
-                <path d="M 2 2 L 13 15 L 2 28" />
-              </g>
-            </svg>
+                <g fill="none" stroke="#9a64e8" stroke-width="4" stroke-linecap="round">
+                  <path d="M 2 2 L 13 15 L 2 28" />
+                </g>
+              </svg>
             </div>
-            <hr>
+            <hr />
             <!-- 로그인 상태일 때 -->
             <ul class="list-unstyled">
               <li v-for="(menu, index) in menus" :key="index">
                 <router-link :to="menu.path" @click="closeNavigation" class="menu-name">
-                  {{ menu.name }} <img src="@/assets/img/arrow-right-grey.png" alt="arrow">
+                  {{ menu.name }} <img src="@/assets/img/arrow-right-grey.png" alt="arrow" />
                 </router-link>
               </li>
               <li>
@@ -56,18 +72,19 @@
             </ul>
           </div>
 
-
           <!-- 비로그인 상태일 때 -->
           <div v-else class="unloggedin">
-
             <div class="unlogggedin-info">
               더 많은 서비스 이용을 원하신다면<br />
               로그인해 주세요.
             </div>
             <button class="login-btn" @click="handleLogin">로그인하러 가기</button>
-            <p class="nav"><span>아직 계정이 없으신가요?</span><router-link class="nav-register" to="/register" @click="closeNavigation">간편 가입하기</router-link></p>
-
-
+            <p class="nav">
+              <span>아직 계정이 없으신가요?</span
+              ><router-link class="nav-register" to="/register" @click="closeNavigation"
+                >간편 가입하기</router-link
+              >
+            </p>
           </div>
         </div>
       </div>
@@ -78,25 +95,31 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watchEffect, computed } from 'vue'
+import { ref, onMounted, watchEffect, computed, watch } from 'vue'
 import { AuthStore } from '@/stores/store'
 import { useRouter } from 'vue-router'
 import { logout } from '@/service/authService'
+import HeaderNotificationCmp from './HeaderNotificationCmp.vue'
+import { useRoute } from 'vue-router'
 
-const isSidebarOpen = ref(false);
-const isLoggedIn = ref(false);
+const isSidebarOpen = ref(false)
+const isLoggedIn = ref(false)
 
-const router = useRouter();
-const authStore = AuthStore();
+let isNotificationOpen = ref(false)
+const route = useRoute()
+const currentUrl = ref(route.fullPath)
+const router = useRouter()
 
-const username = computed(() => authStore.getUsername);
+const authStore = AuthStore()
+
+const username = computed(() => authStore.getUsername)
 
 const menus = [
-{ path: "/my/reservations", name: "내 예약 내역" },
-{ path: "/my/cars", name: "내 차량 관리" },
-{ path: "/my/favorites", name: "즐겨찾기한 주차장" },
-{ path: "/my/reviews", name: "내 리뷰" },
-{ path: "/my/inquiries" , name: "내 문의"}
+  { path: '/my/reservations', name: '내 예약 내역' },
+  { path: '/my/cars', name: '내 차량 관리' },
+  { path: '/my/favorites', name: '즐겨찾기한 주차장' },
+  { path: '/my/reviews', name: '내 리뷰' },
+  { path: '/my/inquiries', name: '내 문의' }
 ]
 
 const closeNavigation = () => {
@@ -113,14 +136,14 @@ const handleLogin = () => {
 }
 
 const handleAccount = () => {
-  isSidebarOpen.value = !isSidebarOpen.value;
-  router.push("/my");
+  isSidebarOpen.value = !isSidebarOpen.value
+  router.push('/my')
 }
 
 const HandelLogout = () => {
   isSidebarOpen.value = !isSidebarOpen.value
   logout()
-  router.push("/")
+  router.push('/')
 }
 
 watchEffect(() => {
@@ -130,6 +153,23 @@ watchEffect(() => {
 onMounted(() => {
   isLoggedIn.value = authStore.isLoggedIn
 })
+
+const toggleNotificationModal = () => {
+  isNotificationOpen.value = !isNotificationOpen.value
+}
+
+const closeNotificationModal = () => {
+  isNotificationOpen.value = false
+}
+
+watch(
+  () => route.fullPath, // fullPath를 감시
+  (newUrl, oldUrl) => {
+    console.log('URL이 변경되었습니다:', oldUrl, '=>', newUrl)
+    currentUrl.value = newUrl
+    isNotificationOpen.value = false
+  }
+)
 </script>
 
 <style scoped>
@@ -143,7 +183,7 @@ onMounted(() => {
   flex-direction: row;
   justify-content: space-between;
   background-color: white;
-  border: 1px solid #9A64E8;
+  border: 1px solid #9a64e8;
   border-radius: 3px;
   margin: 10px 0;
   padding: 10px;
@@ -209,12 +249,12 @@ onMounted(() => {
 
 .menu-name {
   text-decoration: none;
-  color: #4A4A4A;
+  color: #4a4a4a;
 }
 
 /* hover -> 선택 된 배색  */
 .sidebar-content ul li a:hover {
-  background-color: #EBEBEB;
+  background-color: #ebebeb;
   color: #7b2ca6;
 }
 
@@ -243,7 +283,7 @@ onMounted(() => {
 .unlogggedin-info {
   width: 100%;
   background-color: white;
-  border: 1px solid #9A64E8;
+  border: 1px solid #9a64e8;
   border-radius: 3px;
   height: 150px;
   padding: auto;
@@ -252,14 +292,14 @@ onMounted(() => {
   display: flex;
   text-align: center;
   justify-content: center;
-  align-items: center
+  align-items: center;
 }
 
 .login-btn {
   width: 100%;
-  margin:0 auto 20px;
+  margin: 0 auto 20px;
   height: 40px;
-  background-color: #9A64E8;
+  background-color: #9a64e8;
   color: white;
   border-radius: 5px;
   border: none;

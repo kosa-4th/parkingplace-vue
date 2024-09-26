@@ -235,6 +235,10 @@ export default {
   background-color: #9A64E8; /* 기본 보라색 */
   color: white;
 }
+.bg-purple {
+  background-color: #9A64E8; /* 기본 보라색 */
+  color: white;
+}
 
 /* 이전, 다음 버튼에 보라색 적용 */
 .pagination .page-item .page-link {
@@ -245,8 +249,5 @@ export default {
   color: #6c757d; /* 비활성화된 버튼 색상 */
 }
 
-.bg-purple {
-  background-color: #9A64E8; /* 기본 보라색 */
-  color: white;
-}
+
 </style>

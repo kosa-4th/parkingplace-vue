@@ -1,3 +1,11 @@
+<!--
+ 담당자: 양건모
+ 시작 일자: 2024.09.23
+ 설명 : 주차장 추천 컴포넌트
+ ---------------------
+ 2024.09.24 양건모 | 기능 구현
+ 2024.09.25 양건모 | 디자인 수정
+ -->
 <template>
   <div id="wrapper">
     <div id="modal" :class="{ 'slide-up': isModalVisible, 'slide-down': !isModalVisible }">
@@ -54,7 +62,7 @@
                 :min-date="today"
                 :max-date="maxDate"
                 :enable-time-picker="false"
-                :auto-position="false"
+                teleport-center
                 :format="'yyyy-MM-dd'"
               >
               </DatePicker>
@@ -69,7 +77,7 @@
                 :minutes-increment="30"
                 :minutes-grid-increment="30"
                 :start-time="startTime"
-                :auto-position="false"
+                teleport-center
                 class="date-picker"
               >
               </DatePicker>
@@ -85,7 +93,7 @@
                 :minutes-grid-increment="30"
                 :start-time="startTime"
                 @update:model-value="handleDate()"
-                :auto-position="false"
+                teleport-center
                 class="date-picker"
               >
               </DatePicker>
