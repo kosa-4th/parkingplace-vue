@@ -5,6 +5,7 @@
  ---------------------
  2024.09.11 김찬희 | 대략적 UI 구현
  2024.09.18 양건모 | 주차장 선택을 위한 드롭다운
+ 2024.09.26 양건모 | 수익통계 탭 삭제
  -->
 
 <template>
@@ -52,11 +53,10 @@ export default {
       authStore: AuthStore(),
       localSelectedLotId: this.selectedLotId, // props로 받은 값을 로컬 데이터로 설정
       menuItems: [
-        { text: '수익 통계', link: '/owner/incomes' },
         { text: '주차장 관리', link: '/owner/lots' },
         { text: '예약 관리', link: '/owner/reservations' },
         { text: '리뷰 관리', link: '/owner/reviews' },
-        { text: '문의 관리', link: '/owner/qna' },
+        { text: '문의 관리', link: '/owner/qna' }
       ]
     }
   },
@@ -195,7 +195,7 @@ select {
   padding: 10px;
   margin: auto;
   margin-top: 10px;
-  border: 1px solid #D3D3D3;
+  border: 1px solid #d3d3d3;
   border-radius: 5px;
   font-size: 15px;
   outline: none;
