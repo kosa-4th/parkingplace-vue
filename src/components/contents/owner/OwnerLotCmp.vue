@@ -25,24 +25,9 @@
 
     <div class="col-12">
       <div class="d-flex justify-content-end">
-        <button
-          v-if="!modifying"
-          @click="modifyOn"
-          class="btn btn-sm bg-light-purple"
-        >수정
-        </button>
-        <button
-          v-if="modifying"
-          @click="modifyCancel"
-          class="btn bg-red btn-sm me-2"
-        >취소
-        </button>
-        <button
-          v-if="modifying"
-          @click="modifyComplete"
-          class="btn bg-green btn-sm"
-        >완료
-        </button>
+        <button v-if="!modifying" @click="modifyOn" class="btn btn-sm bg-light-purple">수정</button>
+        <button v-if="modifying" @click="modifyCancel" class="btn bg-red btn-sm me-2">취소</button>
+        <button v-if="modifying" @click="modifyComplete" class="btn bg-green btn-sm">완료</button>
       </div>
     </div>
     <div class="col-12 mt-3">
@@ -120,13 +105,15 @@
       <div class="mb-3">
         <label class="form-label">이미지</label>
         <div class="d-flex flex-wrap">
-          <img class="img-thumbnail" src="../../../assets/img/parkingLot.png" style="width: 100px;" />
-          <img class="img-thumbnail" src="../../../assets/img/parkingLot.png" style="width: 100px;" />
-          <img class="img-thumbnail" src="../../../assets/img/parkingLot.png" style="width: 100px;" />
-          <img class="img-thumbnail" src="../../../assets/img/parkingLot.png" style="width: 100px;" />
-          <img class="img-thumbnail" src="../../../assets/img/parkingLot.png" style="width: 100px;" />
-          <img class="img-thumbnail" src="../../../assets/img/parkingLot.png" style="width: 100px;" />
-          <img class="img-thumbnail" src="../../../assets/img/parkingLot.png" style="width: 100px;" />
+          <img
+            v-for="(image, idx) in parkingLot.images"
+            :key="idx"
+            :id="`image-${image.id}`"
+            class="img-thumbnail"
+            src="@/assets/img/parkingLot.png"
+            style="width: 100px"
+            @click="addDeleteImgList(image.id)"
+          />
         </div>
       </div>
       <div class="mb-3">
@@ -136,16 +123,13 @@
             :key="index"
             class="position-relative me-2 mb-2"
           >
-            <img
-              :src="image"
-              alt="uploaded image"
-              class="img-thumbnail"
-            />
+            <img :src="image" alt="uploaded image" class="img-thumbnail" />
 
             <button
               class="btn btn-danger btn-sm position-absolute top-0 end-0"
               @click="removeImage(index)"
-            >x
+            >
+              x
             </button>
           </div>
         </div>
@@ -165,43 +149,44 @@
       <hr />
       <div class="row">
         <div class="d-flex justify-content-end mb-3">
-          <button class="btn btn-sm bg-light-purple " @click="openCreateModal">등록
-          </button>
+          <button class="btn btn-sm bg-light-purple" @click="openCreateModal">등록</button>
         </div>
         <table class="table table-bordered table-hover text-center">
           <thead class="thead-dark">
-          <tr>
-            <th>구역명</th>
-            <th>주차 공간 수</th>
-            <th>차종</th>
-            <th>평일 요금</th>
-            <th>평일 최대</th>
-            <th>주말 요금</th>
-            <th>주말 최대</th>
-            <th>세차 요금</th>
-            <th>정비 요금</th>
-            <th>수정</th>
-            <th>삭제</th>
-          </tr>
+            <tr>
+              <th>구역명</th>
+              <th>주차 공간 수</th>
+              <th>차종</th>
+              <th>평일 요금</th>
+              <th>평일 최대</th>
+              <th>주말 요금</th>
+              <th>주말 최대</th>
+              <th>세차 요금</th>
+              <th>정비 요금</th>
+              <th>수정</th>
+              <th>삭제</th>
+            </tr>
           </thead>
           <tbody>
-          <tr v-for="(space, index) in parkingLot.parkingSpaces" :key="index">
-            <td>{{ space.spaceName ? space.spaceName : '이름 없음' }}</td>
-            <td>{{ space.availableSpaceNum }}</td>
-            <td>{{ space.carType }}</td>
-            <td>{{ space.weekdaysPrice }}</td>
-            <td>{{ space.weekAllDayPrice }}</td>
-            <td>{{ space.weekendPrice }}</td>
-            <td>{{ space.weekendAllDayPrice }}</td>
-            <td>{{ space.washPrice ? space.washPrice : 'X' }}</td>
-            <td>{{ space.maintenancePrice ? space.maintenancePrice : 'X' }}</td>
-            <td>
-              <button class="btn bg-purple btn-sm" @click="modifyParkingSpaceOn(space)">수정</button>
-            </td>
-            <td>
-              <button class="btn bg-red btn-sm" @click="deleteParkingSpace(space)">삭제</button>
-            </td>
-          </tr>
+            <tr v-for="(space, index) in parkingLot.parkingSpaces" :key="index">
+              <td>{{ space.spaceName ? space.spaceName : '이름 없음' }}</td>
+              <td>{{ space.availableSpaceNum }}</td>
+              <td>{{ space.carType }}</td>
+              <td>{{ space.weekdaysPrice }}</td>
+              <td>{{ space.weekAllDayPrice }}</td>
+              <td>{{ space.weekendPrice }}</td>
+              <td>{{ space.weekendAllDayPrice }}</td>
+              <td>{{ space.washPrice ? space.washPrice : 'X' }}</td>
+              <td>{{ space.maintenancePrice ? space.maintenancePrice : 'X' }}</td>
+              <td>
+                <button class="btn bg-purple btn-sm" @click="modifyParkingSpaceOn(space)">
+                  수정
+                </button>
+              </td>
+              <td>
+                <button class="btn bg-red btn-sm" @click="deleteParkingSpace(space)">삭제</button>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -237,7 +222,11 @@ import { AuthStore } from '@/stores/store'
 import OwnerLotSpaceModifyModal from '@/components/contents/owner/OwnerLotSpaceModifyModal.vue'
 import OwnerLotSpaceAddModal from '@/components/contents/owner/OwnerLotSpaceAddModal.vue'
 import ConfirmCancelModal from '@/components/modal/ConfirmCancelModal.vue'
-import { confirmCancelModalState, handleColseCCModal, showCCInfoModal } from '@/components/modal/ConfirmModalService.js'
+import {
+  confirmCancelModalState,
+  handleColseCCModal,
+  showCCInfoModal
+} from '@/components/modal/ConfirmModalService.js'
 
 export default {
   components: {
@@ -252,7 +241,7 @@ export default {
       showCreateModal: false, //주차장공간 생성 모달
       showModifyModal: false, //주차장공간 수정 모달
       selectedParkingSpace: null,
-      selectedParkingSpaceId : null,
+      selectedParkingSpaceId: null,
       authStore: AuthStore(),
       parkingLot: {
         parkingLotId: '',
@@ -266,7 +255,20 @@ export default {
         parkingSpaces: [],
         images: []
       },
-
+      newParkingSpace: {
+        parkingLotId: this.selectedLotId,
+        spaceName: '',
+        availableSpaceNum: 0,
+        carTypeId: '',
+        weekdaysPrice: 0,
+        weekAllDayPrice: 0,
+        weekendPrice: 0,
+        weekendAllDayPrice: 0,
+        washService: false,
+        washPrice: 0,
+        maintenanceService: false,
+        maintenancePrice: 0
+      },
       originData: null,
       showAddZoneForm: false,
       imagePreviews: [],
@@ -293,12 +295,12 @@ export default {
     handleCloseCCModal() {
       handleColseCCModal()
     },
-    deleteParkingSpace(space){
+    deleteParkingSpace(space) {
       this.selectedParkingSpaceId = space.id
-      showCCInfoModal("주차 공간 정보를 삭제하시겠습니까?<br> 기존 예약은 삭제가 되지않습니다.")
+      showCCInfoModal('주차 공간 정보를 삭제하시겠습니까?<br> 기존 예약은 삭제가 되지않습니다.')
     },
     modifyParkingSpaceOn(space) {
-      this.showModifyModal = true  // 모달 열기
+      this.showModifyModal = true // 모달 열기
       this.selectedParkingSpace = space // 주차 공간 정보 조회 메서드
     },
     async getParkingLotDetail() {
@@ -314,28 +316,26 @@ export default {
           this.parkingLot = response.data
           this.originData = JSON.parse(JSON.stringify(this.parkingLot))
         })
-        .catch(function(e) {
+        .catch(function (e) {
           alert(e)
         })
     },
     confirmModalAction() {
       alert(this.selectedParkingSpaceId)
-        axios
-          .delete(`/api/parking-manager/info/parkingArea/protected`, {
-            headers: {
-              parkingSpaceId : this.selectedParkingSpaceId
-            }
-          })
-          .then(() => {
-            alert('삭제되었습니다')
-            this.parkingLot.parkingSpaces.splice(1)
-            this.handleCloseCCModal(); // 성공 시 모달 닫기
-
-          })
-          .catch(function(error) {
-            alert(error)
-          })
-
+      axios
+        .delete(`/api/parking-manager/info/parkingArea/protected`, {
+          headers: {
+            parkingSpaceId: this.selectedParkingSpaceId
+          }
+        })
+        .then(() => {
+          alert('삭제되었습니다')
+          this.parkingLot.parkingSpaces.splice(1)
+          this.handleCloseCCModal() // 성공 시 모달 닫기
+        })
+        .catch(function (error) {
+          alert(error)
+        })
     },
     onFileChange(event) {
       const files = Array.from(event.target.files)
@@ -359,7 +359,6 @@ export default {
     modifyOn() {
       this.modifying = true
       this.newParkingSpace.carTypeId = this.selectableCarTypes[0].id
-      alert('기본 : ' + this.newParkingSpace.carTypeId)
     },
     modifyCancel() {
       this.parkingLot = JSON.parse(JSON.stringify(this.originData))
@@ -387,7 +386,6 @@ export default {
         formData.append('weekendCloseTime', this.parkingLot.weekendCloseTime)
         formData.append('deleteImageIds', this.deleteImageIds)
 
-
         const files = this.$refs.fileInput.files
         for (let i = 0; i < files.length; i++) {
           formData.append('images', files[i])
@@ -409,7 +407,7 @@ export default {
 
             this.clearFileInput()
           })
-          .catch(function(error) {
+          .catch(function (error) {
             alert(error)
           })
       }
@@ -464,7 +462,7 @@ export default {
         .then((response) => {
           this.selectableCarTypes = response.data.carTypes
         })
-        .catch(function(e) {
+        .catch(function (e) {
           alert(e)
         })
     },
@@ -476,7 +474,6 @@ export default {
     },
     //validations
     validateParkingLot(parkingLot) {
-
       if (!this.selectedLotId || isNaN(this.selectedLotId)) {
         return '주차장 ID는 숫자여야 하며, 빈 값일 수 없습니다.'
       }
@@ -572,7 +569,7 @@ export default {
   margin-bottom: 1rem;
 }
 
-.d-flex input[type="time"] {
+.d-flex input[type='time'] {
   width: 100%;
 }
 
@@ -606,48 +603,47 @@ export default {
   border-color: #dddddd; /* 테이블 셀의 선 색상 */
 }
 
-
 /* 보라색 버튼 */
 .bg-purple {
-  background-color: #9A64E8; /* 기본 보라색 */
+  background-color: #9a64e8; /* 기본 보라색 */
   color: white;
 }
 
 .bg-purple:hover {
-  background-color: #9A64E8; /* hover 상태에서도 기본 색상 유지 */
+  background-color: #9a64e8; /* hover 상태에서도 기본 색상 유지 */
   color: white; /* hover 상태에서 텍스트 색상 유지 */
 }
 
 /* 초록색 버튼 */
 .bg-green {
-  background-color: #76D672; /* 기본 초록색 */
+  background-color: #76d672; /* 기본 초록색 */
   color: white;
 }
 
 .bg-green:hover {
-  background-color: #76D672; /* hover 상태에서도 기본 색상 유지 */
+  background-color: #76d672; /* hover 상태에서도 기본 색상 유지 */
   color: white; /* hover 상태에서 텍스트 색상 유지 */
 }
 
 /* 빨간색 버튼 */
 .bg-red {
-  background-color: #F93A41; /* 기본 빨간색 */
+  background-color: #f93a41; /* 기본 빨간색 */
   color: white;
 }
 
 .bg-red:hover {
-  background-color: #F93A41; /* hover 상태에서도 기본 색상 유지 */
+  background-color: #f93a41; /* hover 상태에서도 기본 색상 유지 */
   color: white; /* hover 상태에서 텍스트 색상 유지 */
 }
 
 /* 연보라색 버튼 */
 .bg-light-purple {
-  background-color: #F0E5FF; /* 기본 연보라색 */
+  background-color: #f0e5ff; /* 기본 연보라색 */
   color: black;
 }
 
 .bg-light-purple:hover {
-  background-color: #F0E5FF; /* hover 상태에서도 기본 색상 유지 */
+  background-color: #f0e5ff; /* hover 상태에서도 기본 색상 유지 */
   color: black; /* hover 상태에서 텍스트 색상 유지 */
 }
 </style>

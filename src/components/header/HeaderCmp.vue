@@ -17,7 +17,7 @@
         class="navbar-toggler"
         type="button"
         @click="toggleSidebar"
-        v-if="authStore.isLoggedIn && authStore.getAuth !== 'ROLE_PARKING_MANAGER'"
+        v-if="!authStore.isLoggedIn || authStore.getAuth !== 'ROLE_PARKING_MANAGER'"
       >
         <span class="navbar-toggler-icon"></span>
       </button>

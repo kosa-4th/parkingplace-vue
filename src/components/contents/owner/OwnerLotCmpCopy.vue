@@ -87,7 +87,7 @@
         <div v-for="(image, idx) in parkingLot.images" :key="idx">
           <img
             :id="`image-${image.id}`"
-            src="../../../assets/img/tempLot.png"
+            src="@assets/img/tempLot.png"
             class="uploaded-img"
             @click="addDeleteImgList(image.id)"
           />
