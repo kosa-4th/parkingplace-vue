@@ -99,14 +99,16 @@ export default {
 
 .modal {
   display: block;
-  margin-left: 30%;
-  margin-top: 15%;
-  height: auto;
+  position: fixed; /* 화면에 고정 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* 정확한 가운데 정렬 */
   background: white;
+  height: auto;
   padding: 30px;
   border-radius: 12px;
-  width: 60%;
-  max-width: 600px;
+  width: 80%;
+  max-width: 900px;
   z-index: 1050; /* 모달이 overlay 위에 오도록 z-index 설정 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 가벼운 그림자 */
 }

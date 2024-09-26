@@ -124,7 +124,7 @@ const removeFileProtocol = (path) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 700;
+  max-width: 700px;
 }
 
 .image-slider {
