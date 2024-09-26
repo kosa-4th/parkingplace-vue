@@ -1,9 +1,21 @@
+<!--
+ 담당자: 양건모
+ 시작 일자: 2024.09.25
+ 설명 : 알림 컴포넌트
+ ---------------------
+ 2024.09.25 양건모 | 기능 구현
+ 2024.09.26 양건모 | 디자인 수정
+ -->
 <template>
   <div id="wrapper">
     <div id="modal">
       <div id="buttons">
-        <button id="check-all" class="no-decoration" @click="checkAll()">모든 알림 읽음</button>
-        <button id="remove-all" class="no-decoration" @click="removeAll()">모든 알림 삭제</button>
+        <button id="check-all" class="no-decoration" @click="checkAll()">
+          <img src="@/assets/img/check-all.png" />
+        </button>
+        <button id="remove-all" class="no-decoration" @click="removeAll()">
+          <img src="@/assets/img/delete-all.png" />
+        </button>
       </div>
       <div id="notifications" v-if="notifications !== null">
         <div
@@ -13,15 +25,13 @@
           :key="index"
         >
           <div class="noti-upper align-left">
-            <span class="font-small"
-              ><b>{{ formatDate(notification.createdAt) }}</b></span
-            >
+            <span class="font-small">{{ formatDate(notification.createdAt) }}</span>
             <button
               class="no-decoration align-right font-small"
               @click="deleteOne(notification.notificationId)"
             >
               <svg
-                clas="x-icon"
+                class="x-icon"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="none"
@@ -76,7 +86,7 @@ export default {
     }
   },
   methods: {
-    async getNotifications(state) {
+    async getNotifications() {
       if (this.notifications === null) {
         this.notifications = []
       }
@@ -211,13 +221,14 @@ export default {
   background-color: #fafafa;
   position: absolute;
   right: 0;
-  top: 45px;
+  top: 40px;
   -ms-overflow-style: none;
   scrollbar-width: none;
   border: 1px solid #dee2e6; /* 테두리 추가 */
   border-radius: 10px; /* 둥근 모서리 */
   padding: 5px; /* 안쪽 여백 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 */
+  z-index: 1050;
 }
 
 #modal::-webkit-scrollbar {
@@ -238,10 +249,6 @@ export default {
 
 .noti-date {
   text-align: right;
-}
-
-.noti-desc {
-  border-top: 1.5px solid gray;
 }
 
 .noti-info-wrapper {
@@ -266,6 +273,7 @@ export default {
   display: flex; /* 플렉스 박스 사용 */
   justify-content: space-between; /* 좌우로 아이템 분리 */
   align-items: center; /* 수직 가운데 정렬 */
+  margin-bottom: 5px;
 }
 
 .align-right {
@@ -273,7 +281,7 @@ export default {
 }
 
 .checked {
-  color: #c7c7c7;
+  color: #bebebe;
 }
 
 .unchecked {
@@ -285,11 +293,21 @@ export default {
 
 .font-small-mid {
   font-size: 14px;
-  font-weight: bold;
 }
 
 .x-icon {
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
+}
+
+#buttons {
+  text-align: right;
+  margin-right: 10px;
+  margin-top: 5px;
+}
+
+#buttons img {
+  width: 25px;
+  height: 25px;
 }
 </style>

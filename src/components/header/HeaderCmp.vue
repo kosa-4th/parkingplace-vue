@@ -7,6 +7,7 @@
  2024.09.11 양건모 : a 태그 router-link로 변환, 관련 메서드 수정 삭제
  2024.09.19 오지수 : header 디자인 수정, 회원 정보 라우터 추가
  2024.09.25 양건모 : 알림 컴포넌트 연결
+ 2024.09.26 양건모 : url 변경 감지에 대한 watch 속성을 추가해 알림 창 자동 닫기
  -->
 <template>
   <nav class="navbar bg-light fixed-top">
@@ -86,17 +87,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watchEffect, computed } from 'vue'
+import { ref, onMounted, watchEffect, computed, watch } from 'vue'
 import { AuthStore } from '@/stores/store'
 import { useRouter } from 'vue-router'
 import { logout } from '@/service/authService'
 import HeaderNotificationCmp from './HeaderNotificationCmp.vue'
+import { useRoute } from 'vue-router'
 
 const isSidebarOpen = ref(false)
 const isLoggedIn = ref(false)
-let isNotificationOpen = ref(false)
 
+let isNotificationOpen = ref(false)
+const route = useRoute()
+const currentUrl = ref(route.fullPath)
 const router = useRouter()
+
 const authStore = AuthStore()
 
 const username = computed(() => authStore.getUsername)
@@ -148,6 +153,15 @@ const toggleNotificationModal = () => {
 const closeNotificationModal = () => {
   isNotificationOpen.value = false
 }
+
+watch(
+  () => route.fullPath, // fullPath를 감시
+  (newUrl, oldUrl) => {
+    console.log('URL이 변경되었습니다:', oldUrl, '=>', newUrl)
+    currentUrl.value = newUrl
+    isNotificationOpen.value = false
+  }
+)
 </script>
 
 <style scoped>
