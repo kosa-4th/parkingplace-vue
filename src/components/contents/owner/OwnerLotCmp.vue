@@ -14,6 +14,7 @@
  2024.09.22 양건모 | 입력값 validation 관련 코드 추가, 각종 버그 수정
  2024.09.25 김경민 | 디자인 전면 수정 / 모달 분리
  2024.09.26 김경민 | 모달 분리 작업 -> 삭제 버튼 변경
+ 2024.09.26 양건모 | 소실 기능 복원
  -->
 <template>
   <div class="main-container">
@@ -123,14 +124,12 @@
             :key="index"
             class="position-relative me-2 mb-2"
           >
-            <img :src="image" alt="uploaded image" class="img-thumbnail" />
-
-            <button
-              class="btn btn-danger btn-sm position-absolute top-0 end-0"
+            <img
+              :src="image"
+              alt="uploaded image"
+              class="img-thumbnail"
               @click="removeImage(index)"
-            >
-              x
-            </button>
+            />
           </div>
         </div>
       </div>
@@ -179,7 +178,7 @@
               <td>{{ space.washPrice ? space.washPrice : 'X' }}</td>
               <td>{{ space.maintenancePrice ? space.maintenancePrice : 'X' }}</td>
               <td>
-                <button class="btn bg-purple btn-sm" @click="modifyParkingSpaceOn(space)">
+                <button class="btn bg-purple btn-sm" @click="modifyParkingSpaceOn(index, space)">
                   수정
                 </button>
               </td>
@@ -299,9 +298,15 @@ export default {
       this.selectedParkingSpaceId = space.id
       showCCInfoModal('주차 공간 정보를 삭제하시겠습니까?<br> 기존 예약은 삭제가 되지않습니다.')
     },
-    modifyParkingSpaceOn(space) {
+    modifyParkingSpaceOn(index, space) {
       this.showModifyModal = true // 모달 열기
       this.selectedParkingSpace = space // 주차 공간 정보 조회 메서드
+      for (let i = 0; i < this.selectableCarTypes.length; i++) {
+        console.log(this.parkingLot.parkingSpaces[index])
+        if (this.selectedParkingSpace.carType == this.selectableCarTypes[i].carTypeKor) {
+          this.selectedParkingSpace.carTypeId = this.selectableCarTypes[i].id
+        }
+      }
     },
     async getParkingLotDetail() {
       await axios({
@@ -645,5 +650,10 @@ export default {
 .bg-light-purple:hover {
   background-color: #f0e5ff; /* hover 상태에서도 기본 색상 유지 */
   color: black; /* hover 상태에서 텍스트 색상 유지 */
+}
+
+.darker {
+  filter: brightness(50%);
+  filter: grayscale(100%);
 }
 </style>
