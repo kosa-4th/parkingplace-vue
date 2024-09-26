@@ -2,7 +2,7 @@
   <!-- 화면 디자인: 김경민
   작성자: 오지수
   2024-09-26 -->
-  <div>
+  <div class="main-container ">
     <div>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h3 style="margin: 0;">주차장 리뷰 관리</h3>

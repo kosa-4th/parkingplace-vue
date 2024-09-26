@@ -78,6 +78,11 @@ export default [
           {
             path: 'make-inquiry',
             component: LotDetailDoQnaCmp
+          },
+          {
+            path: 'make-inquiry/:inquiryId',
+            component: LotDetailDoQnaCmp,
+            props: true
           }
         ]
       },
