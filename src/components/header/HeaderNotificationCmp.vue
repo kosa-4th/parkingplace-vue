@@ -215,9 +215,23 @@ export default {
   position: relative;
 }
 
+#notifications {
+  height: calc(60vh - 55px);
+  overflow: scroll;
+  width: 100%;
+  background-color: #fafafa;
+  position: absolute;
+  right: 0;
+  top: 40px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding: 5px; /* 안쪽 여백 */
+  z-index: 1050;
+}
+
 #modal {
   height: 60vh;
-  overflow: scroll;
+  overflow: hidden;
   background-color: #fafafa;
   position: absolute;
   right: 0;

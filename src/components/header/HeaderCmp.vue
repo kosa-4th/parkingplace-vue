@@ -8,13 +8,20 @@
  2024.09.19 오지수 : header 디자인 수정, 회원 정보 라우터 추가
  2024.09.25 양건모 : 알림 컴포넌트 연결
  2024.09.26 양건모 : url 변경 감지에 대한 watch 속성을 추가해 알림 창 자동 닫기
+ 2024.09.26 양건모 : 로그인 여부와 권한에 따라 메뉴, 알림 버튼 비활성화
  -->
 <template>
   <nav class="navbar bg-light fixed-top">
     <div class="container-fluid">
-      <button class="navbar-toggler" type="button" @click="toggleSidebar">
+      <button
+        class="navbar-toggler"
+        type="button"
+        @click="toggleSidebar"
+        v-if="authStore.isLoggedIn && authStore.getAuth !== 'ROLE_PARKING_MANAGER'"
+      >
         <span class="navbar-toggler-icon"></span>
       </button>
+      <div v-else></div>
 
       <!-- 로고 클릭 시 홈으로 이동 -->
       <router-link to="/" class="navbar-brand position-absolute start-50 translate-middle-x">
@@ -22,7 +29,7 @@
       </router-link>
       <!-- 알림 버튼 -->
 
-      <div class="d-flex">
+      <div class="d-flex" v-if="authStore.isLoggedIn && authStore.getAuth === 'ROLE_USER'">
         <button href="#" class="nav-link text-dark" @click="toggleNotificationModal">
           <img src="@/assets/img/bell.svg" style="width: 20px; height: 20px; margin-right: 15px" />
         </button>
@@ -31,6 +38,7 @@
           @closed="closeNotificationModal"
         ></header-notification-cmp>
       </div>
+      <div v-else></div>
 
       <!-- 사이드바 메뉴 -->
       <div :class="['sidebar', { active: isSidebarOpen }]">
