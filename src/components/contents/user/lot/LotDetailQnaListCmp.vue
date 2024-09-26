@@ -42,7 +42,7 @@
         <!--  -->
         <div v-if="selectedInquiry === index && inquiry.answerDate" class="answer-box">
           <hr>
-          <p>{{ inquiry.answer }}</p>
+          <div>{{ inquiry.answer }}</div>
           <span class="answer-date">{{ inquiry.answerDate }}</span>
         </div>
       </div>
@@ -166,6 +166,7 @@ button {
 
 .inquiry-date, .answer-date {
   font-size: 13px;
+  color: #757575;
 }
 
 .inquiry-text {
@@ -193,6 +194,10 @@ button {
 
 .answer-box {
   padding: 10px 0;
+}
+
+.answer-box div {
+  margin-bottom: 10px;
 }
 
 .more-btn {

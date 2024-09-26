@@ -5,12 +5,13 @@
 
     <div class="form-group">
       <label for="email">이메일</label>
-      <input type="email"
+      <!-- <input type="email"
               id="email"
-              v-model="email"
+              v-model="d"
               placeholder="example@naver.com"
               disabled
-              />
+              /> -->
+      <div class="user-info">{{ authStore.getEmail }}</div>
     </div>
 
     <div class="form-group">
@@ -18,16 +19,17 @@
       <input type="text"
               id="phone"
               v-model="phone"
-              placeholder="010-xxxx-xxxx"
+              placeholder="-"
               disabled
               />
+      <!-- <div class="user-info"></div> -->
     </div>
 
     <div class="form-group">
       <label for="current-password">현재 비밀번호</label>
       <input type="password"
               id="current-password"
-              v-model="currentPassword"
+              v-model="user.currentPassword"
               required
               />
     </div>
@@ -40,6 +42,7 @@
               id="new-password"
               v-model="user.newPassword"
               placeholder="8 ~ 20자리 이하의 영문, 숫자, 특수문자 조합"
+              required
               />
     </div>
 
@@ -50,17 +53,39 @@
               type="password"
               id="confirm-password"
               v-model="user.confirmPassword"
+              required
               />
     </div>
 
-    <button @click="updateInfo" class="submit-btn">회원 정보 수정하기</button>
-    <button @click="deleteAccount" class="delete-btn">회원 탈퇴하기</button>
+    <button @click="openModifyModal" class="submit-btn">회원 비밀번호 수정</button>
+    <button @click="openDeleteUserModal" class="delete-btn">회원 탈퇴하기</button>
+
+    <confirm-modal
+      v-if="modalState.isVisible"
+      :confirm="modalState.confirm"
+      :error="modalState.error"
+      :message="modalState.message"
+      :path="modalState.path"
+      @close="handleCloseModal"  
+    />
+
+    <confirm-cancel-modal
+      v-if="confirmCancelModalState.isVisible"
+      :confirm="confirmCancelModalState.confirm"
+      :message="confirmCancelModalState.message"
+      @close="handleColseCCModal"
+      @confirm="confirmModalAction"
+    />
   </div>
 </template>
 
 <script setup>
-import { watch, computed, reactive } from 'vue';
+import { ref, watch, computed, reactive } from 'vue';
 import { AuthStore } from '@/stores/store';
+import { logout } from '@/service/authService';
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
+import ConfirmCancelModal from '@/components/modal/ConfirmCancelModal.vue';
+import { modalState, confirmCancelModalState, showConfirmModal, showInfoModal, showCCInfoModal, handleCloseModal, handleColseCCModal} from '@/components/modal/ConfirmModalService';
 import axios from 'axios';
 
 const authStore = AuthStore();
@@ -69,6 +94,48 @@ const user = reactive({
   newPassword: "",
   confirmPassword: ""
 })
+
+const actionType = ref('');
+
+// 비밀번호 수정 모달 열기
+const openModifyModal = () => {
+  if (!user.currentPassword || !user.newPassword || !user.confirmPassword) {
+    showInfoModal("모든 필드를 작성해 주세요.");
+    return;
+  }
+  // 2. 현재 비밀번호와 새 비밀번호가 같은지 확인
+  if (user.currentPassword === user.newPassword) {
+    showInfoModal("현재 비밀번호와 새 비밀번호는 같을 수 없습니다.")
+    return;
+  }
+  // 3. 새 비밀번호가 유효한지 확인
+  if (!passwordValid.value) {
+    showInfoModal("비밀번호는 8~20자리의 영문, 숫자, 특수문자를 포함해야 합니다.");
+    return;
+  }
+  // 4. 새 비밀번호와 확인 비밀번호가 일치하는지 확인
+  if (!confirmPasswordMatch.value) {
+    showInfoModal("새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
+    return;
+  }
+  showCCInfoModal("비밀번호를 수정하시겠습니까?");
+  actionType.value = 'modify';
+}
+
+const openDeleteUserModal = () => {
+  showCCInfoModal("회원 탈퇴하시겠습니까?", '', "회원 탈퇴");
+  actionType.value = 'delete';
+}
+
+const confirmModalAction = async () => {
+  if (actionType.value === 'modify') {
+    await updateInfo();
+  } else if (actionType.value === 'delete') {
+    await deleteAccount();
+  }
+  handleColseCCModal();
+}
+
 // 비밀번호 규칙 확인
 const passwordValid = computed(() => {
   const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
@@ -89,12 +156,50 @@ watch(
 
 // 비밀 번호 수정
 const updateInfo = async () => {
-
+  // 빈 칸이 있는지 확인
+  // if (!user.currentPassword || !user.newPassword || !user.confirmPassword) {
+  //   showInfoModal("모든 필드를 작성해 주세요.");
+  //   return;
+  // }
+  // // 2. 현재 비밀번호와 새 비밀번호가 같은지 확인
+  // if (user.currentPassword === user.newPassword) {
+  //   showInfoModal("현재 비밀번호와 새 비밀번호는 같을 수 없습니다.")
+  //   return;
+  // }
+  // // 3. 새 비밀번호가 유효한지 확인
+  // if (!passwordValid.value) {
+  //   showInfoModal("비밀번호는 8~20자리의 영문, 숫자, 특수문자를 포함해야 합니다.");
+  //   return;
+  // }
+  // // 4. 새 비밀번호와 확인 비밀번호가 일치하는지 확인
+  // if (!confirmPasswordMatch.value) {
+  //   showInfoModal("새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
+  //   return;
+  // }
+  try {
+    const response = await axios.put("/api/users/profile/protected", {
+      password: user.currentPassword,
+      newPassword: user.newPassword
+    });
+    console.log(response.data);
+    showConfirmModal("비밀 번호 변경이 완료되었습니다.")
+    user.currentPassword = '';
+    user.newPassword = '';
+    user.confirmPassword = '';
+  } catch (error) {
+    showInfoModal(error.response.data.message);
+  };
 }
 
 // 회원 탈퇴
 const deleteAccount = async () => {
-
+  try {
+    await axios.delete("/api/users/profile/protected");
+    logout();
+    showConfirmModal("회원 탈퇴처리 되었습니다.", '/')
+  } catch (error) {
+    showInfoModal(error.response.data.message);
+  }
 }
 </script>
 
@@ -149,12 +254,14 @@ input {
 .delete-btn {
   width: 100%;
   padding: 10px;
-  margin-top: 10px;
+  margin-top: 40px;
   background-color: transparent;
   color: #999;
   border: none;
   cursor: pointer;
   text-align: center;
+  font-size: 13px;
+  text-decoration: underline;
 }
 
 .input {
@@ -162,6 +269,15 @@ input {
   border-radius: 5px;
   /* height: 40px;
   width: 100%; */
+}
+
+.user-info {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  height: 42.33px;
+  padding: 10px;
+  align-items: center;
+  background-color: #EFEFEF4D;
 }
 
 input:focus {

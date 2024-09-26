@@ -208,14 +208,29 @@
         예약하기 및 결제하기
       </button>
     </div>
+
+    <confirm-modal
+      v-if="modalState.isVisible"
+      :confirm="modalState.confirm"
+      :message="modalState.message"
+      :path="modalState.path"
+      @close="handleCloseModal"
+    />
   </div>
 </template>
+
 <script>
 import axios from 'axios'
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
+import { modalState, showInfoModal, handleCloseModal } from '@/components/modal/ConfirmModalService';
 
 export default {
+  components: {
+    ConfirmModal
+  },
   data() {
     return {
+      modalState,
       isButtonDisabled: false, //버튼 비활성화
       reservationBtn: true, //버튼 활성화
       washChecked: false,
@@ -231,6 +246,7 @@ export default {
         weekendOpenTime: '',
         weekdaysCloseTime: '',
         weekendCloseTime: ''
+    
       },
 
       //예약여부 버튼 클릭 활성화 후
@@ -284,6 +300,9 @@ export default {
         const responseReservationLotData = await axios.get(url)
         this.parkingLotInfo = responseReservationLotData.data.parkingLotInfo
         this.userCars = responseReservationLotData.data.userCars
+        if (this.userCars.length === 0) {
+          showInfoModal("차량 등록 후 이용해 주세요.", '/my/cars');
+        }
       } catch (error) {
         console.log()
       } finally {
@@ -615,6 +634,9 @@ export default {
       } else {
         this.totalTime = '00:00' // 기본값
       }
+    },
+    handleCloseModal() {
+      handleCloseModal();
     }
   },
   watch: {

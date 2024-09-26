@@ -38,6 +38,7 @@ import MyInquiriesCmp from '@/components/contents/user/my/MyInquiriesCmp.vue'
 import ManagerUserCmp from '@/components/contents/manager/ManagerUserCmp.vue'
 import ManagerLotCmp from '@/components/contents/manager/ManagerLotCmp.vue'
 import OwnerReviewCmp from '@/components/contents/owner/OwnerReviewCmp.vue'
+import MyInquiryCmp from '@/components/contents/user/my/MyInquiryCmp.vue'
 
 export default [
   {
@@ -120,7 +121,11 @@ export default [
           },
           {
             path: 'inquiries',
-            component: MyInquiriesCmp
+            component: MyInquiriesCmp,
+          },
+          {
+            path: 'inquiries/:inquiryId',
+            component: MyInquiryCmp
           }
         ]
       }
