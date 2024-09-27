@@ -157,12 +157,16 @@ const DateFormat = (dateString) => {
 //글씨 색
 const getStatusClass = (status) => {
   switch (status) {
-    case '예약취소':
-      return 'canceled';
-    case '예약대기':
-      return 'pending';
-    case '예약확정':
-      return 'confirmed';
+    case '예약 취소':
+      return 'canceled';  // 빨간색
+    case '결제 대기':
+      return 'pending';  // 회색
+    case '결제 완료':
+      return 'completed';  // 보라색
+    case '예약 확정':
+      return 'confirmed';  // 초록색
+    default:
+      return '';  // 기본값
   }
 }
 
@@ -353,14 +357,18 @@ onMounted(() => {
 } */
 
 .canceled {
-  color: #F93A41;
+  color: #F93A41; /* 빨간색 */
 }
 
 .pending {
-  color: #9A64E8;
+  color: #6C757d; /* 회색 */
+}
+
+.completed {
+  color: #9A64E8; /* 보라색 */
 }
 
 .confirmed {
-  color: #76D672;
+  color: #76D672; /* 초록색 */
 }
 </style>
