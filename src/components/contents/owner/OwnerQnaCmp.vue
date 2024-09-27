@@ -73,16 +73,16 @@
               {{ inquiry.inquiryDate }} 
             </td>
             <td class="center-text">
-              <span v-if="inquiryData.ifAnswered" class="font-red">
-                미답변
-              </span>
-              <span v-else class="font-green">
+              <span v-if="inquiry.isIfAnswer" class="font-green">
                 답변완료
+              </span>
+              <span v-else class="font-red">
+                미답변
               </span>
             </td>
             <td class="center-text">
               <button class="btn btn-sm bg-purple"
-                      @click="ignoreReservation(reservation.reservationId, reservation.reservationUid)">편집
+                      @click="openEditModal(inquiry.inquiryId)">편집
               </button>
             </td>
           </tr>
@@ -116,6 +116,12 @@
         </ul>
       </nav>
 
+      <owner-qna-modal
+        v-if="isModalVisible"
+        :inquiryId="selectedInquiry"
+        :parkinglotId="selectedLotId"
+        @close-modal="handleCloseModal"
+      />
 
     </div>
   </div>
@@ -123,6 +129,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import OwnerQnaModal from './OwnerQnaModal.vue';
 import axios from 'axios';
 
 
@@ -134,7 +141,6 @@ const props = defineProps({
 })
 
 const activeTab = ref("All");
-// const today = new Date();
 const startDate = ref(null);
 const endDate = ref(null);
 
@@ -142,10 +148,12 @@ const currentPage = ref(1)
 const totalPages = ref(0)
 const pageSize = 10
 const paginationSize = 10
-// const from = ref(null);
-// const to = ref(null);
 
 const inquiryData = ref([]);
+
+//모달 문의
+const isModalVisible = ref(false);
+const selectedInquiry = ref(null);
 
 // 문의 가져오기
 const getParkingInquiries = async () => {
@@ -159,6 +167,7 @@ const getParkingInquiries = async () => {
     };
     
     const response = await axios.get(`/api/parking-manager/parkinglots/${props.selectedLotId}/inquiries/protected`, { params });
+    console.log(response.data);
     inquiryData.value = response.data.inquiries;
     totalPages.value = response.data.totalPages;
     currentPage.value = response.data.currentPage + 1;
@@ -184,27 +193,6 @@ const visiblePages = computed(() => {
   return pages
 })
 
-
-// 상세 문의 가져오기 / 다른 모달로 갈듯?
-// const getParkingInquiries = async () => {
-//   try {
-//     const params = {
-//       page: currentPage.value - 1,
-//       size: pageSize,
-//       from: startDate.value,
-//       to: endDate.value,
-//       inquiryStatus: activeTab.value === 'All' ? null : activeTab.value === 'unAnswered' ? 'unAnswered' : 'Answered'
-//     };
-    
-//     const response = await axios.get(`/api/parking-manager/parkinglots/${props.selectedLotId}/inquiries/protected`, { params });
-//     inquiryData.value = response.data.inquiries;
-//     totalPages.value = response.data.totalPages;
-//     currentPage.value = response.data.currentPage + 1;
-//   } catch (error) {
-//     console.error(error);
-//   }
-// };
-
 const applyDateFilter = () => {
   if (startDate.value && endDate.value && startDate.value > endDate.value) {
     alert('잘못된 날짜 범위입니다.');
@@ -220,41 +208,18 @@ const switchTab = (tabName) => {
   getParkingInquiries();
 };
 
-// 문의 등록하기
-// const registerParkingInquiry = async () => {
-//   try {
-//     const response = await axios.post("/api/parking-manager/parkinglots/1/inquiries/7/protected",
-//     {
-//       answer: 'api 답변 등록 테스트'
-//     }
-//     );
-//     console.log(response.data);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// }
+const openEditModal = (inquiryId) => {
+  selectedInquiry.value = inquiryId;
+  isModalVisible.value = true;
+}
 
-// 문의 수정하기
-// const modifyParkingInquiry = async () => {
-//   try {
-//     const response = await axios.put("/api/parking-manager/parkinglots/1/inquiries/2/protected",
-//     {
-//       answer: 'api 답변 수정 테스트'
-//     }
-//     );
-//     console.log(response.data);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// }
-
+const handleCloseModal = () => {
+  getParkingInquiries();
+  isModalVisible.value = false;
+}
 
 onMounted(() => {
   getParkingInquiries();
-  // getParkingInquiriyDetails();
-  // registerParkingInquiry();
-  // modifyParkingInquiry();
-
 })
 
 </script>

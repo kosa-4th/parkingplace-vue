@@ -52,7 +52,6 @@ const getInquiry = async () => {
     inquiry.value = response.data;
     console.log(response.data)
   } catch (error) {
-    console.log("에러 발생");
     console.log(error.response.data.message)
   }
 }
