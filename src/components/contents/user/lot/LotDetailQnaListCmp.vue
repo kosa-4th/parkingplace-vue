@@ -34,7 +34,8 @@
 
         <div class="inquiry-text" :class="{'full-text':selectedInquiry === index}">
           <!-- 비밀글인 경우 표시 -->
-          <span v-if="inquiry.secret && userEmail != inquiry.inquirerEmail" class="inquiry-text-txt secret-font"><i>"비밀로 작성된 문의글입니다."</i></span>
+          <span v-if="inquiry.secret && userEmail != inquiry.iqnuirerEmail" class="inquiry-text-txt secret-font"><i>"비밀로 작성된 문의글입니다."</i></span>
+          <span v-else-if="inquiry.secret && userEmail === inquiry.iqnuirerEmail" class="inquiry-text-txt">&lt;<i><u>비밀글</u></i>><br/>{{ inquiry.inquiry }}</span>
           <span v-else class="inquiry-text-txt">{{ inquiry.inquiry }}</span>
         </div>
         <div class="inquiry-edit">
