@@ -1,167 +1,306 @@
 <template>
-  <div></div>
-  <!-- <div class="date-picker-container"> -->
-    <!-- 첫 번째 Datepicker (시작 날짜 선택) -->
-    <!-- <div class="date-picker-box">
-      <Datepicker
-        class="date-picker"
-        v-model="selectedStartDate"
-        :locale="locale"
-        :format="formatDate"
-        :upperLimit="to"
-        :lowerLimit="from"
-        :clearable="true"
-        :enable-time-picker="false"
-        :max-date="selectedEndDate"
-      /> -->
+  <div class="main-container">
+    <div class="tabs-container">
+      <!-- 부트스트랩 네비게이션 탭 -->
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a
+            class="nav-link subtitle"
+            :class="{ active: activeTab === 'All' }"
+            @click="switchTab('All')"
+          >
+            주차장 리뷰 목록
+          </a>
+        </li>
+      </ul>
 
-      <!-- 두 번째 Datepicker (종료 날짜 선택) -->
-      <!-- <Datepicker
-        class="date-picker"
-        v-model="selectedEndDate"
-        :format="formatDate"
-        :locale="locale"
-        :upperLimit="to"
-        :lowerLimit="selectedStartDate"
-        :clearable="true"
-        :enable-time-picker="false"
-        :min-date="selectedStartDate"
-      />
-    </div> -->
+      <!-- 기간 선택 -->
+      <div class="input-group mb-3 search-container mt-3">
+        <div class="form-group">
+          <input type="date" v-model="startDate" id="start-date" class="form-control" />
+        </div>
 
-    <!-- 전체 보기 버튼  -->
-    <!-- <div class="view-all-btn-box">
-      <button class="view-all-btn" @click="viewAllInquiries">전체 보기</button>
-    </div> -->
-
-    <!-- 문의 내역 (날짜 범위에 해당하는 내역만 필터링) -->
-    <!-- <div class="inquiry-container">
-      <div class="inquiry-box" v-for="inquiry in filteredInquiries" :key="inquiry.id"> -->
-        <!-- 문의 내용 출력 -->
-        <!-- <p class="inquiry-question"><strong>Q:</strong> {{ inquiry.question }}</p>
-        <p class="inquiry-answer"><strong>A:</strong> {{ inquiry.answer }}</p>
-        <p class="inquiry-date">{{ inquiry.date }}</p>
-      </div> -->
-      <!-- 문의 내역이 없을 때 출력 -->
-      <!-- <p v-if="filteredInquiries.length === 0">해당 날짜 범위 내에 문의가 없습니다.</p>
+        <div class="form-group mx-3">
+          <input type="date" v-model="endDate" id="end-date" class="form-control" />
+        </div>
+        <button class="btn bg-purple btn-sm" @click="applyDateFilter">검색</button>
+      </div>
     </div>
-  </div> -->
+
+    <!-- 탭에 해당하는 콘텐츠 영역 -->
+    <div class="tab-content">
+      <!-- <div v-if="inquiryData.length"> -->
+      <div>
+        <table class="table table-bordered table-hover text-center">
+          <thead class="thead-dark">
+          <tr>
+            <th scope="col">NO</th>
+            <th scope="col">리뷰어</th>
+            <th scope="col">리뷰</th>
+            <th scope="col">리뷰 등록일</th>
+            <!-- <th scope="col">신고</th> -->
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="(review, index) in reviewData" :key="index">
+            <td>{{ index + 1 }}</td> 
+            <td>{{ review.reviewer }}</td>
+            <td>{{ review.review }}</td>
+            <td>{{ review.reviewDate }}</td>
+            <!-- <td class="center-text">
+              <button class="btn btn-sm bg-purple"
+                      @click="ignoreReservation(reservation.reservationId, reservation.reservationUid)">신고
+              </button>
+            </td> -->
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- <div v-else>
+        <p>문의 데이터가 없습니다.</p>
+      </div> -->
+        
+
+      <!-- 페이지네이션 -->
+      <nav>
+        <ul class="pagination justify-content-center">
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
+          </li>
+
+          <li
+            class="page-item"
+            v-for="page in visiblePages"
+            :key="page"
+            :class="{ active: currentPage === page }"
+          >
+            <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+          </li>
+
+          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+            <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
+          </li>
+        </ul>
+      </nav>
+
+
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
-// import Datepicker from '@vuepic/vue-datepicker';
-// import '@vuepic/vue-datepicker/dist/main.css';
 
-const page = ref(0);
-const size = 10;
-const from = ref(null);
-const to = ref(null);
 
-// const reviews = ref([]);
+const props = defineProps({
+  selectedLotId: {
+    type: Number,
+    required: true
+  }
+})
 
-//리뷰 가져오기
-const getParkingReviews = async () => {
+const activeTab = ref("All");
+const startDate = ref(null);
+const endDate = ref(null);
+
+const currentPage = ref(1)
+const totalPages = ref(0)
+const pageSize = 10
+const paginationSize = 10
+
+const reviewData = ref([]);
+
+// 문의 가져오기
+const getParkingInquiries = async () => {
   try {
-    const response = await axios.get("/api/parking-manager/reviews/protected",
-      {
-        params: {
-          page: page.value,
-          size: size,
-          parkinglotId: 1,
-          from: from.value,
-          to: to.value,
-        }
-      }
-    );
+    const params = {
+      page: currentPage.value - 1,
+      size: pageSize,
+      from: startDate.value,
+      to: endDate.value,
+      // actionType: activeTab.value
+    };
+    
+    const response = await axios.get(`/api/parking-manager/parkinglots/${props.selectedLotId}/reviews/protected`, { params });
     console.log(response.data);
+    reviewData.value = response.data.parkingReviews;
+    totalPages.value = response.data.totalPages;
+    currentPage.value = response.data.currentPage + 1;
   } catch (error) {
-    console.log(error);
+    console.error(error);
+  }
+};
+
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    getParkingInquiries(); // 페이지 변경 시 데이터 다시 가져오기
   }
 }
 
-onMounted(() => {
-  getParkingReviews();
+const visiblePages = computed(() => {
+  const start = Math.floor((currentPage.value - 1) / paginationSize) * paginationSize + 1
+  const end = Math.min(start + paginationSize - 1, totalPages.value)
+  const pages = []
+  for (let i = start; i <= end; i++) {
+    pages.push(i)
+  }
+  return pages
 })
+
+const applyDateFilter = () => {
+  if (startDate.value && endDate.value && startDate.value > endDate.value) {
+    alert('잘못된 날짜 범위입니다.');
+  } else {
+    currentPage.value = 1; // Reset to page 1 when filtering
+    getParkingInquiries();
+  }
+};
+
+const switchTab = (tabName) => {
+  activeTab.value = tabName;
+  currentPage.value = 1;
+  getParkingInquiries();
+};
+
+onMounted(() => {
+  getParkingInquiries();
+})
+
 </script>
 
+
 <style scoped>
-/* Datepicker를 감싸는 컨테이너 스타일 */
-.date-picker-container {
-  margin-top: 30px;
+.main-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: start;
+  width: 80vw;
+}
+.center-text {
+  vertical-align: middle; /* 수직 가운데 정렬 */
 }
 
-/* Datepicker 박스 스타일 */
-.date-picker-box {
-  width: 800px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.btn {
+  display: inline-block;
+  padding: 5px 10px;
 }
 
-/* 각 Datepicker의 너비 설정 */
-.date-picker {
-  width: 40%;
+.table {
+  border-color: #dddddd;
 }
 
-/* 전체 보기 버튼 스타일 */
+.table th,
+.table td {
+  border-color: #dddddd; /* 테이블 셀의 선 색상 */
+}
 
-.view-all-btn-box {
+.tabs-container {
   width: 100%;
-  display: flex;
+}
+
+.nav-tabs {
   justify-content: flex-start;
-  align-items: center;
-  /* background-color: red; */
-}
-.view-all-btn {
-  margin-top: 20px; /* 버튼을 Datepicker 아래로 이동시키기 위한 여백 */
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
-/* 전체 보기 버튼 호버 시 배경색 변경 */
-.view-all-btn:hover {
-  background-color: #0056b3;
+.tab-content {
+  width: 100%;
+  margin-left: 5px;
 }
 
-/* 문의 내역을 표시하는 컨테이너 스타일 */
-.inquiry-container {
+.nav-item {
+}
+
+.subtitle {
+  color: #6c757d;
+}
+
+.subtitle:hover {
+  color: #6c757d;
+}
+
+.subtitle.active {
+  font-weight: bold; /* 활성화된 탭 굵기 */
+}
+
+
+.table {
+  margin-bottom: 30px;
+}
+
+.pagination {
   margin-top: 20px;
-  width: 800px;
-  background-color: #f9f9f9;
-  padding: 20px;
-  border-radius: 8px;
 }
 
-/* 각 문의를 감싸는 박스 스타일 */
-.inquiry-box {
-  margin-bottom: 20px;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+.bg-purple {
+  background-color: #9A64E8; /* 기본 보라색 */
+  color: white;
 }
 
-/* 문의 질문 부분 스타일 */
-.inquiry-question {
-  font-weight: bold;
+.bg-purple:hover {
+  background-color: #8e44ad; /* hover 시 보라색을 더 진하게 */
+  color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
+
 }
 
-/* 문의 답변 부분 스타일 */
-.inquiry-answer {
-  color: #333;
+.bg-green {
+  background-color: #76D672; /* 기본 보라색 */
+  color: white;
 }
 
-/* 문의 날짜 부분 스타일 */
-.inquiry-date {
-  font-size: 0.9em;
-  color: #888;
+.bg-green:hover {
+  background-color: #76D672; /* hover 시 보라색을 더 진하게 */
+  color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
+}
+
+.bg-red {
+  background-color: #F93A41; /* 기본 보라색 */
+  color: white;
+}
+
+.bg-red:hover {
+  background-color: #F93A41; /* hover 시 보라색을 더 진하게 */
+  color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
+}
+
+/* date-picker 전체 영역을 오른쪽으로 배치 */
+.search-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+}
+
+/* active 페이지에 보라색 배경 적용 */
+.pagination .page-item.active .page-link {
+  background-color: #9A64E8; /* 보라색 */
+  color: white; /* 흰색 텍스트 */
+  border-color: #9A64E8; /* 보라색 테두리 */
+}
+
+/* hover 시에도 동일한 스타일 유지 */
+.pagination .page-item .page-link:hover {
+  background-color: #9A64E8;
+  color: white;
+  border-color: #9A64E8;
+}
+
+/* 이전, 다음 버튼에 보라색 적용 */
+.pagination .page-item .page-link {
+  color: #9A64E8; /* 보라색 텍스트 */
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #6c757d; /* 비활성화된 버튼 색상 */
+}
+
+.font-red {
+  color: #F93A41;
+  font-size: 15px;
+}
+
+.font-green {
+  color: #76D672;
+  font-size: 15px;
 }
 </style>
