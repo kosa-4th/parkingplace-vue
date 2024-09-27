@@ -206,7 +206,7 @@ export default {
       console.log('=============================')
 
       const startDateTime = this.formatDate(this.selectedDate, this.selectedStartTime)
-      const endDateTime = this.formatDate(this.selectedDate, this.selectedStartTime)
+      const endDateTime = this.formatDate(this.selectedDate, this.selectedEndTime)
 
       const validationError = this.getValidationError()
       if (validationError) {
@@ -220,8 +220,7 @@ export default {
         params: {
           longitude: this.centerPosition.longitude,
           latitude: this.centerPosition.latitude,
-          // maxDistance: this.selectedMaxDistance,
-          maxDistance: 10000,
+          maxDistance: this.selectedMaxDistance,
           startDateTime: startDateTime,
           endDateTime: endDateTime,
           carTypeId: this.selectedCarTypeId
@@ -322,6 +321,7 @@ export default {
   transition: transform 0.08s ease-out;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 #modal-content {
