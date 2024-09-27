@@ -326,7 +326,6 @@ export default {
         })
     },
     confirmModalAction() {
-      alert(this.selectedParkingSpaceId)
       axios
         .delete(`/api/parking-manager/info/parkingArea/protected`, {
           headers: {
@@ -500,8 +499,6 @@ export default {
       parkingLot.weekdaysOpenTime = this.formatTimeWithSeconds(parkingLot.weekdaysOpenTime)
 
       if (!parkingLot.weekdaysOpenTime || !timeRegex.test(parkingLot.weekdaysOpenTime)) {
-        alert(parkingLot.weekendOpenTime)
-
         return '평일 오픈 시간은 HH:MM 형식이어야 하며, 빈 값일 수 없습니다.'
       }
       parkingLot.weekdaysCloseTime = this.formatTimeWithSeconds(parkingLot.weekdaysCloseTime)
