@@ -1,7 +1,7 @@
 {
-  "dev": {
+  "develop": {
     "configLevel": "project",
     "useProfile": false,
-    "awsConfigFilePath": "/Users/gaeng/.amplify/awscloudformation/yM23XcHh2o"
+    "awsConfigFilePath": "/Users/gaeng/.amplify/awscloudformation/zpzFBjZ7uV"
   }
 }

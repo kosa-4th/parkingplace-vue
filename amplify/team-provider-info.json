@@ -1,15 +1,15 @@
 {
-  "dev": {
+  "develop": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-parkingplacevue-dev-5d15e-authRole",
-      "UnauthRoleArn": "arn:aws:iam::715841359583:role/amplify-parkingplacevue-dev-5d15e-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::715841359583:role/amplify-parkingplacevue-dev-5d15e-authRole",
+      "AuthRoleName": "amplify-parkingplacevue-develop-04980-authRole",
+      "UnauthRoleArn": "arn:aws:iam::715841359583:role/amplify-parkingplacevue-develop-04980-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::715841359583:role/amplify-parkingplacevue-develop-04980-authRole",
       "Region": "ap-northeast-2",
-      "DeploymentBucketName": "amplify-parkingplacevue-dev-5d15e-deployment",
-      "UnauthRoleName": "amplify-parkingplacevue-dev-5d15e-unauthRole",
-      "StackName": "amplify-parkingplacevue-dev-5d15e",
-      "StackId": "arn:aws:cloudformation:ap-northeast-2:715841359583:stack/amplify-parkingplacevue-dev-5d15e/551e7800-7fd0-11ef-9e62-066dd69c97c1",
-      "AmplifyAppId": "dsl0ck1eb06lq"
+      "DeploymentBucketName": "amplify-parkingplacevue-develop-04980-deployment",
+      "UnauthRoleName": "amplify-parkingplacevue-develop-04980-unauthRole",
+      "StackName": "amplify-parkingplacevue-develop-04980",
+      "StackId": "arn:aws:cloudformation:ap-northeast-2:715841359583:stack/amplify-parkingplacevue-develop-04980/a0e11fb0-7fd3-11ef-84ea-065541fa579d",
+      "AmplifyAppId": "d1oei463ugcb72"
     }
   }
 }
