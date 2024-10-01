@@ -11,6 +11,7 @@
 import HeaderCmp from './components/header/HeaderCmp.vue'
 import ContentCmp from './components/contents/ContentCmp.vue'
 import FooterCmp from './components/footer/FooterCmp.vue'
+
 </script>
 
 <script>

@@ -79,8 +79,9 @@ export default {
 
 <style scoped>
 .owner-container {
-  width: 100%;
   display: flex;
+  height: 100vh; /* 화면 전체 높이 사용 */
+  width: 100%; /* 화면 전체 너비 사용 */
   align-items: center;
   justify-content: center;
   /* background-color: whitesmoke; */
@@ -89,11 +90,6 @@ export default {
   font-size: 17px;
 }
 
-.owner-container {
-  display: flex;
-  height: 100vh; /* 화면 전체 높이 사용 */
-  width: 100%; /* 화면 전체 너비 사용 */
-}
 
 /* 메뉴바 스타일 (기본적으로 숨겨져 있음) */
 .sidebar {

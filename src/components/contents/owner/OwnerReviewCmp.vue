@@ -238,15 +238,21 @@ onMounted(() => {
   color: white;
 }
 
+.bg-green {
+  background-color: #76D672; /* 기본 초록색 */
+  color: white;
+}
+
+.bg-red {
+  background-color: #F93A41; /* 기본 보라색 */
+  color: white;
+}
+
+
+
 .bg-purple:hover {
   background-color: #8e44ad; /* hover 시 보라색을 더 진하게 */
   color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
-
-}
-
-.bg-green {
-  background-color: #76D672; /* 기본 보라색 */
-  color: white;
 }
 
 .bg-green:hover {
@@ -254,10 +260,7 @@ onMounted(() => {
   color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
 }
 
-.bg-red {
-  background-color: #F93A41; /* 기본 보라색 */
-  color: white;
-}
+
 
 .bg-red:hover {
   background-color: #F93A41; /* hover 시 보라색을 더 진하게 */

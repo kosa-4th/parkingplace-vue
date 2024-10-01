@@ -7,6 +7,9 @@
 
 <template>
   <div class="tabs-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <h3 style="margin: 0;">고객 관리</h3>
+    </div>
     <!-- 부트스트랩 네비게이션 탭 -->
     <ul class="nav nav-tabs">
       <li class="nav-item">
