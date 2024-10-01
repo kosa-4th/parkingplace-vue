@@ -1,0 +1,42 @@
+name: ParkingPlace Front CI/CD
+
+# 개인 브랜치에서만 워크플로우 실행
+on:
+  push:
+    branches:
+      - Gaeng   # 개인 브랜치 이름으로 변경
+#  pull_request:
+#    branches:
+#      - Gaeng   # 개인 브랜치에서의 PR도 실행
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 저장소에서 코드를 가져옵니다.
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # 2. Node.js 18.x 버전으로 환경 설정
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      # 3. 프로젝트 의존성 설치
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Vue.js 프로젝트 빌드
+      - name: Build Vue.js project
+        run: npm run build
+
+      # 5. (선택 사항) 빌드 결과물 저장
+      - name: Upload production build files
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: dist/
+
+      # 6. (선택 사항) 배포 단계
