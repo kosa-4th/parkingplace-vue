@@ -3,7 +3,7 @@ name: Vue.js Amplify Deployment
 on:
   push:
     branches:
-      - gaeng   # 'gaeng' 브랜치로 푸시될 때 실행
+      - gaeng   # 특정 브랜치에 푸시될 때 배포 실행
 
 jobs:
   deploy:
@@ -12,34 +12,37 @@ jobs:
     steps:
       # 1. GitHub 저장소에서 코드를 체크아웃
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # 최신 버전 사용
 
-      # 2. Node.js 설치
+      # 2. Node.js 및 Amplify CLI 설치
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v3  # 최신 버전 사용
         with:
           node-version: '18'
 
-      # 3. Amplify CLI 설치
       - name: Install Amplify CLI
         run: npm install -g @aws-amplify/cli
 
-      # 4. AWS 자격 증명 설정
+      # 3. AWS credentials 설정
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2  # 서울 리전 설정
+          aws-region: ap-northeast-2  # 필요한 리전 설정
 
-      # 5. Amplify 환경 선택
+      # 4. 현재 Amplify 환경 목록 출력 (디버깅용)
+      - name: List Amplify environments
+        run: amplify env list
+
+      # 5. Amplify 환경 체크아웃
       - name: Checkout Amplify environment
-        run: amplify env checkout gaeng  # 'gaeng' 환경을 선택
+        run: amplify env checkout gaeng  # 'gaeng' 환경을 명시적으로 선택
 
       # 6. Vue.js 프로젝트 빌드
       - name: Build Vue.js project
         run: npm run build
 
-      # 7. Amplify 프론트엔드 배포
+      # 7. Amplify 배포 명령어 실행
       - name: Deploy to Amplify
-        run: amplify publish --frontend --yes
+        run: amplify publish --yes
