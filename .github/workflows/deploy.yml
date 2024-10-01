@@ -3,7 +3,7 @@ name: Vue.js Deployment
 on:
   push:
     branches:
-      - main   # 'main' 브랜치로 푸시될 때 배포 실행
+      - gaeng   # 'main' 브랜치로 푸시될 때 배포 실행
 
 jobs:
   deploy:
@@ -31,7 +31,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
-          
+
       # 5. Amplify 환경 선택
       - name: Checkout Amplify environment
         run: amplify env checkout gaeng  # 'dev' 환경 선택
