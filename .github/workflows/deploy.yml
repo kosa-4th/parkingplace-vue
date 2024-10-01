@@ -34,3 +34,4 @@ jobs:
 
       # 6. Amplify 배포 명령어 실행
       - name: Deploy to Amplify
+        run: amplify publish --yes
