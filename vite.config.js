@@ -18,7 +18,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://29ff-115-93-148-232.ngrok-free.app'
+        target: 'https://29ff-115-93-148-232.ngrok-free.app',
+        changeOrigin: true,  // CORS 문제를 해결할 수 있음
       }
     }
   }
