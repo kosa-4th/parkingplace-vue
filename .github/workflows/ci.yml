@@ -30,10 +30,10 @@ jobs:
       # 4. Vue.js 프로젝트 빌드
       - name: Build Vue.js project
         run: npm run build
-
-      # 5. 빌드 결과물 저장 (선택 사항)
-      - name: Upload production build files
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          path: dist/
+#
+#      # 5. 빌드 결과물 저장 (선택 사항)
+#      - name: Upload production build files
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: build
+#          path: dist/
