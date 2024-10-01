@@ -1,0 +1,39 @@
+name: Vue.js CI
+
+on:
+  push:
+    branches:
+      - Gaeng   # Gaeng 브랜치에 푸시될 때만 실행
+#  pull_request:
+#    branches:
+#      - Gaeng   # Gaeng 브랜치에서 PR 발생 시 실행 (선택 사항)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. GitHub 저장소에서 코드를 가져옴
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # 2. Node.js 환경 설정 (Node.js 18.x 사용)
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      # 3. 의존성 설치
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Vue.js 프로젝트 빌드
+      - name: Build Vue.js project
+        run: npm run build
+
+      # 5. 빌드 결과물 저장 (선택 사항)
+      - name: Upload production build files
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: dist/
