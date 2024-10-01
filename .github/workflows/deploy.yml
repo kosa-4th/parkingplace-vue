@@ -37,7 +37,7 @@ jobs:
 
       # 4. Amplify 환경 동기화 (pull)
       - name: Pull Amplify environment
-        run: amplify pull --appId dh3hunmcdz8yp --envName dev
+        run: amplify pull --appId dsl0ck1eb06lq --envName dev
 
       # 5. Vue.js 프로젝트 빌드
       - name: Build Vue.js project
