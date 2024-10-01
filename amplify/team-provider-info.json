@@ -1,28 +1,15 @@
 {
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-parkingplacevue-dev-35f72-authRole",
-      "UnauthRoleArn": "arn:aws:iam::715841359583:role/amplify-parkingplacevue-dev-35f72-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::715841359583:role/amplify-parkingplacevue-dev-35f72-authRole",
+      "AuthRoleName": "amplify-parkingplacevue-dev-54f4b-authRole",
+      "UnauthRoleArn": "arn:aws:iam::715841359583:role/amplify-parkingplacevue-dev-54f4b-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::715841359583:role/amplify-parkingplacevue-dev-54f4b-authRole",
       "Region": "ap-northeast-2",
-      "DeploymentBucketName": "amplify-parkingplacevue-dev-35f72-deployment",
-      "UnauthRoleName": "amplify-parkingplacevue-dev-35f72-unauthRole",
-      "StackName": "amplify-parkingplacevue-dev-35f72",
-      "StackId": "arn:aws:cloudformation:ap-northeast-2:715841359583:stack/amplify-parkingplacevue-dev-35f72/50b32910-7f98-11ef-8e0d-0a28e6596151",
-      "AmplifyAppId": "dzmb5gnbtjj16"
-    }
-  },
-  "test": {
-    "awscloudformation": {
-      "AuthRoleName": "amplify-parkingplacevue-test-bc960-authRole",
-      "UnauthRoleArn": "arn:aws:iam::715841359583:role/amplify-parkingplacevue-test-bc960-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::715841359583:role/amplify-parkingplacevue-test-bc960-authRole",
-      "Region": "ap-northeast-2",
-      "DeploymentBucketName": "amplify-parkingplacevue-test-bc960-deployment",
-      "UnauthRoleName": "amplify-parkingplacevue-test-bc960-unauthRole",
-      "StackName": "amplify-parkingplacevue-test-bc960",
-      "StackId": "arn:aws:cloudformation:ap-northeast-2:715841359583:stack/amplify-parkingplacevue-test-bc960/ca686ca0-7fa4-11ef-a671-0624db69d8ad",
-      "AmplifyAppId": "dzmb5gnbtjj16"
+      "DeploymentBucketName": "amplify-parkingplacevue-dev-54f4b-deployment",
+      "UnauthRoleName": "amplify-parkingplacevue-dev-54f4b-unauthRole",
+      "StackName": "amplify-parkingplacevue-dev-54f4b",
+      "StackId": "arn:aws:cloudformation:ap-northeast-2:715841359583:stack/amplify-parkingplacevue-dev-54f4b/041e5060-7fad-11ef-9e24-0644b1d799c9",
+      "AmplifyAppId": "d2q4ka00rurkeo"
     }
   }
 }
