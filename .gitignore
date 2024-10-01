@@ -30,8 +30,6 @@ coverage
 *.tsbuildinfo
 
 #amplify-do-not-edit-begin
-amplify/\#current-cloud-backend
-amplify/.config/local-*
 amplify/logs
 amplify/mock-data
 amplify/mock-api-resources
