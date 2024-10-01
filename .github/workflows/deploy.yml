@@ -12,7 +12,7 @@ jobs:
     steps:
       # 1. GitHub 저장소에서 코드를 체크아웃
       - name: Checkout code
-        uses: actions/checkout@v3  # 최신 버전 사용
+        uses: actions/checkout@v3  # 최신 버전 사 용
 
       # 2. Node.js 및 Amplify CLI 설치
       - name: Install Node.js
