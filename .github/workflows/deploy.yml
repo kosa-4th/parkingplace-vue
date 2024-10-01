@@ -19,11 +19,3 @@ jobs:
         uses: actions/setup-node@v3  # 최신 버전 사용
         with:
           node-version: '18'
-
-      # 5. Amplify 환경 선택
-      - name: Checkout Amplify environment
-        run: amplify env checkout gaeng  # 'dev' 환경 선택
-
-      # 6. Amplify 배포 명령어 실행
-      - name: Deploy to Amplify
-        run: amplify publish --yes
