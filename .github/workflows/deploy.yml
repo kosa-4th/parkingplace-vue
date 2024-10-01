@@ -31,18 +31,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2  # 필요한 리전 설정
 
-      # 4. 현재 Amplify 환경 목록 출력 (디버깅용)
-      - name: List Amplify environments
-        run: amplify env list
+      # 4. Amplify 환경 동기화 (pull)
+      - name: Pull Amplify environment
+        run: amplify pull --appId d29g2hajhpuwoc --envName dev
 
-      # 5. Amplify 환경 체크아웃
-      - name: Checkout Amplify environment
-        run: amplify env checkout dev  # 'gaeng' 환경을 명시적으로 선택
-
-      # 6. Vue.js 프로젝트 빌드
+      # 5. Vue.js 프로젝트 빌드
       - name: Build Vue.js project
         run: npm run build
 
-      # 7. Amplify 배포 명령어 실행
+      # 6. Amplify 배포 명령어 실행
       - name: Deploy to Amplify
         run: amplify publish --yes
