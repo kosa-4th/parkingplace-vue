@@ -12,11 +12,11 @@ jobs:
     steps:
       # 1. GitHub 저장소에서 코드를 체크아웃합니다.
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3  # 최신 버전 사용
 
       # 2. Node.js 및 Amplify CLI 설치
       - name: Install Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3  # 최신 버전 사용
         with:
           node-version: '18'
 
@@ -26,11 +26,15 @@ jobs:
 
       # 4. AWS credentials 설정
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2  # 최신 버전 사용
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2  # 필요한 리전 설정
+
+      # 5. Amplify 환경 선택
+      - name: Checkout Amplify environment
+        run: amplify env checkout dev  # 'dev' 환경 선택
 
       # 6. Amplify 배포 명령어 실행
       - name: Deploy to Amplify

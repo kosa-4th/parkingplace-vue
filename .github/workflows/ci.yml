@@ -15,11 +15,11 @@ jobs:
     steps:
       # 1. GitHub 저장소에서 코드를 가져옴
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3  # 최신 버전 사용
 
       # 2. Node.js 환경 설정 (Node.js 18.x 사용)
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3  # 최신 버전 사용
         with:
           node-version: '18'
 
