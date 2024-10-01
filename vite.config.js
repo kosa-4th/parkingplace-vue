@@ -18,7 +18,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://13.124.250.233'
+        target: 'http://15.165.212.178'
       }
     }
   }
