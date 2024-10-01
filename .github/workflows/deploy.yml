@@ -32,6 +32,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2  # 필요한 리전 설정
 
-      # 5. Amplify 배포 명령어 실행
+      # 5. Amplify 환경 선택 (필요할 경우)
+      - name: Checkout Amplify environment
+        run: amplify env checkout dev  # dev 또는 사용할 환경 이름
+
+      # 6. Amplify 배포 명령어 실행
       - name: Deploy to Amplify
         run: amplify publish --yes
