@@ -34,7 +34,7 @@ jobs:
 
       # 5. Amplify 환경 선택
       - name: Checkout Amplify environment
-        run: amplify env checkout dev  # 'dev' 환경 선택
+        run: amplify env checkout Gaeng  # 'dev' 환경 선택
 
       # 6. Amplify 배포 명령어 실행
       - name: Deploy to Amplify
