@@ -3,10 +3,10 @@ name: Vue.js CI
 on:
   push:
     branches:
-      - Gaeng   # Gaeng 브랜치에 푸시될 때만 실행
+      - gaeng   # Gaeng 브랜치에 푸시될 때만 실행
 #  pull_request:
 #    branches:
-#      - Gaeng   # Gaeng 브랜치에서 PR 발생 시 실행 (선택 사항)
+#      - gaeng   # Gaeng 브랜치에서 PR 발생 시 실행 (선택 사항)
 
 jobs:
   build:
