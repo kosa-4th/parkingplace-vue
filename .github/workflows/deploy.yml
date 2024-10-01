@@ -32,10 +32,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      # 5. Amplify 환경 선택
-      - name: Checkout Amplify environment
-        run: amplify env checkout gaeng  # 'dev' 환경 선택
-
       # 5. Vue.js 프로젝트 빌드
       - name: Build Vue.js project
         run: npm run build
