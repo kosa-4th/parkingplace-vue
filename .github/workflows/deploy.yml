@@ -19,6 +19,14 @@ jobs:
         uses: actions/setup-node@v3  # 최신 버전 사용
         with:
           node-version: '18'
+          
+      # 3. 의존성 설치
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Vue.js 프로젝트 빌드
+      - name: Build Vue.js project
+        run: npm run build
 
       - name: Install Amplify CLI
         run: npm install -g @aws-amplify/cli
