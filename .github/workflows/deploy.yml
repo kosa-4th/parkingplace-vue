@@ -1,29 +1,52 @@
-name: Vue.js Deployment
-
-on:
-  push:
-    branches:
-      - gaeng   # 특정 브랜치에 푸시될 때 배포 실행
+name: 'Amplify Deploy'
+on: [push]  # 모든 push에서 실행
 
 jobs:
-  deploy:
+  test:
+    name: Test and Deploy to Amplify
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]  # 최신 Node.js 버전으로 변경
 
     steps:
       # 1. GitHub 저장소에서 코드를 체크아웃합니다.
-      - name: Checkout code
-        uses: actions/checkout@v3  # 최신 버전 사용
+      - uses: actions/checkout@v3  # 최신 버전 사용
 
-      # 2. Node.js 및 Amplify CLI 설치
-      - name: Install Node.js
+      # 2. Node.js 설정
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3  # 최신 버전 사용
         with:
-          node-version: '18'
+          node-version: ${{ matrix.node-version }}
 
-      # 3. Amplify CLI 설치
-      - name: Install Amplify CLI
-        run: npm install -g @aws-amplify/cli
+      # 3. AWS Amplify 환경 설정
+      - name: Configure Amplify
+        uses: ambientlight/amplify-cli-action@0.3.0
+        with:
+          amplify_command: configure
+          amplify_env: gaeng  # 환경 이름을 'gaeng'으로 설정
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-northeast-2  # 서울 리전
 
-      # 6. Amplify 배포 명령어 실행
+      # 4. 의존성 설치 및 빌드
+      - name: Install dependencies and build
+        run: |
+          npm install
+          # 빌드 명령어 (필요 시 활성화)
+          # npm run build
+          # 테스트 명령어 (필요 시 활성화)
+          # npm run test
+
+      # 5. AWS Amplify 배포
       - name: Deploy to Amplify
-        run: amplify publish --yes
+        uses: ambientlight/amplify-cli-action@0.3.0
+        with:
+          amplify_command: publish
+          amplify_env: gaeng  # 환경 이름을 'gaeng'으로 설정
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-northeast-2  # 서울 리전
