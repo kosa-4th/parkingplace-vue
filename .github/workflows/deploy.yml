@@ -34,7 +34,7 @@ jobs:
 
       # 5. (선택 사항) 빌드 결과물 저장
       - name: Upload production build files
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3 #v2에서 v3로 변경 ->> 더이상 v2지원안함
         with:
           name: build
           path: dist/
