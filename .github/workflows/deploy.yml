@@ -3,7 +3,7 @@ name: Vue.js Deployment
 on:
   push:
     branches:
-      - develop   # 특정 브랜치에 푸시될 때 배포 실행
+      - Gaeng   # 특정 브랜치에 푸시될 때 배포 실행
 
 jobs:
   deploy:
