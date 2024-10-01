@@ -16,7 +16,7 @@ import '@vuepic/vue-datepicker/dist/main.css'
 import TimePicker from 'vue3-timepicker'
 import 'vue3-timepicker/dist/VueTimepicker.css'
 
-useKakao('518babc0abbb1482c00d27da382d813c')
+useKakao('10bd665d6f227d61cfe9917682262fb9')
 
 const app = createApp(App)
 
