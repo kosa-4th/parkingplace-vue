@@ -19,3 +19,11 @@ jobs:
         uses: actions/setup-node@v3  # 최신 버전 사용
         with:
           node-version: '18'
+
+      # 3. Amplify CLI 설치
+      - name: Install Amplify CLI
+        run: npm install -g @aws-amplify/cli
+
+      # 6. Amplify 배포 명령어 실행
+      - name: Deploy to Amplify
+        run: amplify publish --yes
