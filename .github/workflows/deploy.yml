@@ -10,15 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. GitHub 저장소에서 코드를 가져옴
+      # 1. GitHub 저장소에서 코드를 체크아웃합니다.
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # 2. AWS Amplify 배포
-      - name: Deploy to AWS Amplify
-        run: |
-          amplify publish --yes
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ap-northeast-2  # 서울 리전으로 설정
+      # 2. Node.js 및 Amplify CLI 설치
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      # 3. Amplify CLI 설치
+      - name: Install Amplify CLI
+        run: npm install -g @aws-amplify/cli
+
+      # 4. AWS credentials 설정
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2  # 필요한 리전 설정
+
+      # 5. Amplify 배포 명령어 실행
+      - name: Deploy to Amplify
+        run: amplify publish --yes
