@@ -1,17 +1,4 @@
 {
-  "dev": {
-    "awscloudformation": {
-      "AuthRoleName": "amplify-parkingplacevue-dev-54f4b-authRole",
-      "UnauthRoleArn": "arn:aws:iam::715841359583:role/amplify-parkingplacevue-dev-54f4b-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::715841359583:role/amplify-parkingplacevue-dev-54f4b-authRole",
-      "Region": "ap-northeast-2",
-      "DeploymentBucketName": "amplify-parkingplacevue-dev-54f4b-deployment",
-      "UnauthRoleName": "amplify-parkingplacevue-dev-54f4b-unauthRole",
-      "StackName": "amplify-parkingplacevue-dev-54f4b",
-      "StackId": "arn:aws:cloudformation:ap-northeast-2:715841359583:stack/amplify-parkingplacevue-dev-54f4b/041e5060-7fad-11ef-9e24-0644b1d799c9",
-      "AmplifyAppId": "d2q4ka00rurkeo"
-    }
-  },
   "gaeng": {
     "awscloudformation": {
       "AuthRoleName": "amplify-parkingplacevue-gaeng-708e9-authRole",
