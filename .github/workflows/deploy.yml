@@ -37,7 +37,7 @@ jobs:
 
       # 5. Amplify 환경 체크아웃
       - name: Checkout Amplify environment
-        run: amplify env checkout gaeng  # 'gaeng' 환경을 명시적으로 선택
+        run: amplify env checkout dev  # 'gaeng' 환경을 명시적으로 선택
 
       # 6. Vue.js 프로젝트 빌드
       - name: Build Vue.js project
