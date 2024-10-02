@@ -129,11 +129,8 @@ const modal = reactive({
 // 차량 종류 가져오는 메서드 (페이지 로딩)
 const getCarTypes = async () => {
   try {
-    const response = await axios.get("/api/users", {
-      headers: {
-        'Cache-Control': 'no-cache'
-      }
-    });    carTypes.value = response.data;
+    const response = await axios.get("/api/users");
+    carTypes.value = response.data;
     user.selectedCar = carTypes.value[0].carType;
   } catch (error) {
     modal.error = true;
