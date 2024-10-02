@@ -14,9 +14,3 @@ frontend:
   cache:
     paths:
       - node_modules/**/*  # 캐시할 경로 설정
-  customHeaders:
-    # 모든 파일에 대해 Cache-Control 헤더 추가
-    - pattern: '**/*'
-      headers:
-        - key: 'Cache-Control'
-          value: 'no-cache'  # 캐시를 사용하지 않도록 설정
