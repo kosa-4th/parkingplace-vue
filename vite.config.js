@@ -18,8 +18,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://parkingback.store',
-        // target: 'http://localhost:8080',
+        target: `${import.meta.env.VITE_API_URL}`,
         changeOrigin: true,  // 요청의 출처 헤더를 백엔드 주소로 변경
         secure: false,
       }
