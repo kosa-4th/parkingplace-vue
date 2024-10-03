@@ -188,7 +188,7 @@ export default {
 
       axios({
         method: 'get',
-        url: 'https://parkingback.store/api',
+        url: '/api/parkinglots',
         params: {
           minLat: bound.qa,
           maxLat: bound.pa,
