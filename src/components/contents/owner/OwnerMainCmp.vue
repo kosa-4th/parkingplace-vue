@@ -299,7 +299,7 @@ export default {
   methods: {
     async getLotName() {
       try {
-        const response = await axios.get('/api/parking-manager/parkingLotName', {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parking-manager/parkingLotName`, {
           params: {
             parkingLotId: this.selectedLotId
           }
@@ -311,7 +311,7 @@ export default {
     },
     async fetchReservations() {
       try {
-        const response = await axios.get('/api/parking-manager/reservations/today', {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parking-manager/reservations/today`, {
           params: {
             parkingLotId: this.selectedLotId,
             status: this.getReservationStatus(),  // 상태에 맞는 데이터를 요청

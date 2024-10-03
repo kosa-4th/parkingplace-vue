@@ -96,7 +96,7 @@ export default {
 
       await axios({
         method: 'get',
-        url: '/api/favorites/protected',
+        url: `${import.meta.env.VITE_API_URL}/api/favorites/protected`,
         params: {
           page: this.page
         },
@@ -128,7 +128,7 @@ export default {
     async toggleFavorite(parkingLotId, index) {
       await axios({
         method: 'post',
-        url: '/api/favorites/protected',
+        url: `${import.meta.env.VITE_API_URL}/api/favorites/protected`,
         params: {
           parkingLotId: parkingLotId
         },

@@ -148,7 +148,7 @@ export default {
       }
 
       try {
-        const response = await axios.get('/api/System-Manager/parkingLotData/protected', { params })
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/System-Manager/parkingLotData/protected`, { params })
         this.lotData = response.data.content
         this.totalPages = response.data.totalPages
         this.currentPage = page

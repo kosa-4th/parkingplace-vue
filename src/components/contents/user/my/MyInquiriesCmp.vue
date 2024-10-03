@@ -48,7 +48,7 @@ const size = 5;
 const hasMoreinquiries = ref(true);
 
 const getinquiries = async () => {
-    const response = await axios.get(`/api/users/inquiries/protected`,
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/inquiries/protected`,
       {params: {
         page: page.value,
         size: size

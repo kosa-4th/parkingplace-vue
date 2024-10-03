@@ -173,7 +173,7 @@ export default {
     },
     async getAllUserData() {
       try {
-        const response = await axios.get('/api/System-Manager/userData/protected', {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/System-Manager/userData/protected`, {
           params: {
             requestAuth: this.getUserRole(),  // 상태에 맞는 데이터를 요청
             page: this.currentPage - 1,

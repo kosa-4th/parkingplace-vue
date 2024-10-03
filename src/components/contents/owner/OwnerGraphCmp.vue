@@ -157,7 +157,7 @@ export default {
   methods: {
     async getReservationData() {
       try {
-        const response = await axios.get(`/api/parking-manager/parkingLots/${this.selectedLotId}/kpi`)
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parking-manager/parkingLots/${this.selectedLotId}/kpi`)
         const data = response.data
 
         // 이번 주 데이터 정렬

@@ -64,7 +64,7 @@ const fetchInquiryDate = async () => {
   if (inquiryId) {
     try {
       console.log("수정모드임")
-      const response = await axios.get(`/api/parkingLots/${parkinglotId}/inquiries/${inquiryId}/protected`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parkingLots/${parkinglotId}/inquiries/${inquiryId}/protected`);
       console.log(response.data)
       inquiryContent.value = response.data.inquiry;
       isEditMode.value = true;
@@ -103,7 +103,7 @@ const handleInquiry = async() => {
 // 문의 수정
 const modifyInquiry = async ()  => {
   handleColseCCModal();
-  await axios.put(`/api/parkingLots/${parkinglotId}/inquiries/${inquiryId}/protected`,
+  await axios.put(`${import.meta.env.VITE_API_URL}/api/parkingLots/${parkinglotId}/inquiries/${inquiryId}/protected`,
     {
       newInquiry: inquiryContent.value,
       isSecret : isSecret.value
@@ -115,7 +115,7 @@ const modifyInquiry = async ()  => {
 // 문의 작성
 const submitInquiry = async () => {
   console.log(isSecret.value)
-  await axios.post(`/api/parkingLots/${parkinglotId}/inquiries/protected`,
+  await axios.post(`${import.meta.env.VITE_API_URL}/api/parkingLots/${parkinglotId}/inquiries/protected`,
     {
       inquiry: inquiryContent.value,
       secret: isSecret.value
@@ -128,7 +128,7 @@ const submitInquiry = async () => {
 const deleteInquiry = async ()  => {
   console.log("문의 삭제 작업")
   handleColseCCModal();
-  await axios.delete(`/api/parkingLots/${parkinglotId}/inquiries/${inquiryId}/protected`);
+  await axios.delete(`${import.meta.env.VITE_API_URL}/api/parkingLots/${parkinglotId}/inquiries/${inquiryId}/protected`);
   showConfirmModal("문의를 삭제가 완료되었습니다.", `/lot/${parkinglotId}/inquiry`)
 };
 

@@ -116,7 +116,7 @@ const answerStatus = ref('미답변');
 //문의 사항 불러오기
 const getInquiryDetails = async () => {
   try {
-    const response = await axios.get(`/api/parking-manager/parkinglots/${props.parkinglotId}/inquiries/${props.inquiryId}/protected`);
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parking-manager/parkinglots/${props.parkinglotId}/inquiries/${props.inquiryId}/protected`);
     inquiryData.value = response.data;
     answerStatus.value = response.data.answerDate ? "답변완료" : "미답변";
   } catch (error) {
@@ -144,7 +144,7 @@ const openConfirmCancelModal = () => {
 const confirmModalAction = async () => {
   handleColseCCModal();
   try {
-    const url = `/api/parking-manager/parkinglots/${props.parkinglotId}/inquiries/${props.inquiryId}/protected`;
+    const url = `${import.meta.env.VITE_API_URL}/api/parking-manager/parkinglots/${props.parkinglotId}/inquiries/${props.inquiryId}/protected`;
     const method = answerStatus.value === "답변완료" ? 'put' : 'post';
 
     const response = await axios({

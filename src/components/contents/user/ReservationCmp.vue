@@ -296,7 +296,7 @@ export default {
     //axios를 통한 데이터 가져오기
     async getReservationLotData() {
       try {
-        const url = `/api/parkingLots/${this.parkingLotId}/reservation/protected`
+        const url = `${import.meta.env.VITE_API_URL}/api/parkingLots/${this.parkingLotId}/reservation/protected`
         const responseReservationLotData = await axios.get(url)
         this.parkingLotInfo = responseReservationLotData.data.parkingLotInfo
         this.userCars = responseReservationLotData.data.userCars
@@ -310,7 +310,7 @@ export default {
       }
     },
     getCheckingParkingAndTotalFee() {
-      const url = `/api/parkingLots/${this.parkingLotId}/reservation/parkingCheck`
+      const url = `${import.meta.env.VITE_API_URL}/api/parkingLots/${this.parkingLotId}/reservation/parkingCheck`
       const requestAvailableDto = {
         plateNumber: this.selectedCarNumber,
         startTime: this.entranceDateTimeResult,
@@ -334,7 +334,7 @@ export default {
         })
     },
     reservationAndPayment() {
-      const url = `/api/parkingLots/${this.parkingLotId}/reservation/protected`
+      const url = `${import.meta.env.VITE_API_URL}/api/parkingLots/${this.parkingLotId}/reservation/protected`
 
       const requestReservationDto = {
         parkingSpaceId: this.parkingSpaceId,

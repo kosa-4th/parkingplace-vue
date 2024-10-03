@@ -38,7 +38,7 @@ export default {
         merchant_uid: this.reservationDetails.reservationUuid,   // 주문번호
         amount: this.reservationDetails.totalPrice,                                 // 결제금액
         name: this.reservationDetails.lotName + '예약',                  // 주문명
-        m_redirect_url: `http://localhost:8080/api/payment/${this.reservationId}/complete`
+        m_redirect_url: `${import.meta.env.VITE_API_URL}/api/payment/${this.reservationId}/complete`
       }
       IMP.request_pay(paymentData,
         rsp => {
@@ -51,7 +51,7 @@ export default {
     },
     async sendPaymentData(rsp) {
       try {
-        const response = await axios.post(`/api/payment/${this.reservationId}/complete/protected`, {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/payment/${this.reservationId}/complete/protected`, {
           impUid: rsp.imp_uid, // 아임포트 결제 고유번호
           merchantUid: rsp.merchant_uid,
           amount: rsp.paid_amount, // 결제 금액
@@ -75,7 +75,7 @@ export default {
       }
     },
     async getReservationDetails() {
-      const url = `/api/users/reservationsDetails/${this.reservationId}/protected`
+      const url = `${import.meta.env.VITE_API_URL}/api/users/reservationsDetails/${this.reservationId}/protected`
       await axios.get(url)
         .then(response => {
           const getData = response.data
@@ -89,7 +89,7 @@ export default {
       let checkConfirmed = this.reservationDetails.reservationConfirmed
 
       if (checkConfirmed === 'N') {
-        const url = `/api/reservation/${this.reservationId}/cancel/protected`
+        const url = `${import.meta.env.VITE_API_URL}/api/reservation/${this.reservationId}/cancel/protected`
 
         axios.put(url)
           .then(response => {
@@ -102,7 +102,7 @@ export default {
             console.error('에러취소실패:', error)
           })
       } else if (checkConfirmed === 'Y' || checkConfirmed === 'C') {
-        const url = `/api/payment/${this.reservationId}/cancel/protected`
+        const url = `${import.meta.env.VITE_API_URL}/api/payment/${this.reservationId}/cancel/protected`
         const paramData = {
           merchantUid: this.reservationDetails.reservationUuid,
           reason: '사용자 요청 취소'

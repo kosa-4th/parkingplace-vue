@@ -132,7 +132,7 @@ export default {
     async saveChanges() {
       try {
         // PUT 요청으로 editableLotData의 수정된 데이터를 서버로 전송
-        const response = await axios.put('/api/System-Manager/parkingLotData/modify/protected', {
+        const response = await axios.put(`${import.meta.env.VITE_API_URL}/api/System-Manager/parkingLotData/modify/protected`, {
           id: this.editableLotData.id,
           name: this.editableLotData.name,
           tel: this.editableLotData.tel,

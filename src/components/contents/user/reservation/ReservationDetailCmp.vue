@@ -157,7 +157,7 @@ export default {
      * */
     async cancelPayment() {
       try {
-        const url = `/api/payment/${this.reservationId}/cancel/protected`
+        const url = `${import.meta.env.VITE_API_URL}/api/payment/${this.reservationId}/cancel/protected`
         const paramData = {
           merchantUid: this.reservationInfo.reservationUuid,
           reason: '사용자 요청 취소'
@@ -183,7 +183,7 @@ export default {
      * */
     async cancelReservation() {
       try {
-        const url = `/api/reservation/${this.reservationId}/cancel/protected`
+        const url = `${import.meta.env.VITE_API_URL}/api/reservation/${this.reservationId}/cancel/protected`
 
         const response = await axios.put(url)
 
@@ -204,7 +204,7 @@ export default {
     //예약정보에서 데이터 가져오기
     async getReservationPaymentData() {
       try {
-        const url = `/api/payment/${this.reservationId}/protected`
+        const url = `${import.meta.env.VITE_API_URL}/api/payment/${this.reservationId}/protected`
         const responseReservationPaymentData = await axios.get(url)
         this.reservationInfo = {
           reservationUuid: responseReservationPaymentData.data.reservationUuid,
@@ -239,7 +239,7 @@ export default {
         name: this.reservationInfo.lotName + '예약',                  // 주문명
         buyer_name: this.reservationInfo.userName,
         buyer_email: this.reservationInfo.userEmail,
-        m_redirect_url: `http://localhost:8080/api/payment/${this.reservationId}/complete`
+        m_redirect_url: `${import.meta.env.VITE_API_URL}/api/payment/${this.reservationId}/complete`
 
       }
       IMP.request_pay(paymentData,
@@ -253,7 +253,7 @@ export default {
     },
     async sendPaymentData(rsp) {
       try {
-        const response = await axios.post(`/api/payment/${this.reservationId}/complete/protected`, {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/payment/${this.reservationId}/complete/protected`, {
           impUid: rsp.imp_uid, // 아임포트 결제 고유번호
           merchantUid: rsp.merchant_uid,
           amount: rsp.paid_amount, // 결제 금액

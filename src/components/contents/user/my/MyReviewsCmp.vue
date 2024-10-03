@@ -41,7 +41,7 @@ const size = 5;
 const hasMoreReviews = ref(true);
 
 const getReviews = async () => {
-  const response = await axios.get(`/api/users/reviews/protected`,
+  const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/reviews/protected`,
     {params: {
       page: page.value,
       size: size

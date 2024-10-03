@@ -121,7 +121,7 @@ const handleModalClose = () => {
 // 예약 가져오기
 const getMyReservations = async () => {
   try {
-    const response = await axios.get('/api/users/reservations/protected', {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/reservations/protected`, {
       params: {
         startDate: formatDate(startDate.value),
         endDate: formatDate(endDate.value),

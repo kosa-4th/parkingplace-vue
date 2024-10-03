@@ -122,7 +122,7 @@ const getParkingInquiries = async () => {
       // actionType: activeTab.value
     };
     
-    const response = await axios.get(`/api/parking-manager/parkinglots/${props.selectedLotId}/reviews/protected`, { params });
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parking-manager/parkinglots/${props.selectedLotId}/reviews/protected`, { params });
     console.log(response.data);
     reviewData.value = response.data.parkingReviews;
     totalPages.value = response.data.totalPages;
