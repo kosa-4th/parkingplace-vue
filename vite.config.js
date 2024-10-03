@@ -20,7 +20,9 @@ export default defineConfig({
       '/api': {
         target: 'https://parkingback.store',
         // target: 'http://localhost:8080',
-        changeOrigin: true,
+        changeOrigin: true,  // 요청의 출처 헤더를 백엔드 주소로 변경
+        secure: false,
+
       }
     }
   }
