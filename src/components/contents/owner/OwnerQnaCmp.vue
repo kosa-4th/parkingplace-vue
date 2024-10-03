@@ -47,7 +47,7 @@
 
     <!-- 탭에 해당하는 콘텐츠 영역 -->
     <div class="tab-content">
-      <div v-if="inquiryData.length">
+      <div >
         <table class="table table-bordered table-hover text-center">
           <thead class="thead-dark">
           <tr>
@@ -89,9 +89,7 @@
           </tbody>
         </table>
       </div>
-      <div v-else>
-        <p>문의 데이터가 없습니다.</p>
-      </div>
+
         
 
       <!-- 페이지네이션 -->
@@ -128,7 +126,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import OwnerQnaModal from './OwnerQnaModal.vue';
 import axios from 'axios';
 
@@ -219,6 +217,9 @@ const handleCloseModal = () => {
 }
 
 onMounted(() => {
+  getParkingInquiries();
+})
+watch(()=>{
   getParkingInquiries();
 })
 

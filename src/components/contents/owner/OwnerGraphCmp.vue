@@ -149,6 +149,11 @@ export default {
   mounted() {
     this.getReservationData() // 컴포넌트가 로드될 때 데이터 가져오기
   },
+  watch: {
+    selectedLotId() {
+      this.getReservationData(this.selectedLotId)
+    }
+  },
   methods: {
     async getReservationData() {
       try {
@@ -282,7 +287,7 @@ export default {
       const chart = new google.visualization.ColumnChart(document.getElementById('income_chart'))
       chart.draw(data, options)
     }
-  }
+  },
 }
 </script>
 

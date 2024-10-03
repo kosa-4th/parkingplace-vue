@@ -2,8 +2,9 @@
   <div class="review-container">
     <div class="title">내 리뷰</div>
 
-    <div v-if="reviews.length === 0">작성된 리뷰가 없습니다.</div>
-
+    <div v-if="reviews.length === 0" class="posts-end">
+      <p class="loading-msg">등록된 리뷰 없습니다</p>
+    </div>
     <div v-for="(review, index) in reviews" :key="index" class="review-box" @click="gotoReview(review.parkinglotId)">
       <div class="review-header">
         <div class="parking-name">{{ review.parkinglotName }}</div>

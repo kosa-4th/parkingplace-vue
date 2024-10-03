@@ -83,7 +83,7 @@ const handleInquiry = async() => {
 
   const authStore = AuthStore();
   if (!authStore.isLoggedIn) {
-    showInfoModal("로그인 후 이용해주세요.", '/login');
+    showInfoModal("로그인 후 이용해주세요.", `/lot/${parkinglotId}/inquiry`);
     return;
   }
 

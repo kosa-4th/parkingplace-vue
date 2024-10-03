@@ -410,6 +410,9 @@ export default {
   },
   mounted() {
     this.getReservationByConfirmed(this.getReservationStatus(), this.currentPage, this.pageSize)
+  },
+  watch(){
+    this.getReservationByConfirmed(this.getReservationStatus())
   }
 }
 </script>

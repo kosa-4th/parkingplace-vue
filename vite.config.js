@@ -18,8 +18,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://parkingback.store',
-        changeOrigin : true
+        target: 'https://parkingback.store',
+        // target: 'http://localhost:8080'
       }
     }
   }

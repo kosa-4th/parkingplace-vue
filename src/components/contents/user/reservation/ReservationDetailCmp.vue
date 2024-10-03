@@ -95,6 +95,9 @@
 </template>
 <script>
 import axios from 'axios'
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
+import { modalState, showInfoModal, handleCloseModal, showConfirmModal } from '@/components/modal/ConfirmModalService';
+
 
 export default {
   data() {
@@ -163,7 +166,7 @@ export default {
 
         // API 요청이 성공했을 경우
         if (response && response.status === 200) {
-          alert('예약 및 결제가 성공적으로 취소되었습니다.')
+          showInfoModal('예약 및 결제가 성공적으로 취소되었습니다.')
           window.location.href = '/' // 메인 페이지로 리다이렉트
         } else {
           console.error('예약 취소 요청이 실패했습니다.')
@@ -186,7 +189,7 @@ export default {
 
         // API 요청이 성공했을 경우
         if (response && response.status === 200) {
-          alert('예약이 성공적으로 취소되었습니다.')
+          showInfoModal('예약이 성공적으로 취소되었습니다.')
           window.location.href = '/' // 메인 페이지로 리다이렉트
         } else {
           console.error('예약 취소 요청이 실패했습니다.')
@@ -244,7 +247,7 @@ export default {
           if (rsp.success) {
             this.sendPaymentData(rsp)
           } else {
-            alert('결제가 실패가 되었습니다.' + rsp.error_msg)
+            showInfoModal('결제가 실패가 되었습니다.' + rsp.error_msg)
           }
         })
     },
@@ -263,12 +266,9 @@ export default {
           cardNumber: rsp.cardNumber,
           paidAt: rsp.paid_at
         })
-        alert('결제 정보 서버 전송 성공:', response.data)
-        // 결제 성공 후 성공 페이지로 리다이렉트
         window.location.reload() // 현재 페이지를 새로고침
       } catch (error) {
-        console.error('결제 정보 서버 전송 실패:', error)
-        alert('결제 정보 전송에 실패했습니다.')
+        showInfoModal('결제 실패')
         // 결제 실패 페이지로 리다이렉트
         window.location.reload() // 현재 페이지를 새로고침
       }

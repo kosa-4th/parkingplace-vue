@@ -221,14 +221,7 @@ p {
   height: 30px;
 }
 
-.posts-end {
-  padding-top: 6px;
-  width: 100%;
-  height: 40px;
-  text-align: center;
-  border: 1px solid lightgray;
-  border-radius: 5px;
-}
+
 
 .loading-msg {
   font-size: 18px;

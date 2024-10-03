@@ -2,7 +2,9 @@
   <div class="inquiry-container">
     <div class="title">내 문의</div>
 
-    <div v-if="inquiries.length === 0">작성된 문의가 없습니다.</div>
+    <div v-if="inquiries.length === 0" class="posts-end">
+      <p class="loading-msg">등록된 문의가 없습니다</p>
+    </div>
 
     <div v-for="(inquiry, index) in inquiries" :key="index" class="inquiry-box" @click="gotoinquiry(inquiry.inquiryId)">
       <div class="inquiry-header">
@@ -149,5 +151,14 @@ onMounted(() => {
   padding: 5px 20px;
   align-self: center;
   z-index: 1;
+}
+
+.posts-end {
+  padding-top: 6px;
+  width: 100%;
+  height: 40px;
+  text-align: center;
+  border: 1px solid lightgray;
+  border-radius: 5px;
 }
 </style>

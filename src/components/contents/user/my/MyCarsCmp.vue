@@ -3,7 +3,7 @@
     <div class="title">차량 관리</div>
     <div class="name"><strong>{{ authStore.getUsername }}</strong>님 안녕하세요!</div>
 
-    <div class="car-list-box">
+    <div v-if="myCars.length >0" class="car-list-box">
       <div v-for="(car, index) in myCars" :key="index" class="car-list">
         <!-- <div>{{ car.carType }}</div>
         <input type="text"
@@ -15,6 +15,11 @@
         <button @click="openCancelConfirmModal(car)" class="delete-btn">삭제</button>
       </div>
     </div>
+    <div v-else class="car-list-box">
+      <div class="posts-end">
+      <p class="loading-msg">등록된 차량이 없습니다</p>
+      </div>
+      </div>
 
     <div class="form-group">
       <div class="register-carNum">

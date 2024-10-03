@@ -89,7 +89,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 
 
@@ -167,6 +167,10 @@ const switchTab = (tabName) => {
 onMounted(() => {
   getParkingInquiries();
 })
+// selectedLotId가 변경될 때 주차장 데이터를 다시 가져옴
+watch( () => {
+  getParkingInquiries();
+});
 
 </script>
 
