@@ -127,10 +127,6 @@ const getMyReservations = async () => {
         endDate: formatDate(endDate.value),
         page: page.value,
         size: size
-      },
-      headers: {
-        Authorization: `Bearer ${this.authStore.token}`,
-        'Content-Type': 'application/json'
       }
     })
     const newReserve = response.data.reservations

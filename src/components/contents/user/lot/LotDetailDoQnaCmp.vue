@@ -64,7 +64,7 @@ const fetchInquiryDate = async () => {
   if (inquiryId) {
     try {
       console.log("수정모드임")
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parkingLots/${parkinglotId}/inquiries/${inquiryId}/protected`,);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parkingLots/${parkinglotId}/inquiries/${inquiryId}/protected`);
       console.log(response.data)
       inquiryContent.value = response.data.inquiry;
       isEditMode.value = true;

@@ -96,12 +96,7 @@ const handleModalClose = () => {
 
 const getData = async () => {
   try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/cars/protected`,{
-      headers: {
-        Authorization: `Bearer ${this.authStore.token}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/cars/protected`);
     myCars.value = response.data.myCars;
     carTypes.value = response.data.carTypes;
     selectedCar.value = carTypes.value[0].carType;
@@ -142,11 +137,7 @@ const removeCar = async (car) => {
     await axios.delete(`${import.meta.env.VITE_API_URL}/api/users/cars/${car.id}/protected`, {
         data: {
           carType: car.carType,
-          plateNumber: car.plateNumber,
-          headers: {
-            Authorization: `Bearer ${this.authStore.token}`,
-            'Content-Type': 'application/json'
-          }
+          plateNumber: car.plateNumber
         }
     
     });
@@ -168,11 +159,7 @@ const registerCar = async () => {
     await axios.post(`${import.meta.env.VITE_API_URL}/api/users/cars/protected`,
     {
       carType: selectedCar.value,
-      plateNumber: newCarNumber.value,
-      headers: {
-        Authorization: `Bearer ${this.authStore.token}`,
-        'Content-Type': 'application/json'
-      }
+      plateNumber: newCarNumber.value
     });
     // 등록 요청 완
     newCarNumber.value = '';

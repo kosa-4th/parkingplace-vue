@@ -22,10 +22,9 @@
       <hr>
       <div v-for="(review, index) in reviews" :key="index" class="review-item">
         <div>
-          <span class="review-reviewer">{{ review.reviewer }}</span> | <span class="review-date">{{ review.reviewDate
-          }}</span>
+          <span class="review-reviewer">{{ review.reviewer }}</span> | <span class="review-date">{{ review.reviewDate }}</span>
         </div>
-
+        
         <textarea
           v-if="!review.isEditing"
           readonly
@@ -34,7 +33,7 @@
           class="read-only-textarea"
           @input="autoResize($event)"
           ref="reviewTextarea"
-        ></textarea>
+          ></textarea>
 
         <textarea
           v-if="review.isEditing"
@@ -66,7 +65,7 @@
       :confirm="modalState.confirm"
       :error="modalState.error"
       :message="modalState.message"
-      @close="handleCloseModal"
+      @close="handleCloseModal"  
     />
 
     <confirm-cancel-modal
@@ -80,216 +79,191 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, ref } from 'vue'
-import { AuthStore } from '@/stores/store'
-import { useRoute } from 'vue-router'
-import ConfirmModal from '@/components/modal/ConfirmModal.vue'
-import ConfirmCancelModal from '@/components/modal/ConfirmCancelModal.vue'
-import {
-  confirmCancelModalState,
-  handleCloseModal,
-  handleColseCCModal,
-  modalState,
-  showCCInfoModal,
-  showConfirmModal,
-  showErrorModal,
-  showInfoModal
-} from '@/components/modal/ConfirmModalService'
-import axios from 'axios'
+import { computed, nextTick, onMounted, ref } from 'vue';
+import { AuthStore } from '@/stores/store';
+import { useRoute } from 'vue-router';
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
+import ConfirmCancelModal from '@/components/modal/ConfirmCancelModal.vue';
+import { modalState, handleCloseModal, showConfirmModal, showInfoModal, showErrorModal } from '@/components/modal/ConfirmModalService';
+import { confirmCancelModalState, handleColseCCModal, showConfirmCancelModal, showCCInfoModal } from '@/components/modal/ConfirmModalService';
+import axios from 'axios';
 
-const authStore = AuthStore()
-const route = useRoute()
+const authStore = AuthStore();
+const route = useRoute();
 
 //로그인된 사용자
-const loggedInUser = computed(() => authStore.email)
+const loggedInUser = computed(() => authStore.email);
 
 // 리뷰 목록 데이터
-const newReview = ref('')
-const reviews = ref([])
-const page = ref(1)
-const size = 5
-const hasMoreReviews = ref(true)
-let editingReview = ref('')
-let editingReviewId = ref(null)
+const newReview = ref('');
+const reviews = ref([]);
+const page = ref(1);
+const size = 5;
+const hasMoreReviews = ref(true);
+let editingReview = ref(''); 
+let editingReviewId = ref(null);
 
 // 현재 주차장 번호
-const parkinglotId = route.params.lotId
+const parkinglotId = route.params.lotId;
 
-const actionType = ref('')
-const reviewVal = ref(null)
+const actionType = ref('');
+const reviewVal = ref(null);
 
 //리뷰 삭제 모달 열기
 const openDeleteModal = (review) => {
-  showCCInfoModal('이 리뷰를 삭제하시겠습니까?')
-  actionType.value = 'delete'
-  reviewVal.value = review
+  showCCInfoModal("이 리뷰를 삭제하시겠습니까?");
+  actionType.value = 'delete';
+  reviewVal.value = review;
 }
 
 // 리뷰 수정 모달
 const openModifyModal = (review) => {
-  showCCInfoModal('이 리뷰를 수정하시겠습니까?')
-  actionType.value = 'modify'
-  reviewVal.value = review
+  showCCInfoModal("이 리뷰를 수정하시겠습니까?");
+  actionType.value = 'modify';
+  reviewVal.value = review;
 }
 //  취소 확인 모달 -> 확인 눌렀을 때
 const confirmModalAction = async () => {
-  const review = reviewVal.value
+  const review = reviewVal.value;
   if (actionType.value === 'delete') {
-    await deleteReview(review.id)
+    await deleteReview(review.id);
   } else if (actionType.value === 'modify') {
     await saveReview(review)
   }
-  handleColseCCModal()
+  handleColseCCModal();
 }
 
 //
 const autoResize = (event) => {
-  const textarea = event.target
-  textarea.style.height = 'auto'
-  textarea.style.height = `${textarea.scrollHeight}px`
+  const textarea = event.target;
+  textarea.style.height = 'auto';
+  textarea.style.height = `${textarea.scrollHeight}px`;
 }
 
 //리뷰 불러오기
 const getReviews = async () => {
   try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}/reviews?page=${page.value - 1}&size=${size}`)
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}/reviews?page=${page.value -1}&size=${size}`);
     const newReviews = response.data.reviews.map(review => ({
       ...review,
       isEditing: false
-    }))
+    }));
 
-    hasMoreReviews.value = response.data.nextPage
-    reviews.value = [...reviews.value, ...newReviews]
+    hasMoreReviews.value = response.data.nextPage;
+    reviews.value = [...reviews.value, ...newReviews];
 
     await nextTick(() => {
       document.querySelectorAll('textarea.read-only-textarea').forEach(textarea => {
-        autoResize({ target: textarea })
-      })
-    })
+        autoResize({ target: textarea });
+      });
+    });
   } catch {
-    showErrorModal('잠시 후 다시 시도해주세요.')
+    showErrorModal("잠시 후 다시 시도해주세요.")
   }
 }
 
 // 리뷰등록
 const registerReview = async () => {
   if (!newReview.value.trim()) {
-    showInfoModal('리뷰를 작성해주세요.')
-    return
+    showInfoModal("리뷰를 작성해주세요.")
+    return;
   }
   if (authStore.isLoggedIn) {
     await axios.post(`${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}/reviews/protected`,
-      {
-        newReview: newReview.value,
-        headers: {
-          Authorization: `Bearer ${this.authStore.token}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    )
-    showConfirmModal('리뷰가 등록되었습니다.')
-    resetData()
+      {newReview : newReview.value},
+    );
+    showConfirmModal("리뷰가 등록되었습니다.")
+    resetData();
   } else {
     // 로그인되지 않음
-    showInfoModal('로그인 후 이용해주세요.')
+    showInfoModal("로그인 후 이용해주세요.")
   }
 }
 
 // 더보기 버튼
 const getMoreReviews = async () => {
-  page.value += 1
-  getReviews()
+  page.value += 1;
+  getReviews();
 }
 
 // 리뷰 작성자와 로그인한 사용자가 같은지 확인
 const isReviewOwner = (review) => {
-  return review.email === loggedInUser.value
+  return review.email === loggedInUser.value;
 }
 
 //리뷰 삭제
 const deleteReview = async (reviewid) => {
   if (authStore.isLoggedIn) {
 
-    await axios.delete(`${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}/reviews/${reviewid}/protected`,{
-      headers: {
-        Authorization: `Bearer ${this.authStore.token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-    showConfirmModal('리뷰가 삭제되었습니다.')
-    resetData()
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}/reviews/${reviewid}/protected`);
+    showConfirmModal("리뷰가 삭제되었습니다.")
+    resetData();
   } else {
-    showInfoModal('로그인 후 이용해주세요.')
+    showInfoModal("로그인 후 이용해주세요.")
   }
 }
 
 //댓글 수정
 const modifyReview = (review) => {
   if (editingReviewId.value) {
-    showInfoModal('수정 중인 리뷰가 있습니다.')
+    showInfoModal("수정 중인 리뷰가 있습니다.")
   } else {
-    review.isEditing = true
-    editingReview.value = review.review
-    editingReviewId.value = review.id
+    review.isEditing = true;
+    editingReview.value = review.review;
+    editingReviewId.value = review.id;
 
     nextTick(() => {
-      const textarea = document.querySelector(`textarea.editable`)
-      autoResize({ target: textarea })
-    })
+      const textarea = document.querySelector(`textarea.editable`);
+      autoResize({ target: textarea });
+    });
   }
 }
 
 //댓글 수정 취소
 const cancelEdit = (review) => {
-  review.isEditing = false
-  editingReview.value = ''
-  editingReviewId.value = null
+  review.isEditing = false;
+  editingReview.value = '';
+  editingReviewId.value = null;
 }
 
 //리뷰 수정 저장
 const saveReview = async (review) => {
   try {
     await axios.put(`${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}/reviews/${review.id}/protected`,
-      {
-        newReview: editingReview.value,
-        headers: {
-          Authorization: `Bearer ${this.authStore.token}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    )
-
-    review.review = editingReview.value
-    review.isEditing = false
-    editingReview.value = ''
-    editingReviewId.value = null
-
+      {newReview: editingReview.value}
+    );
+    
+    review.review = editingReview.value;
+    review.isEditing = false;
+    editingReview.value = '';
+    editingReviewId.value = null;
+    
     // 리뷰 수정 완료 모달 표시
-    showConfirmModal('리뷰 수정이 완료되었습니다.')
+    showConfirmModal("리뷰 수정이 완료되었습니다.");
 
     // DOM 업데이트 후 자동 리사이즈 적용
     await nextTick(() => {
       document.querySelectorAll('textarea.read-only-textarea').forEach(textarea => {
-        autoResize({ target: textarea })
-      })
-    })
-
+        autoResize({ target: textarea });
+      });
+    });
+    
   } catch (error) {
     // 리뷰 수정 에러 처리
-    showErrorModal('잠시 후 다시 시도해주세요.')
+    showErrorModal("잠시 후 다시 시도해주세요.");
   }
 }
 
 const resetData = () => {
-  newReview.value = ''
-  reviews.value = []
-  page.value = 1
-  hasMoreReviews.value = true
-  getReviews()
+  newReview.value = '';
+    reviews.value = [];
+    page.value = 1;
+    hasMoreReviews.value = true;
+    getReviews();
 }
 
 onMounted(() => {
-  getReviews()
+  getReviews();
 })
 
 </script>
