@@ -85,7 +85,13 @@ const getParkingLotDetails = async () => {
 }
 
 const getHasFavorite = async () => {
-  const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/favorites/parkingLot/${parkinglotId}/protected`);
+  const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/favorites/parkingLot/${parkinglotId}/protected`,{
+    headers: {
+      Authorization: `Bearer ${this.authStore.token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+
   hasFavorite.value = response.data.hasFavorite;
 }
 
