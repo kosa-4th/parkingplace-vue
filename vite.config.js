@@ -7,6 +7,8 @@ export default defineConfig(({ mode }) => {
   // eslint-disable-next-line no-undef
   const env = loadEnv(mode, process.cwd());
 
+  console.log('vite config VITE_API_URL: ', env.VITE_API_URL);
+
   return {
     plugins: [vue()],
     resolve: {
