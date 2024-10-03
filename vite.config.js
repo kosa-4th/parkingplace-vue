@@ -22,7 +22,6 @@ export default defineConfig({
         // target: 'http://localhost:8080',
         changeOrigin: true,  // 요청의 출처 헤더를 백엔드 주소로 변경
         secure: false,
-
       }
     }
   }
