@@ -96,7 +96,12 @@ const handleModalClose = () => {
 
 const getData = async () => {
   try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/cars/protected`);
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/cars/protected`,{
+      headers: {
+        Authorization: `Bearer ${this.authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    });
     myCars.value = response.data.myCars;
     carTypes.value = response.data.carTypes;
     selectedCar.value = carTypes.value[0].carType;
@@ -158,6 +163,10 @@ const registerCar = async () => {
   try {
     await axios.post(`${import.meta.env.VITE_API_URL}/api/users/cars/protected`,
     {
+      headers: {
+        Authorization: `Bearer ${this.authStore.token}`,
+        'Content-Type': 'application/json'
+      },
       carType: selectedCar.value,
       plateNumber: newCarNumber.value
     });
