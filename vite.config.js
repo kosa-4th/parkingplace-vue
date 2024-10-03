@@ -4,6 +4,7 @@ import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig(({ mode }) => {
   // mode에 따라 환경 변수를 로드 (development, production 등)
+  // eslint-disable-next-line no-undef
   const env = loadEnv(mode, process.cwd());
 
   return {
@@ -19,7 +20,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api': {
-          target: env.VITE_API_URL || 'http://localhost:8080',  // 환경 변수에서 API URL을 읽음, 기본값 설정
+          target: env.VITE_API_URL,  // 환경 변수에서 API URL을 읽음, 기본값 설정
           changeOrigin: true,  // 요청의 출처 헤더를 백엔드 주소로 변경
           secure: false,  // HTTPS 사용 시 self-signed SSL을 허용
         }
