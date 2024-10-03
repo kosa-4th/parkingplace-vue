@@ -19,7 +19,9 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'https://parkingback.store',
-        // target: 'http://localhost:8080'
+        // target: 'http://localhost:8080',
+        changeOrigin: true,
+
       }
     }
   }
