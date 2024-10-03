@@ -188,7 +188,7 @@ export default {
 
       axios({
         method: 'get',
-        url: '/api/parkinglots',
+        url: `${import.meta.env.VITE_API_URL}/api/parkinglots`,  // 환경 변수에서 EC2 URL 가져옴
         params: {
           minLat: bound.qa,
           maxLat: bound.pa,
