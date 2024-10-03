@@ -142,6 +142,8 @@ const autoResize = (event) => {
 
 //리뷰 불러오기
 const getReviews = async () => {
+  const api = import.meta.env.VITE_API_URL;
+  console.log("review api: " + api);
   try {
     const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}/reviews?page=${page.value -1}&size=${size}`);
     const newReviews = response.data.reviews.map(review => ({
