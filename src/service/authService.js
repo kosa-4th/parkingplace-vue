@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 // 로그인
 export async function  signIn(user) {
     try {
-        const response = await axios.post("/api/users/authorize", 
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/authorize`,
             {
             email:user.email, 
             password:user.password, 
@@ -45,7 +45,7 @@ export async function  signIn(user) {
 // 구글 로그인
 export async function  googleSignIn(token, tokenType, expiresIn) {
     try {
-        const response = await axios.post("/api/users/google-authorize", 
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/google-authorize`,
             {
                 accessToken: token,
                 tokenType: tokenType,
@@ -91,7 +91,7 @@ export function logout() {
 async function refreshToken() {
     const authStore = AuthStore();
     try {
-        const response = await axios.post("/api/users/refresh", {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/refresh`, {
             refreshToken: authStore.refreshToken
         });
 
