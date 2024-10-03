@@ -128,8 +128,11 @@ axios.interceptors.request.use(
         const authStore = AuthStore();
         let token = authStore.token;
 
+        const url = new URL(config.url, import.meta.env.VITE_API_URL);
+        console.log("인터셉터: " + url.pathname)
+
         // 특정 URL 패턴에 대해서만 JWT를 포함
-        if (config.url.startsWith('/api/') && config.url.endsWith('/protected')) {
+        if (url.pathname.startsWith('/api/') && url.pathname.endsWith('/protected')) {
             const tokenExpiration = getTokenExpiration(token);
             const now = Date.now();
 
