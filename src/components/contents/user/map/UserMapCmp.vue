@@ -188,7 +188,7 @@ export default {
 
       axios({
         method: 'get',
-        url: 'https://parkingback.store/api/parkinglots',
+        url: `${import.meta.env.VITE_API_URL}/api/parkinglots`,  // 환경 변수로 API URL 설정
         params: {
           minLat: bound.qa,
           maxLat: bound.pa,
