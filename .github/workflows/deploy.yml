@@ -35,10 +35,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2  # 필요한 리전 설정
 
-      # 4. Amplify 환경 동기화 (pull)
-      - name: Pull Amplify environment
-        run: amplify pull --appId dsl0ck1eb06lq --envName dev
-
       # 5. Vue.js 프로젝트 빌드
       - name: Build Vue.js project
         run: npm run build
