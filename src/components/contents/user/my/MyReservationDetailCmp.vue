@@ -63,11 +63,6 @@ export default {
             cardName: rsp.cardName,
             cardNumber: rsp.cardNumber,
             paidAt: rsp.paid_at
-          }, {
-            headers: {
-              Authorization: `Bearer ${this.authStore.token}`,  // 필요시 인증 토큰 추가
-              'Content-Type': 'application/json'
-            }
           }
         )
         alert('결제 정보 서버 전송 성공:', response.data)
@@ -84,12 +79,7 @@ export default {
       const url = `${import.meta.env.VITE_API_URL}/api/users/reservationsDetails/${this.reservationId}/protected`
 
       try {
-        const response = await axios.get(url, {
-          headers: {
-            Authorization: `Bearer ${this.authStore.token}`,  // 필요 시 인증 토큰 추가
-            'Content-Type': 'application/json'
-          }
-        })
+        const response = await axios.get(url)
 
         // 응답 데이터를 reservationDetails에 저장
         this.reservationDetails = response.data
@@ -106,12 +96,7 @@ export default {
         if (checkConfirmed === 'N') {
           const url = `${import.meta.env.VITE_API_URL}/api/reservation/${this.reservationId}/cancel/protected`;
 
-          const response = await axios.put(url, null, {
-            headers: {
-              Authorization: `Bearer ${this.authStore.token}`, // 인증 토큰 추가
-              'Content-Type': 'application/json'
-            }
-          });
+          const response = await axios.put(url, null);
 
           if (response.status === 200) {
             alert('예약이 성공적으로 취소되었습니다.');
@@ -125,12 +110,7 @@ export default {
             reason: '사용자 요청 취소'
           };
 
-          const response = await axios.post(url, paramData, {
-            headers: {
-              Authorization: `Bearer ${this.authStore.token}`, // 인증 토큰 추가
-              'Content-Type': 'application/json'
-            }
-          });
+          const response = await axios.post(url, paramData);
 
           if (response.status === 200) {
             alert('예약 및 결제가 성공적으로 취소되었습니다.');
