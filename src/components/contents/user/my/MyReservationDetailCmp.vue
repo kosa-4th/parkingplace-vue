@@ -3,6 +3,7 @@
  * @Author 김경민
  * @Date 2024.09.18 MyPage 예약 상세 관련 Design 기본 틀
  * @DATE 2024.09.19 Axios를 통한 데이터 받아오기 및 결제 취소 및 예약 취소
+ * @DATE 2024.10.04 예약시간 비교해서 에약 확정이나, 결제 취소하기 버튼 안뜨게 
  * */
 import axios from 'axios'
 
@@ -13,7 +14,8 @@ export default {
       reservationId: null,
       reservationDetails: {
         reservationConfirmed: ''
-      }
+      },
+      localtime: new Date() // 현재 시간
 
     }
   },
@@ -228,7 +230,8 @@ export default {
                   @click="requestPayment">결제하기
           </button>
           <div class="mt-1"></div>
-          <button @click="openModal" class="btn btn-block w-100"
+          <button v-if="reservationDetails.reservationConfirmed === 'Y' && new Date(reservationDetails.startTime) >= localtime"
+                  class="btn btn-block w-100"
                   style="background-color: #f3e8ff; color: #a678e1;">예약 취소하기
           </button>
         </div>

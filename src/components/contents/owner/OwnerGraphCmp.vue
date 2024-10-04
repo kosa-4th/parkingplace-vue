@@ -2,116 +2,122 @@
   <div class="main-container mt-3">
     <h3>오늘의 데이터</h3>
     <div class="row">
-      <div class="col-3">
-          <span class="">예 약 체 크 &nbsp;&nbsp;&nbsp;<span
-            class="badge badge-sm bg-purple"> {{ reservationStatusCounts.pendingReservations
-            }} </span></span>
+      <div class="col-2 text-center">
+    <span>예약 체크<br>
+      <span class="badge badge-sm bg-purple">{{ reservationStatusCounts.pendingReservations }}</span>
+    </span>
       </div>
-      <div class="col-3">
-          <span class="">입 차 예 정 &nbsp;&nbsp;&nbsp;<span
-            class="badge badge-sm bg-purple"> {{ reservationStatusCounts.checkInReservations
-            }} </span></span>
+      <div class="col-2 text-center">
+    <span>입차 예정<br>
+      <span class="badge badge-sm bg-purple">{{ reservationStatusCounts.checkInReservations }}</span>
+    </span>
       </div>
-      <div class="col-3">
-          <span class="">출 차 예 정 &nbsp;&nbsp;&nbsp;<span
-            class="badge badge-sm bg-purple"> {{ reservationStatusCounts.checkOutReservations
-            }} </span></span>
+      <div class="col-2 text-center">
+    <span>출차 예정<br>
+      <span class="badge badge-sm bg-purple">{{ reservationStatusCounts.checkOutReservations }}</span>
+    </span>
       </div>
     </div>
     <hr>
-    <div class="row mt-3">
-      <div class="col-9">
-        <div id="line_chart" style="width: 90%; height: 400px;"></div> <!-- Google Charts가 그려질 DOM 요소 -->
-      </div>
-      <div class="col-3">
-
-        <div class="row">
-          <div class="col-3">
-          <span class="">오늘의 예약건수 &nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-green"> {{ differenceDayCount
-            }} </span></span>
-          </div>
-        </div>
+    <div class="mt-3" style="height: 450px; border:1px solid black;">
+      <div>
         <div class="row mt-3">
-          <div class="col-3">
-            <div v-if="differenceDayCount>0">
-          <span class="">일일 비교 &nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-red"> +{{ toDayCount
-            }} </span></span>
+          <div class="col-2 text-center">
+          <span>당일 예약<br>
+            <span class="badge badge-sm bg-green">{{ toDayCount }}</span>
+          </span>
+            <div class="row mt-3">
+              <div v-if="differenceDayCount > 0">
+              <span>일일 비교<br>
+                <span class="badge badge-sm bg-red">+{{ differenceDayCount }}</span>
+              </span>
+              </div>
+              <div v-if="differenceDayCount < 0">
+              <span>일일 비교<br>
+                <span class="badge badge-sm bg-blue">{{ differenceDayCount }}</span>
+              </span>
+              </div>
+              <div v-if="differenceDayCount === 0">
+              <span>일일 비교<br>
+                <span class="badge badge-sm bg-gray">{{ differenceDayCount }}</span>
+              </span>
+              </div>
             </div>
-            <div v-if="differenceDayCount<0">
-          <span class="">일일 비교 &nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-blue"> {{ differenceDayCount
-            }} </span></span></div>
-            <div v-if="differenceDayCount===0">
-          <span class="">일일 비교 &nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-gray"> {{ differenceDayCount
-            }} </span></span></div>
+            <div class="row mt-3">
+              <div v-if="differenceWeekCount > 0">
+              <span>주간 비교<br>
+                <span class="badge badge-sm bg-red">+{{ differenceWeekCount }}</span>
+              </span>
+              </div>
+              <div v-if="differenceWeekCount < 0">
+              <span>주간 비교<br>
+                <span class="badge badge-sm bg-blue">{{ differenceWeekCount }}</span>
+              </span>
+              </div>
+              <div v-if="differenceWeekCount === 0">
+              <span>주간 비교<br>
+                <span class="badge badge-sm bg-gray">{{ differenceWeekCount }}</span>
+              </span>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="row mt-3">
-          <div class="col-3">
-            <div v-if="differenceWeekCount>0">
-          <span class="">주간 비교&nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-red"> +{{ differenceWeekCount
-            }} </span></span>
-            </div>
-            <div v-if="differenceWeekCount<0">
-          <span class="">주간 비교 &nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-blue"> {{ differenceWeekCount
-            }} </span></span>
-            </div>
-            <div v-if="differenceWeekCount===0">
-          <span class="">주간 비교 &nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-gray"> {{ differenceWeekCount
-            }} </span></span>
-            </div>
+          <div class="col-10" style="overflow:auto;">
+            <div id="line_chart" style="width: 100%; height: 400px;"></div>
           </div>
         </div>
       </div>
     </div>
-    <br>
-
-    <div class="row mt-3">
-      <div class="col-9">
-        <div id="income_chart" style="width: 90%; height: 400px;"></div>
-      </div>
-      <div class="col-3">
-
-        <div class="row">
-          <div class="col-3">
-          <span class="">오늘의 수익 &nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-green"> {{ todayIncome
-            }} </span></span>
-          </div>
-        </div>
+    <hr>
+    <div class="mt-3" style="height: 450px; border:1px solid black;">
+      <div>
         <div class="row mt-3">
-          <div class="col-3">
-            <div v-if="differenceDayIncome>0">
-          <span class="">일일 수익 비교 &nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-red"> +{{ differenceDayIncome
-            }} </span></span>
+          <div class="col-2 text-center">
+          <span>오늘의 수익<br>
+            <span class="badge badge-sm bg-green">{{ todayIncome }}</span>
+          </span>
+            <div class="row mt-3">
+              <div v-if="differenceDayIncome > 0">
+              <span>일일 비교<br>
+                <span class="badge badge-sm bg-red">+{{ differenceDayIncome }}</span>
+              </span>
+              </div>
+              <div v-if="differenceDayIncome < 0">
+              <span>일일 비교<br>
+                <span class="badge badge-sm bg-blue">{{ differenceDayIncome }}</span>
+              </span>
+              </div>
+              <div v-if="differenceDayIncome === 0">
+              <span>일일 비교<br>
+                <span class="badge badge-sm bg-gray">{{ differenceDayIncome }}</span>
+              </span>
+              </div>
             </div>
-            <div v-if="differenceDayIncome<0">
-          <span class="">일일 수익 비교 &nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-blue"> {{ differenceDayIncome
-            }} </span></span></div>
-            <div v-if="differenceDayIncome===0">
-          <span class="">일일 수익 비교 &nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-gray"> {{ differenceDayIncome
-            }} </span></span></div>
+            <div class="row mt-3">
+              <div v-if="differenceWeekIncome > 0">
+              <span>주간 비교<br>
+                <span class="badge badge-sm bg-red">+{{ differenceWeekIncome }}</span>
+              </span>
+              </div>
+              <div v-if="differenceWeekIncome < 0">
+              <span>주간 비교<br>
+                <span class="badge badge-sm bg-blue">{{ differenceWeekIncome }}</span>
+              </span>
+              </div>
+              <div v-if="differenceWeekIncome === 0">
+              <span>주간 비교<br>
+                <span class="badge badge-sm bg-gray">{{ differenceWeekIncome }}</span>
+              </span>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="row mt-3">
-          <div class="col-3">
-            <div v-if="differenceWeekIncome>0">
-          <span class="">주간 비교&nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-red"> +{{ differenceWeekIncome
-            }} </span></span>
-            </div>
-            <div v-if="differenceWeekIncome<0">
-          <span class="">주간 비교 &nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-blue"> {{ differenceWeekIncome
-            }} </span></span>
-            </div>
-            <div v-if="differenceWeekIncome===0">
-          <span class="">주간 비교 &nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-gray"> {{ differenceWeekIncome
-            }} </span></span>
-            </div>
+          <div class="col-10" style="overflow:auto;">
+            <div id="income_chart" style="width: 90%; height: 400px;"></div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
 import axios from 'axios'
 /* eslint-disable no-undef */
@@ -168,6 +174,7 @@ export default {
         const todayData = sortedThisWeek[sortedThisWeek.length - 1]  // 오늘 데이터
         const yesterdayData = sortedThisWeek[sortedThisWeek.length - 2]  // 어제 데이터
         this.differenceDayCount = todayData[1] - yesterdayData[1]
+        this.toDayCount = todayData[1]
         // 이번 주 라벨 생성
         this.thisWeekLabels = sortedThisWeek.map(([date]) => date)
 
@@ -194,7 +201,6 @@ export default {
 
         this.reservationStatusCounts = data.reservationStatusCounts
         this.todayIncome = todayIncome
-        this.todayIncome = todayIncome - yesterdayIncome
         this.loadGoogleCharts()
       } catch (error) {
         console.error('API 호출 중 오류 발생:', error)
@@ -257,7 +263,13 @@ export default {
         legend: { position: 'top' },
         height: 500,
         colors: ['#9A64E8'],  // 그래프 선 색상을 여기에서 지정
-        lineWidth: 3 // 선의 두께 (선택 사항)
+        lineWidth: 2,
+        vAxis: {
+          format: '0',  // 소수점 제거
+          viewWindow: {
+            min: 0  // Y축의 최소값을 0으로 설정
+          }
+        }
       }
 
       const chart = new google.visualization.LineChart(document.getElementById('line_chart'))
@@ -266,7 +278,7 @@ export default {
     drawBarChart() {
       const data = new google.visualization.DataTable()
       data.addColumn('string', '날짜')
-      data.addColumn('number', '이번 주 수익')
+      data.addColumn('number', '수익')
 
       // 데이터를 각각 해당 날짜에 맞춰서 추가
       const rows = this.thisWeekLabels.map((date, index) => [
@@ -287,7 +299,7 @@ export default {
       const chart = new google.visualization.ColumnChart(document.getElementById('income_chart'))
       chart.draw(data, options)
     }
-  },
+  }
 }
 </script>
 
@@ -308,14 +320,14 @@ export default {
   margin: 0 auto; /* 수평 중앙 정렬 */
 }
 
-.col-3 {
+.col-2 {
   flex: 1;
   padding: 10px;
   border: 1px solid #dee2e6; /* 테두리 추가 */
   border-radius: 10px; /* 둥근 모서리 */
   background-color: #f8f9fa; /* 배경색 추가 */
-  margin-left: 10px; /* 모든 col-3에 동일한 왼쪽 마진 */
-  margin-right: 10px; /* 모든 col-3에 동일한 오른쪽 마진 */
+  margin-left: 10px; /* 모든 col-2에 동일한 왼쪽 마진 */
+  margin-right: 10px; /* 모든 col-2에 동일한 오른쪽 마진 */
 }
 
 .flexBox {
@@ -323,8 +335,8 @@ export default {
   border: 1px solid #dee2e6; /* 테두리 추가 */
   border-radius: 10px; /* 둥근 모서리 */
   background-color: #f8f9fa; /* 배경색 추가 */
-  margin-left: 10px; /* 모든 col-3에 동일한 왼쪽 마진 */
-  margin-right: 10px; /* 모든 col-3에 동일한 오른쪽 마진 */
+  margin-left: 10px; /* 모든 col-2에 동일한 왼쪽 마진 */
+  margin-right: 10px; /* 모든 col-2에 동일한 오른쪽 마진 */
 }
 
 .col-6 {
@@ -332,8 +344,8 @@ export default {
   border: 1px solid #dee2e6; /* 테두리 추가 */
   border-radius: 10px; /* 둥근 모서리 */
   background-color: #f8f9fa; /* 배경색 추가 */
-  margin-left: 10px; /* 모든 col-3에 동일한 왼쪽 마진 */
-  margin-right: 10px; /* 모든 col-3에 동일한 오른쪽 마진 */
+  margin-left: 10px; /* 모든 col-2에 동일한 왼쪽 마진 */
+  margin-right: 10px; /* 모든 col-2에 동일한 오른쪽 마진 */
   padding: 10px;
 }
 
@@ -366,24 +378,25 @@ export default {
   margin: 0 auto; /* 수평 중앙 정렬 */
 }
 
-.col-3 {
+.col-2 {
   flex: 1;
   padding: 10px;
   border: 1px solid #dee2e6; /* 테두리 추가 */
   border-radius: 10px; /* 둥근 모서리 */
   background-color: #f8f9fa; /* 배경색 추가 */
-  margin-left: 10px; /* 모든 col-3에 동일한 왼쪽 마진 */
-  margin-right: 10px; /* 모든 col-3에 동일한 오른쪽 마진 */
+  margin-left: 10px; /* 모든 col-2에 동일한 왼쪽 마진 */
+  margin-right: 10px; /* 모든 col-2에 동일한 오른쪽 마진 */
 }
 
-.col-3 {
+.col-2 {
   flex: 1;
   border: 1px solid #dee2e6; /* 테두리 추가 */
   border-radius: 10px; /* 둥근 모서리 */
   background-color: #f8f9fa; /* 배경색 추가 */
-  margin-left: 10px; /* 모든 col-3에 동일한 왼쪽 마진 */
-  margin-right: 10px; /* 모든 col-3에 동일한 오른쪽 마진 */
+  margin-left: 10px; /* 모든 col-2에 동일한 왼쪽 마진 */
+  margin-right: 10px; /* 모든 col-2에 동일한 오른쪽 마진 */
   padding: 10px;
+  align-items: center;
 }
 
 .badge-sm {
