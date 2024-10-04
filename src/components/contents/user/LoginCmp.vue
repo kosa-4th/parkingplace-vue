@@ -103,9 +103,9 @@ const handleGoogleLogin = () => {
   const url = `${import.meta.env.VITE_API_URL}`
   let redirect_uri;
   if (url === 'http://localhost:8080') {
-    redirect_uri = 'http://localhost:5173/login';
+    redirect_uri = 'http://localhost:5173';
   } else if (url === 'https://parkingback.store') {
-    redirect_uri = 'https://parkingplace.store';
+    redirect_uri = 'https://www.parkingplace.store';
   }
   const redirectUri = `${redirect_uri}/login`; 
   const scope = 'email profile';
