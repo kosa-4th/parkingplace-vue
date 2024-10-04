@@ -43,7 +43,7 @@
     </div>
 
     <button @click="registerCar" class="submit-btn">내 차량 번호 등록하기</button>
-    
+
     <confirm-modal
       v-if="modal.isModalVisible"
       :confirm="modal.confirm"
@@ -96,12 +96,7 @@ const handleModalClose = () => {
 
 const getData = async () => {
   try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/cars/protected`,{
-      headers: {
-        Authorization: `Bearer ${this.authStore.token}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/cars/protected`);
     myCars.value = response.data.myCars;
     carTypes.value = response.data.carTypes;
     selectedCar.value = carTypes.value[0].carType;
@@ -144,7 +139,7 @@ const removeCar = async (car) => {
           carType: car.carType,
           plateNumber: car.plateNumber
         }
-    
+
     });
     modal.modalMessage = "선택한 차량이 삭제되었습니다.";
     modal.confirm = true;
@@ -159,14 +154,10 @@ const registerCar = async () => {
     modal.isModalVisible = true;
     return;
   }
-  
+
   try {
     await axios.post(`${import.meta.env.VITE_API_URL}/api/users/cars/protected`,
     {
-      headers: {
-        Authorization: `Bearer ${this.authStore.token}`,
-        'Content-Type': 'application/json'
-      },
       carType: selectedCar.value,
       plateNumber: newCarNumber.value
     });

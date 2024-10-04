@@ -27,7 +27,7 @@
               </g>
             </svg>
       </span>
-    </div>  
+    </div>
 
     <!-- 더보기 버튼 -->
     <hr class="more-separatior" v-if="hasMoreinquiries">
@@ -36,41 +36,48 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
 
-const router = useRouter();
+const router = useRouter()
 
-const inquiries = ref([]);
-const page = ref(0);
-const size = 5;
-const hasMoreinquiries = ref(true);
+const inquiries = ref([])
+const page = ref(0)
+const size = 5
+const hasMoreinquiries = ref(true)
 
 const getinquiries = async () => {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/inquiries/protected`,
-      {params: {
+  const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/inquiries/protected`,
+    {
+      params: {
         page: page.value,
         size: size
-      }}
-    );
-    const newinquiries = response.data.inquiries;
-    inquiries.value = [...inquiries.value, ...newinquiries];
-    hasMoreinquiries.value = response.data.nextPage;
+      }
+    }, {
+      headers: {
+        Authorization: `Bearer ${this.authStore.token}`,  // 인증 토큰 추가
+        'Content-Type': 'application/json'
+      }
+    }
+  )
+  const newinquiries = response.data.inquiries
+  inquiries.value = [...inquiries.value, ...newinquiries]
+  hasMoreinquiries.value = response.data.nextPage
 }
 
 const getMoreinquiries = () => {
-  page.value++;
-  getinquiries();
+  page.value++
+  getinquiries()
 }
 
 const gotoinquiry = (inquiryId) => {
-  router.push(`/my/inquiries/${inquiryId}`);
+  router.push(`/my/inquiries/${inquiryId}`)
 }
 
 onMounted(() => {
-  getinquiries();
-});
+  getinquiries()
+})
 </script>
 
 <style scoped>
