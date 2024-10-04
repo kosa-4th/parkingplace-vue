@@ -12,6 +12,7 @@
  2024.09.08 양건모 | 마커-주차장id Mapping
  2024.09.09 양건모 | 주차장 구분에 따라 마커 다르게 생성
  2024.09.10 양건모 | api 명세 변경에 따른 axios 요청 url 변경
+ 2024.10.04 양건모 | 검색 결과 X 아이콘 클릭시 검색 키워드를 그대로 유지
  -->
 
 <template>
@@ -149,7 +150,7 @@ export default {
     clearResult: function () {
       this.keyword = ''
       this.showResult = false
-      document.getElementById('search-input').value = null
+      // document.getElementById('search-input').value = null
     },
     setLocation: function (item) {
       //기존 마커 삭제
