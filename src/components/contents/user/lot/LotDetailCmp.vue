@@ -13,13 +13,13 @@
       <img :src="removeFileProtocol(images[0])" alt="Parking Image" class="parking-image" />
     </div>
 
-    <!-- <div v-else> -->
-    <swiper v-else :navigation="true" :pagination="true" class="mySwiper">
-      <swiper-slide v-for="(image, index) in images" :key="index">
-        <img :src="removeFileProtocol(image)" alt="Parking image" class="parking-image" />
-      </swiper-slide>
-    </swiper>
-    <!-- </div> -->
+    <div v-else class="image-slider">
+      <swiper :navigation="true" :pagination="true" class="mySwiper">
+        <swiper-slide v-for="(image, index) in images" :key="index">
+          <img :src="removeFileProtocol(image)" alt="Parking image" class="parking-image" />
+        </swiper-slide>
+      </swiper>
+    </div>
 
     <!-- 주차장 정보 -->
     <div class="parking-info">
