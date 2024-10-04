@@ -2,7 +2,7 @@
   <div class="modal-overlay">
     <div class="modal">
       <div class="modal-header">
-        <h5>문의 편집</h5>
+        <h5>신고하기</h5>
         <button type="button" class="close" @click="$emit('close-modal')">×</button>
       </div>
 
@@ -10,50 +10,52 @@
         
         <!-- 문의 등록자 -->
         <div class="input-container">
-          <label>문의 등록자</label>
-          <input v-model="inquiryData.inquirer" type="text" class="form-control" disabled />
+          <label>리뷰 등록자</label>
+          <input v-model="reviewData.reviewer" type="text" class="form-control" disabled />
         </div>
 
         <!-- 문의 등록일 -->
         <div class="input-container">
-          <label>문의 날짜</label>
-          <input v-model="inquiryData.inquiryDate" type="text" class="form-control" disabled />
+          <label>리뷰 날짜</label>
+          <input v-model="reviewData.reviewDate" type="text" class="form-control" disabled />
         </div>
 
         <!-- 문의 -->
         <div class="input-container">
-          <label>문의</label>
-          <div class="inquiry-content" v-html="inquiryData.inquiry"></div>
+          <label>리뷰</label>
+          <div class="inquiry-content" v-html="reviewData.review"></div>
         </div>
 
-
-        <!-- 답변 여부 -->
-        <div class="input-container">
-          <label>답변 여부</label>
-          <input v-model="answerStatus" type="text" class="form-control" disabled />
-        </div>
-
-        <!-- 답변 입력 -->
-        <div class="input-container">
-          <label>답변</label>
-          <textarea
-            v-model="inquiryData.answer"
-            placeholder="답변을 입력해주세요"
-            class="form-control textarea"
-          ></textarea>
+        <!-- 신고 사유 선택 -->
+        <div class="reason-container">
+          <label>사유 선택</label>
+          <div class="reasons-box">
+            <div v-for="(reason, index) in reportReasons" :key="index" class="reason-option">
+              <input
+                type="radio"
+                :id="`reason-${index}`"
+                :value="reason"
+                v-model="selectedReason"
+                name="report-reason"
+                class="radio-input"
+                :disabled="reviewData.complaint !== 'N'" 
+              />
+              <label :for="`reason-${index}`">{{ reason }}</label>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="modal-footer">
-        <!-- 항상 저장 버튼 유지 -->
-        <div v-if="answerStatus === '미답변'">
-          <button class="btn bg-purple" @click="openConfirmCancelModal">저장</button>
-          <button class="btn bg-light" @click="$emit('close-modal')">닫기</button>
-        </div>
-        <div v-else>
-          <button class="btn bg-purple" @click="openConfirmCancelModal">수정</button>
-          <button class="btn bg-light" @click="$emit('close-modal')">닫기</button>
-        </div>
+        <!-- 신고 버튼: complaint 값이 N일 때만 신고 가능, 그 외에는 신고 불가 -->
+        <button
+          :class="reviewData.complaint === 'N' ? 'btn bg-red' : 'btn bg-gray'"
+          @click="reviewData.complaint === 'N' && openConfirmCancelModal()"
+          :disabled="reviewData.complaint !== 'N'"
+        >
+          {{ reviewData.complaint === 'N' ? '신고하기' : '신고 불가' }}
+        </button>
+        <button class="btn bg-light" @click="$emit('close-modal')">취소</button>
       </div>
     </div>
 
@@ -90,7 +92,7 @@ import { modalState, confirmCancelModalState } from '@/components/modal/ConfirmM
 import { showConfirmModal, showInfoModal, showCCInfoModal, handleCloseModal, handleColseCCModal } from '@/components/modal/ConfirmModalService';
 
 const props = defineProps({
-  inquiryId: {
+  reviewId: {
     type: Number,
     required: true
   },
@@ -100,59 +102,55 @@ const props = defineProps({
   }
 });
 
-const inquiryData = ref([]);
-const answerStatus = ref('미답변');
+const reviewData = ref([]);
+const selectedReason = ref(null);
+const reportReasons = [
+  '스팸홍보/도배글입니다.',
+  '음란물입니다.',
+  '불법정보를 포함하고 있습니다.',
+  '청소년에게 유해한 내용입니다.'
+];
 
-//문의 사항 불러오기
-const getInquiryDetails = async () => {
+//리뷰 사항 불러오기
+const getReviewDetails = async () => {
   try {
-    const response = await axios.get(`/api/parking-manager/parkinglots/${props.parkinglotId}/inquiries/${props.inquiryId}/protected`);
-    inquiryData.value = response.data;
-    answerStatus.value = response.data.answerDate ? "답변완료" : "미답변";
+    const response = await axios.get(`/api/parking-manager/parkinglots/${props.parkinglotId}/reviews/${props.reviewId}/protected`);
+    reviewData.value = response.data;
+    selectedReason.value = reviewData.value.selectedReason;
   } catch (error) {
     showInfoModal(error.response.date.error);
   }
 }
 
 const openConfirmCancelModal = () => {
-  if (inquiryData.value.answer.trim() === '') {
-    showInfoModal('답변을 입력해주세요.');
+  //신고 사유를 선택해주세요.
+  if (!selectedReason.value) {
+    showInfoModal('신고 사유를 선택해주세요.');
     return;
   }
-
-  let word = '';
-  if (answerStatus.value === '답변완료') {
-    word = '수정';
-  } else {
-    word = '저장';
-  }
-  showCCInfoModal(`입력하신 문의사항을 ${word}하시겠습니까?`);
+  showCCInfoModal(`해당 리뷰를 신고처리 하시겠습니까?`);
 }
 
 
-// 저장/수정 함수
+// 신고 함수
 const confirmModalAction = async () => {
+  console.log("selected: " + selectedReason.value);
   handleColseCCModal();
   try {
-    const url = `/api/parking-manager/parkinglots/${props.parkinglotId}/inquiries/${props.inquiryId}/protected`;
-    const method = answerStatus.value === "답변완료" ? 'put' : 'post';
-
-    const response = await axios({
-      method,
-      url,
-      data: { answer: inquiryData.value.answer }
+    //신고처리 로직
+    axios.put(`/api/parking-manager/parkinglots/${props.parkinglotId}/reviews/${props.reviewId}/protected`, {
+      complaintReason: selectedReason.value
     });
-
-    console.log(response.data);
-    showConfirmModal(`답변이 저장되었습니다.`);
+    await getReviewDetails();
+    showConfirmModal("신고처리 되었습니다.");
+    reviewData.value.complaint = 'C';
   } catch (error) {
-    console.error(error);
-    showInfoModal(error.response.data.message)
+    showInfoModal(error.response.date.error);
   }
 }
 
 onMounted(() => {
-  getInquiryDetails();
+  getReviewDetails();
 });
 </script>
 
@@ -320,6 +318,36 @@ textarea {
   width: 100%; /* 입력창을 가득 채우도록 설정 */
 }
 
+.reason-container {
+  display: flex;
+  flex-direction: row; /* 컨테이너 내 요소들을 세로로 정렬 */
+}
+
+.reason-container label {
+  min-width: 150px; /* 레이블의 최소 너비 설정 */
+  margin-right: 10px;
+}
+
+.reasons-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* 항목 간의 간격 추가 */
+  border: 1px solid #ccc; /* 박스 스타일 추가 */
+  padding: 10px;
+  border-radius: 5px;
+  /* max-width: 300px; 박스의 최대 너비 설정 */
+  flex:1;
+}
+
+.reason-option {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 라디오 버튼과 텍스트 사이 간격 */
+}
+
+.radio-input {
+  margin-right: 10px; /* 라디오 버튼과 텍스트 간의 간격 */
+}
 /* 보라색 버튼 */
 .bg-purple {
   background-color: #9A64E8;

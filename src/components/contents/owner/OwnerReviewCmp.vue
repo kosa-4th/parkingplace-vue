@@ -38,7 +38,7 @@
             <th scope="col">리뷰어</th>
             <th scope="col">리뷰</th>
             <th scope="col">리뷰 등록일</th>
-            <!-- <th scope="col">신고</th> -->
+            <th scope="col">신고</th>
           </tr>
           </thead>
           <tbody>
@@ -47,11 +47,11 @@
             <td>{{ review.reviewer }}</td>
             <td>{{ review.review }}</td>
             <td>{{ review.reviewDate }}</td>
-            <!-- <td class="center-text">
-              <button class="btn btn-sm bg-purple"
-                      @click="ignoreReservation(reservation.reservationId, reservation.reservationUid)">신고
+            <td class="center-text">
+              <button class="btn btn-sm bg-red"
+                      @click="complaintReview(review.reviewId)">신고
               </button>
-            </td> -->
+            </td>
           </tr>
           </tbody>
         </table>
@@ -83,6 +83,13 @@
         </ul>
       </nav>
 
+      <owner-review-complaint-modal
+        v-if="isModalVisible"
+        :reviewId="selectedReview"
+        :parkinglotId="selectedLotId"
+        @close-modal="handleCloseModal"
+      />
+
 
     </div>
   </div>
@@ -90,8 +97,8 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import OwnerReviewComplaintModal from './OwnerReviewComplaintModal.vue';
 import axios from 'axios';
-
 
 const props = defineProps({
   selectedLotId: {
@@ -111,8 +118,12 @@ const paginationSize = 10
 
 const reviewData = ref([]);
 
+//모달 신구
+const isModalVisible = ref(false);
+const selectedReview = ref(null);
+
 // 문의 가져오기
-const getParkingInquiries = async () => {
+const getParkingReviews = async () => {
   try {
     const params = {
       page: currentPage.value - 1,
@@ -135,7 +146,7 @@ const getParkingInquiries = async () => {
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
-    getParkingInquiries(); // 페이지 변경 시 데이터 다시 가져오기
+    getParkingReviews(); // 페이지 변경 시 데이터 다시 가져오기
   }
 }
 
@@ -154,18 +165,28 @@ const applyDateFilter = () => {
     alert('잘못된 날짜 범위입니다.');
   } else {
     currentPage.value = 1; // Reset to page 1 when filtering
-    getParkingInquiries();
+    getParkingReviews();
   }
 };
 
 const switchTab = (tabName) => {
   activeTab.value = tabName;
   currentPage.value = 1;
-  getParkingInquiries();
+  getParkingReviews();
 };
 
+const complaintReview = (reviewId) => {
+  selectedReview.value = reviewId;
+  isModalVisible.value = true;
+};
+
+const handleCloseModal = () => {
+  getParkingReviews();
+  isModalVisible.value = false;
+}
+
 onMounted(() => {
-  getParkingInquiries();
+  getParkingReviews();
 })
 
 </script>
