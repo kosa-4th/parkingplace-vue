@@ -13,8 +13,8 @@
       <img :src="removeFileProtocol(images[0])" alt="Parking Image" class="parking-image" />
     </div>
 
-    <div v-else class="image-slider">
-      <swiper :navigation="true" :pagination="true" class="mySwiper">
+    <div v-else>
+      <swiper :navigation="true" :pagination="true" class="mySwiper image-slider">
         <swiper-slide v-for="(image, index) in images" :key="index">
           <img :src="removeFileProtocol(image)" alt="Parking image" class="parking-image" />
         </swiper-slide>
