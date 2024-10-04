@@ -89,7 +89,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 
 
@@ -122,7 +122,7 @@ const getParkingInquiries = async () => {
       // actionType: activeTab.value
     };
     
-    const response = await axios.get(`/api/parking-manager/parkinglots/${props.selectedLotId}/reviews/protected`, { params });
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parking-manager/parkinglots/${props.selectedLotId}/reviews/protected`, { params });
     console.log(response.data);
     reviewData.value = response.data.parkingReviews;
     totalPages.value = response.data.totalPages;
@@ -167,6 +167,10 @@ const switchTab = (tabName) => {
 onMounted(() => {
   getParkingInquiries();
 })
+// selectedLotId가 변경될 때 주차장 데이터를 다시 가져옴
+watch( () => {
+  getParkingInquiries();
+});
 
 </script>
 

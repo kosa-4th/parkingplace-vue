@@ -48,7 +48,7 @@ export default {
     async getMyLots() {
       await axios({
         method: 'get',
-        url: '/api/parkinglots/my/protected',
+        url: `${import.meta.env.VITE_API_URL}/api/parkinglots/my/protected`,
         headers: {
           Authorization: `Bearer ${this.authStore.token}`,
           'Content-Type': 'application/json'

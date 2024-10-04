@@ -129,7 +129,7 @@ const modal = reactive({
 // 차량 종류 가져오는 메서드 (페이지 로딩)
 const getCarTypes = async () => {
   try {
-    const response = await axios.get("/api/users");
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users`);
     carTypes.value = response.data;
     user.selectedCar = carTypes.value[0].carType;
   } catch (error) {
@@ -153,7 +153,7 @@ const sendVerification = async () => {
   modal.confirm = true;
   modal.isModalVisible = true;
   try {
-    await axios.post("/api/auth/verification", {
+    await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/verification`, {
       email: user.email
     });
 
@@ -168,7 +168,7 @@ const sendVerification = async () => {
 //인증 확인
 const verifyCode = async () => {
   try {
-    const response = await axios.post("/api/auth/verify", {
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/verify`, {
       email: user.email,
       code: user.code
     });
@@ -214,7 +214,7 @@ const handleSignup = async () => {
     modal.isModalVisible = true;
   } else {
     try {
-      const response = await axios.post("/api/users", user);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users`, user);
       console.log(response.data);
       if (response.status === 204 ) {
         modal.confirm = true;

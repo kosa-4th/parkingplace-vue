@@ -136,7 +136,7 @@ export default {
     async createNewParkingLot() {
       try {
         // POST 요청으로 새로운 주차장 데이터를 생성
-        const response = await axios.post('/api/System-Manager/parkingLotData/create/protected', {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/System-Manager/parkingLotData/create/protected`, {
           name: this.editableLotData.name,
           address: this.editableLotData.address,
           tel: this.editableLotData.tel,
@@ -161,8 +161,8 @@ export default {
           alert('주차장 등록에 실패했습니다.')
         }
       } catch (error) {
-        console.error('주차장 등록 중 오류 발생:', error)
-        alert('오류가 발생했습니다.')
+        alert(error.response.data.message)
+
       }
     }
   }

@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 // 로그인
 export async function  signIn(user) {
     try {
-        const response = await axios.post("/api/users/authorize", 
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/authorize`,
             {
             email:user.email, 
             password:user.password, 
@@ -45,7 +45,7 @@ export async function  signIn(user) {
 // 구글 로그인
 export async function  googleSignIn(token, tokenType, expiresIn) {
     try {
-        const response = await axios.post("/api/users/google-authorize", 
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/google-authorize`,
             {
                 accessToken: token,
                 tokenType: tokenType,
@@ -91,7 +91,7 @@ export function logout() {
 async function refreshToken() {
     const authStore = AuthStore();
     try {
-        const response = await axios.post("/api/users/refresh", {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/refresh`, {
             refreshToken: authStore.refreshToken
         });
 
@@ -127,9 +127,14 @@ axios.interceptors.request.use(
     async config => {
         const authStore = AuthStore();
         let token = authStore.token;
+        console.log("토큰: " + token)
+
+        const url = new URL(config.url, import.meta.env.VITE_API_URL);
+        console.log("인터셉터: " + url.pathname)
 
         // 특정 URL 패턴에 대해서만 JWT를 포함
-        if (config.url.startsWith('/api/') && config.url.endsWith('/protected')) {
+        if (url.pathname.startsWith('/api/') && url.pathname.endsWith('/protected')) {
+            console.log("조건 충족")
             const tokenExpiration = getTokenExpiration(token);
             const now = Date.now();
 
@@ -140,6 +145,7 @@ axios.interceptors.request.use(
 
             // 갱신된 토큰이 있다면 Authorization 헤더에 추가
             if (token) {
+                console.log(`Bearer ${token}`)
                 config.headers.Authorization = `Bearer ${token}`;
             } else {
                 authStore.clearAuthData();

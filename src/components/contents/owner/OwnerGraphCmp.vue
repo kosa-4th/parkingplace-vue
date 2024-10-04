@@ -149,10 +149,15 @@ export default {
   mounted() {
     this.getReservationData() // 컴포넌트가 로드될 때 데이터 가져오기
   },
+  watch: {
+    selectedLotId() {
+      this.getReservationData(this.selectedLotId)
+    }
+  },
   methods: {
     async getReservationData() {
       try {
-        const response = await axios.get(`/api/parking-manager/parkingLots/${this.selectedLotId}/kpi`)
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parking-manager/parkingLots/${this.selectedLotId}/kpi`)
         const data = response.data
 
         // 이번 주 데이터 정렬
@@ -282,7 +287,7 @@ export default {
       const chart = new google.visualization.ColumnChart(document.getElementById('income_chart'))
       chart.draw(data, options)
     }
-  }
+  },
 }
 </script>
 

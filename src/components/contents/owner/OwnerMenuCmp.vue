@@ -192,10 +192,9 @@ p {
 
 select {
   display: block;
-  width: 100%;
+  width: 200px;
   padding: 10px;
-  margin: auto;
-  margin-top: 10px;
+
   border: 1px solid #d3d3d3;
   border-radius: 5px;
   font-size: 15px;

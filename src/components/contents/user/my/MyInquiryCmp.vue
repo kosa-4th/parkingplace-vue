@@ -48,7 +48,7 @@ const inquiry = ref([]);
 
 const getInquiry = async () => {
   try {
-    const response = await axios.get(`/api/users/inquiries/${inquiryId}/protected`);
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/inquiries/${inquiryId}/protected`);
     inquiry.value = response.data;
     console.log(response.data)
   } catch (error) {

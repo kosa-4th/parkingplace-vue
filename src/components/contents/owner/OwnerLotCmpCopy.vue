@@ -315,7 +315,7 @@ export default {
     async getParkingLotDetail() {
       await axios({
         method: 'get',
-        url: `/api/parkinglots/${this.selectedLotId}/owner/protected`,
+        url: `${import.meta.env.VITE_API_URL}/api/parkinglots/${this.selectedLotId}/owner/protected`,
         headers: {
           Authorization: `Bearer ${this.authStore.token}`,
           'Content-Type': 'application/json'
@@ -342,7 +342,7 @@ export default {
       console.log(this.newParkingSpace)
       await axios({
         method: 'post',
-        url: '/api/parking-manager/info/parkingarea/protected',
+        url: `${import.meta.env.VITE_API_URL}/api/parking-manager/info/parkingarea/protected`,
         headers: {
           Authorization: `Bearer ${this.authStore.token}`,
           'Content-Type': 'application/json'
@@ -434,7 +434,7 @@ export default {
         confirm('주차구역을 삭제해도 기존의 예약은 사라지지 않습니다. 정말로 삭제하시겠습니까?')
       ) {
         axios
-          .delete(`/api/parking-manager/info/parkingarea/protected`, {
+          .delete(`${import.meta.env.VITE_API_URL}/api/parking-manager/info/parkingarea/protected`, {
             headers: {
               Authorization: `Bearer ${this.authStore.token}`,
               parkingSpaceId: parkingSpaceId
@@ -505,7 +505,7 @@ export default {
         }
 
         axios
-          .put(`/api/parkinglots/${this.selectedLotId}/owner/protected`, formData, {
+          .put(`${import.meta.env.VITE_API_URL}/api/parkinglots/${this.selectedLotId}/owner/protected`, formData, {
             headers: {
               Authorization: `Bearer ${this.authStore.token}`,
               'Content-Type': 'multipart/form-data'
@@ -566,7 +566,7 @@ export default {
     async getCarTypes() {
       await axios({
         method: 'get',
-        url: '/api/car-type',
+        url: `${import.meta.env.VITE_API_URL}/api/car-type`,
         headers: {
           Authorization: `Bearer ${this.authStore.token}`,
           'Content-Type': 'application/json'

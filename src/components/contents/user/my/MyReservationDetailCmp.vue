@@ -38,7 +38,7 @@ export default {
         merchant_uid: this.reservationDetails.reservationUuid,   // 주문번호
         amount: this.reservationDetails.totalPrice,                                 // 결제금액
         name: this.reservationDetails.lotName + '예약',                  // 주문명
-        m_redirect_url: `http://localhost:8080/api/payment/${this.reservationId}/complete`
+        m_redirect_url: `${import.meta.env.VITE_API_URL}/api/payment/${this.reservationId}/complete`
       }
       IMP.request_pay(paymentData,
         rsp => {
@@ -51,19 +51,25 @@ export default {
     },
     async sendPaymentData(rsp) {
       try {
-        const response = await axios.post(`/api/payment/${this.reservationId}/complete/protected`, {
-          impUid: rsp.imp_uid, // 아임포트 결제 고유번호
-          merchantUid: rsp.merchant_uid,
-          amount: rsp.paid_amount, // 결제 금액
-          buyerEmail: rsp.buyer_email,
-          buyerName: rsp.buyer_name, // 구매자 이름
-          buyerTel: rsp.buyer_tel, // 구매자 이름
-          receiptUrl: rsp.receipt_url,
-          status: rsp.status,
-          cardName: rsp.cardName,
-          cardNumber: rsp.cardNumber,
-          paidAt: rsp.paid_at
-        })
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/payment/${this.reservationId}/complete/protected`, {
+            impUid: rsp.imp_uid, // 아임포트 결제 고유번호
+            merchantUid: rsp.merchant_uid,
+            amount: rsp.paid_amount, // 결제 금액
+            buyerEmail: rsp.buyer_email,
+            buyerName: rsp.buyer_name, // 구매자 이름
+            buyerTel: rsp.buyer_tel, // 구매자 이름
+            receiptUrl: rsp.receipt_url,
+            status: rsp.status,
+            cardName: rsp.cardName,
+            cardNumber: rsp.cardNumber,
+            paidAt: rsp.paid_at
+          }, {
+            headers: {
+              Authorization: `Bearer ${this.authStore.token}`,  // 필요시 인증 토큰 추가
+              'Content-Type': 'application/json'
+            }
+          }
+        )
         alert('결제 정보 서버 전송 성공:', response.data)
         // 결제 성공 후 성공 페이지로 리다이렉트
         window.location.reload() // 현재 페이지를 새로고침
@@ -75,51 +81,70 @@ export default {
       }
     },
     async getReservationDetails() {
-      const url = `/api/users/reservationsDetails/${this.reservationId}/protected`
-      await axios.get(url)
-        .then(response => {
-          const getData = response.data
-          this.reservationDetails = getData
-        })
-        .catch(error => {
-          console.error(error)
-        })
-    },
-    confirmCancel() {
-      let checkConfirmed = this.reservationDetails.reservationConfirmed
+      const url = `${import.meta.env.VITE_API_URL}/api/users/reservationsDetails/${this.reservationId}/protected`
 
-      if (checkConfirmed === 'N') {
-        const url = `/api/reservation/${this.reservationId}/cancel/protected`
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${this.authStore.token}`,  // 필요 시 인증 토큰 추가
+            'Content-Type': 'application/json'
+          }
+        })
 
-        axios.put(url)
-          .then(response => {
-            if (response.status === 200) {
-              alert('예약이 성공적으로 취소되었습니다.')
-              window.location.href = '/' // 메인 페이지로 리다이렉트
-            }
-          })
-          .catch(error => {
-            console.error('에러취소실패:', error)
-          })
-      } else if (checkConfirmed === 'Y' || checkConfirmed === 'C') {
-        const url = `/api/payment/${this.reservationId}/cancel/protected`
-        const paramData = {
-          merchantUid: this.reservationDetails.reservationUuid,
-          reason: '사용자 요청 취소'
-        }
-        axios.post(url, paramData)
-          .then(response => {
-            if (response.status === 200) {
-              alert('예약 및 결제가 성공적으로 취소되었습니다.')
-              window.location.href = '/' // 메인 페이지로 리다이렉트
-            }
-          })
-          .catch(error => {
-            console.error('에러취소실패:', error)
-          })
+        // 응답 데이터를 reservationDetails에 저장
+        this.reservationDetails = response.data
+
+      } catch (error) {
+        console.error('예약 세부 정보 가져오기 오류:', error.response ? error.response.data : error)
+        // 에러 발생 시 추가적인 처리 가능 (ex. 사용자에게 알림)
       }
-      this.cancelReservation()
-      this.closeModal() // 모달 닫기
+    },
+    async confirmCancel() {
+      let checkConfirmed = this.reservationDetails.reservationConfirmed;
+
+      try {
+        if (checkConfirmed === 'N') {
+          const url = `${import.meta.env.VITE_API_URL}/api/reservation/${this.reservationId}/cancel/protected`;
+
+          const response = await axios.put(url, null, {
+            headers: {
+              Authorization: `Bearer ${this.authStore.token}`, // 인증 토큰 추가
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (response.status === 200) {
+            alert('예약이 성공적으로 취소되었습니다.');
+            window.location.href = '/'; // 메인 페이지로 리다이렉트
+          }
+
+        } else if (checkConfirmed === 'Y' || checkConfirmed === 'C') {
+          const url = `${import.meta.env.VITE_API_URL}/api/payment/${this.reservationId}/cancel/protected`;
+          const paramData = {
+            merchantUid: this.reservationDetails.reservationUuid,
+            reason: '사용자 요청 취소'
+          };
+
+          const response = await axios.post(url, paramData, {
+            headers: {
+              Authorization: `Bearer ${this.authStore.token}`, // 인증 토큰 추가
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (response.status === 200) {
+            alert('예약 및 결제가 성공적으로 취소되었습니다.');
+            window.location.href = '/'; // 메인 페이지로 리다이렉트
+          }
+        }
+
+        this.cancelReservation();
+        this.closeModal(); // 모달 닫기
+
+      } catch (error) {
+        console.error('취소 요청 실패:', error.response ? error.response.data : error);
+        alert('취소 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+      }
     },
     formatDate(dateString) {
       if (!dateString) return ''

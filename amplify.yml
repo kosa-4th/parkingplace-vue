@@ -3,14 +3,14 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm ci --cache .npm --prefer-offline  # 의존성 설치
+        - npm ci --cache .npm --prefer-offline
     build:
       commands:
-        - npm run build  # 빌드 명령어
+        - npm run build
   artifacts:
-    baseDirectory: dist  # 빌드된 파일의 경로
+    baseDirectory: dist
     files:
-      - '**/*'  # 모든 파일을 배포
+      - '**/*'
   cache:
     paths:
-      - node_modules/**/*  # 캐시할 경로 설정
+      - .npm/**/*
