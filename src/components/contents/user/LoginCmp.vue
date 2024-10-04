@@ -100,7 +100,14 @@ const handleModalClose = () => {
 const handleGoogleLogin = () => {
   // Google OAuth  로그인 창 띄우기
   const clientId = '1088898736830-18dd892tdheuuaqdimgq4cecn7164edk.apps.googleusercontent.com'; // Google 클라이언트 ID
-  const redirectUri = `${import.meta.env.VITE_API_URL}/login`; 
+  const url = `${import.meta.env.VITE_API_URL}`
+  let redirect_uri;
+  if (url === 'http://localhost:8080') {
+    redirect_uri = 'http://localhost:5173/login';
+  } else if (url === 'https://parkingback.store') {
+    redirect_uri = 'https://parkingplace.store';
+  }
+  const redirectUri = `${redirect_uri}/login`; 
   const scope = 'email profile';
 
   const googleLoginUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}&include_granted_scopes=true`;
