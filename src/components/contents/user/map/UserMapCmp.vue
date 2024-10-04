@@ -275,7 +275,7 @@ export default {
           alert('내 위치는 = ' + latitude + ', ' + longitude)
         },
         (err) => {
-          this.textContent = err.message
+          alert(err.message)
         }
       )
     }
