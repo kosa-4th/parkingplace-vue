@@ -16,9 +16,7 @@
     <div v-else>
       <swiper :navigation="true" :pagination="true" class="mySwiper">
         <swiper-slide v-for="(image, index) in images" :key="index">
-          <MovieItem :movieData="movie">
-            <img :src="removeFileProtocol(image)" alt="Parking image" class="parking-image" />
-          </MovieItem>
+          <img :src="removeFileProtocol(image)" alt="Parking image" />
         </swiper-slide>
       </swiper>
     </div>
