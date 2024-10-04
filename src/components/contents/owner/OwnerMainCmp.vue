@@ -6,7 +6,8 @@
 
 <template>
   <div class="main-container">
-    <h3 >{{ formattedToday }} <br> <h4>{{ parkingLotName }} 오늘의 현황</h4> </h3>
+    <h3 >{{ formattedToday }} <br>
+      <h4 align="center">{{ parkingLotName }} 오늘의 현황</h4> </h3>
     <br>
     <div class="tabs-container">
       <!-- 부트스트랩 네비게이션 탭 -->
@@ -360,7 +361,12 @@ export default {
     // 페이지가 로드될 때 기본 탭에 해당하는 데이터를 가져옴
     this.getLotName()
     this.fetchReservations(this.getReservationStatus(), this.currentPage, this.pageSize)
-  }
+  },
+  watch: {
+    selectedLotId() {
+      this.getLotName()
+      this.fetchReservations(this.getReservationStatus(), this.currentPage, this.pageSize)    }
+  },
 }
 </script>
 

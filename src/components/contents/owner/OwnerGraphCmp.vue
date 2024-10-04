@@ -34,7 +34,7 @@
         <div class="row mt-3">
           <div class="col-3">
             <div v-if="differenceDayCount>0">
-          <span class="">일일 비교 &nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-red"> +{{ differenceDayCount
+          <span class="">일일 비교 &nbsp;&nbsp;&nbsp;<span class="badge badge-sm bg-red"> +{{ toDayCount
             }} </span></span>
             </div>
             <div v-if="differenceDayCount<0">
