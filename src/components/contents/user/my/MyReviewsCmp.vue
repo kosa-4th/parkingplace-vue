@@ -43,16 +43,12 @@ const size = 5
 const hasMoreReviews = ref(true)
 
 const getReviews = async () => {
-  const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/reviews/protected`,
+  const response = await axios.get(`/api/users/reviews/protected`,
     {
       params: {
         page: page.value,
         size: size
       },
-      headers: {
-        Authorization: `Bearer ${this.authStore.token}`,  // 인증 토큰 추가
-        'Content-Type': 'application/json'
-      }
     }
   )
   console.log(response.data)
