@@ -71,7 +71,7 @@
     </div>
     <div id="map"></div>
     <div id="locationButtons">
-      <button @click="moveToMyPosition">버튼</button>
+      <button @click="moveToMyPosition()">버튼</button>
     </div>
     <lot-preview-cmp
       v-if="selectedLot"
