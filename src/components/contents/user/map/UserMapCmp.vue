@@ -70,6 +70,9 @@
       </div>
     </div>
     <div id="map"></div>
+    <div id="locationButtons">
+      <button @click="moveToMyPosition">버튼</button>
+    </div>
     <lot-preview-cmp
       v-if="selectedLot"
       :lotInfo="selectedLot"
@@ -263,6 +266,18 @@ export default {
     },
     hideRecommSelect() {
       this.showRecommSelectModal = false // 모달 상태 변경
+    },
+    moveToMyPosition() {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const latitude = pos.coords.latitude
+          const longitude = pos.coords.longitude
+          alert('내 위치는 = ' + latitude + ', ' + longitude)
+        },
+        (err) => {
+          this.textContent = err.message
+        }
+      )
     }
   }
 }

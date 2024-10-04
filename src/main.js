@@ -15,6 +15,7 @@ import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import TimePicker from 'vue3-timepicker'
 import 'vue3-timepicker/dist/VueTimepicker.css'
+import VueGeolocation from 'vue-geolocation-api'
 
 useKakao('10bd665d6f227d61cfe9917682262fb9')
 
@@ -22,6 +23,7 @@ const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
+app.use(VueGeolocation)
 
 app.component('DatePicker', DatePicker)
 app.component('TimePicker', TimePicker)
@@ -30,5 +32,3 @@ app.mount('#app')
 
 const authStore = AuthStore()
 authStore.loadAuthData()
-
-
