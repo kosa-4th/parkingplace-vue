@@ -213,8 +213,8 @@ export default {
           this.lots.forEach((item, index) => {
             //마커 형태 구분
             const imageSrc = item.hasUser
-              ? '../../../../assets/img/basic-lot-marker.png'
-              : '../../../../assets/img/marker-lot-no-owner.png'
+              ? '/public/basic-lot-marker.png'
+              : '/public/marker-lot-no-owner.png'
             const imageSize = new kakao.maps.Size(40, 40)
             const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
 
