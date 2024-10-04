@@ -3,7 +3,7 @@ name: Vue.js Amplify Deployment
 on:
   push:
     branches:
-      - gaeng   # 특정 브랜치에 푸시될 때 배포 실행
+      - main   # 특정 브랜치에 푸시될 때 배포 실행
 
 jobs:
   deploy:
