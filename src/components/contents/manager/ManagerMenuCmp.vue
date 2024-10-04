@@ -41,6 +41,7 @@ export default {
       menuItems: [
         { text: '회원 관리', link: '/manager' },
         { text: '주차장 관리', link: '/lot' },
+        { text: '신고 리뷰 관리', link: '/review'}
       ]
     }
   },

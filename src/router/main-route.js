@@ -40,6 +40,7 @@ import ManagerLotCmp from '@/components/contents/manager/ManagerLotCmp.vue'
 import OwnerReviewCmp from '@/components/contents/owner/OwnerReviewCmp.vue'
 import MyInquiryCmp from '@/components/contents/user/my/MyInquiryCmp.vue'
 import OwnerGraphCmp from '@/components/contents/owner/OwnerGraphCmp.vue'
+import ManagerReviewCmp from '@/components/contents/manager/ManagerReviewCmp.vue'
 
 export default [
   {
@@ -178,6 +179,10 @@ export default [
       {
         path: '/lot',
         component: ManagerLotCmp
+      },
+      {
+        path: '/review',
+        component: ManagerReviewCmp
       }
     ]
   },

@@ -263,6 +263,7 @@ watch(
   font-size: 13px;
   margin-top: 30px;
   text-decoration: underline;
+  cursor: pointer;
 }
 
 /* 오버레이 스타일 */
