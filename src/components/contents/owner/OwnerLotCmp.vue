@@ -329,6 +329,7 @@ export default {
       axios
         .delete(`${import.meta.env.VITE_API_URL}/api/parking-manager/info/parkingArea/protected`, {
           headers: {
+            Authorization: `Bearer ${this.authStore.token}`,
             parkingSpaceId: this.selectedParkingSpaceId
           }
         })
