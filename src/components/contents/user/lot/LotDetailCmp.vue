@@ -14,12 +14,13 @@
     </div>
 
     <div v-else>
-      <swiper :navigation="true" :pagination="true" class="mySwiper image-slider">
+      <swiper :navigation="true" :pagination="true" class="mySwiper">
         <swiper-slide v-for="(image, index) in images" :key="index">
           <img :src="removeFileProtocol(image)" alt="Parking image" class="parking-image" />
         </swiper-slide>
       </swiper>
     </div>
+    <div></div>
 
     <!-- 주차장 정보 -->
     <div class="parking-info">
