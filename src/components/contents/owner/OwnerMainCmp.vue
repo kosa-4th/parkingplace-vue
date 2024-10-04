@@ -5,11 +5,13 @@
 -->
 
 <template>
-  <div class="main-container">
-    <h3 >{{ formattedToday }} <br>
-      <h4 align="center">{{ parkingLotName }} 오늘의 현황</h4> </h3>
-    <br>
-    <div class="tabs-container">
+  <div class="main-container mt-3" >
+    <div>
+    <h4> {{ parkingLotName }}
+      <h6 class="mt-2"> 오늘의 현황 {{ formattedToday }}</h6> </h4>
+
+    </div>
+    <div class="tabs-container mt-3">
       <!-- 부트스트랩 네비게이션 탭 -->
       <ul class="nav nav-tabs">
         <li class="nav-item">
@@ -294,7 +296,9 @@ export default {
       totalPages: 0,
       pageSize: 5,
       formattedToday: formattedToday,
-      parkingLotName: null
+      parkingLotName: null,
+      currentTime: new Date().toLocaleTimeString()  // 현재 시간을 초기화
+
     }
   },
   methods: {
