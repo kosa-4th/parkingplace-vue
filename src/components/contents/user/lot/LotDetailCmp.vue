@@ -16,55 +16,56 @@
     <div v-else>
       <swiper :navigation="true" :pagination="true" class="mySwiper">
         <swiper-slide v-for="(image, index) in images" :key="index">
-          <img :src="removeFileProtocol(image)" alt="Parking image" class="parking-image" />
+          <MovieItem :movieData="movie">
+            <img :src="removeFileProtocol(image)" alt="Parking image" class="parking-image" />
+          </MovieItem>
         </swiper-slide>
       </swiper>
     </div>
-    <div>
-      <!-- 주차장 정보 -->
-      <div class="parking-info">
-        <div>
-          <div class="parking-name">{{ parkingLotDetail.parkingLotName }}</div>
-          |
-          <div class="parking-type">{{ parkingLotDetail.parkingLotType }}</div>
-        </div>
-        <div id="favorite" v-if="authStore.isLoggedIn">
-          <img
-            class="favorite-image"
-            src="@/assets/img/favorite-filled.png"
-            v-if="hasFavorite"
-            @click="toggleFavorite()"
-          />
-          <img
-            class="favorite-image"
-            src="@/assets/img/favorite-empty.png"
-            v-else
-            @click="toggleFavorite()"
-          />
-        </div>
-      </div>
 
-      <!-- 탭 버튼 -->
-      <div class="tab-buttons">
-        <router-link
-          :to="`/lot/${parkinglotId}/home`"
-          class="tab"
-          :class="{ active: isActiveTab('home') }"
-          >홈</router-link
-        >
-        <router-link
-          :to="`/lot/${parkinglotId}/review`"
-          class="tab"
-          :class="{ active: isActiveTab('review') }"
-          >리뷰</router-link
-        >
-        <router-link
-          :to="`/lot/${parkinglotId}/inquiry`"
-          class="tab"
-          :class="{ active: isActiveTab('inquiry') }"
-          >문의</router-link
-        >
+    <!-- 주차장 정보 -->
+    <div class="parking-info">
+      <div>
+        <div class="parking-name">{{ parkingLotDetail.parkingLotName }}</div>
+        |
+        <div class="parking-type">{{ parkingLotDetail.parkingLotType }}</div>
       </div>
+      <div id="favorite" v-if="authStore.isLoggedIn">
+        <img
+          class="favorite-image"
+          src="@/assets/img/favorite-filled.png"
+          v-if="hasFavorite"
+          @click="toggleFavorite()"
+        />
+        <img
+          class="favorite-image"
+          src="@/assets/img/favorite-empty.png"
+          v-else
+          @click="toggleFavorite()"
+        />
+      </div>
+    </div>
+
+    <!-- 탭 버튼 -->
+    <div class="tab-buttons">
+      <router-link
+        :to="`/lot/${parkinglotId}/home`"
+        class="tab"
+        :class="{ active: isActiveTab('home') }"
+        >홈</router-link
+      >
+      <router-link
+        :to="`/lot/${parkinglotId}/review`"
+        class="tab"
+        :class="{ active: isActiveTab('review') }"
+        >리뷰</router-link
+      >
+      <router-link
+        :to="`/lot/${parkinglotId}/inquiry`"
+        class="tab"
+        :class="{ active: isActiveTab('inquiry') }"
+        >문의</router-link
+      >
     </div>
 
     <!-- 선택된 컴포넌트 출력 -->
