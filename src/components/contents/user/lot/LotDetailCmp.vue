@@ -13,13 +13,13 @@
       <img :src="removeFileProtocol(images[0])" alt="Parking Image" class="parking-image" />
     </div>
 
-    <div v-else>
-      <swiper :navigation="true" :pagination="true" class="mySwiper">
-        <swiper-slide v-for="(image, index) in images" :key="index">
-          <img :src="removeFileProtocol(image)" alt="Parking image" class="parking-image">
-        </swiper-slide>
-      </swiper>
-    </div>
+    <!-- <div v-else> -->
+    <swiper v-else :navigation="true" :pagination="true" class="mySwiper">
+      <swiper-slide v-for="(image, index) in images" :key="index">
+        <img :src="removeFileProtocol(image)" alt="Parking image" class="parking-image" />
+      </swiper-slide>
+    </swiper>
+    <!-- </div> -->
 
     <!-- 주차장 정보 -->
     <div class="parking-info">
@@ -30,13 +30,13 @@
       </div>
       <div id="favorite" v-if="authStore.isLoggedIn">
         <img
-          class="favorite-image" 
+          class="favorite-image"
           src="@/assets/img/favorite-filled.png"
           v-if="hasFavorite"
           @click="toggleFavorite()"
         />
         <img
-          class="favorite-image" 
+          class="favorite-image"
           src="@/assets/img/favorite-empty.png"
           v-else
           @click="toggleFavorite()"
@@ -46,9 +46,24 @@
 
     <!-- 탭 버튼 -->
     <div class="tab-buttons">
-      <router-link :to="`/lot/${parkinglotId}/home`" class="tab" :class="{ active: isActiveTab('home') }">홈</router-link>
-      <router-link :to="`/lot/${parkinglotId}/review`" class="tab" :class="{ active: isActiveTab('review') }">리뷰</router-link>
-      <router-link :to="`/lot/${parkinglotId}/inquiry`" class="tab" :class="{ active: isActiveTab('inquiry') }">문의</router-link>
+      <router-link
+        :to="`/lot/${parkinglotId}/home`"
+        class="tab"
+        :class="{ active: isActiveTab('home') }"
+        >홈</router-link
+      >
+      <router-link
+        :to="`/lot/${parkinglotId}/review`"
+        class="tab"
+        :class="{ active: isActiveTab('review') }"
+        >리뷰</router-link
+      >
+      <router-link
+        :to="`/lot/${parkinglotId}/inquiry`"
+        class="tab"
+        :class="{ active: isActiveTab('inquiry') }"
+        >문의</router-link
+      >
     </div>
 
     <!-- 선택된 컴포넌트 출력 -->
@@ -57,65 +72,71 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import {Swiper, SwiperSlide } from 'swiper/vue';
-import { useRoute } from 'vue-router';
-import axios from 'axios';
-import { AuthStore } from '@/stores/store';
+import { ref, onMounted } from 'vue'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { useRoute } from 'vue-router'
+import axios from 'axios'
+import { AuthStore } from '@/stores/store'
 
-const authStore = AuthStore();
-const route = useRoute();
-const parkinglotId = route.params.lotId;
+const authStore = AuthStore()
+const route = useRoute()
+const parkinglotId = route.params.lotId
 
-const parkingLotDetail = ref([]);
+const parkingLotDetail = ref([])
 
-const images = ref([]);
-const hasFavorite = ref(false);
+const images = ref([])
+const hasFavorite = ref(false)
 
 const getParkingLotDetails = async () => {
   try {
-    
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}`);
-    parkingLotDetail.value = response.data;
-    images.value = response.data.images;
-    getHasFavorite();
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}`
+    )
+    parkingLotDetail.value = response.data
+    images.value = response.data.images
+    getHasFavorite()
   } catch (error) {
     //error
   }
 }
 
 const getHasFavorite = async () => {
-  const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/favorites/parkingLot/${parkinglotId}/protected`);
-  hasFavorite.value = response.data.hasFavorite;
+  const response = await axios.get(
+    `${import.meta.env.VITE_API_URL}/api/favorites/parkingLot/${parkinglotId}/protected`
+  )
+  hasFavorite.value = response.data.hasFavorite
 }
 
 onMounted(() => {
-  getParkingLotDetails();
-});
+  getParkingLotDetails()
+})
 
-
-const isActiveTab = (tab) => route.path.includes(tab);
+const isActiveTab = (tab) => route.path.includes(tab)
 
 const toggleFavorite = async () => {
-  const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/favorites/protected`, null, {
-    params: {
-      parkingLotId: parkinglotId
-    },
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-      'Content-Type': 'application/json'
+  const response = await axios.post(
+    `${import.meta.env.VITE_API_URL}/api/favorites/protected`,
+    null,
+    {
+      params: {
+        parkingLotId: parkinglotId
+      },
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
     }
-  });
-  hasFavorite.value = response.data.toggleResult;
+  )
+  hasFavorite.value = response.data.toggleResult
 }
 
 //잠깐 쓸거
 const removeFileProtocol = (path) => {
   if (path.startsWith('file:///')) {
-    return path.replace('file:///', '');
+    return path.replace('file:///', '')
   }
-  return path;
-};
+  return path
+}
 </script>
 
 <style scoped>
@@ -168,7 +189,6 @@ const removeFileProtocol = (path) => {
   align-items: center;
 }
 
-
 .parking-name {
   font-size: 20px;
   font-weight: 700;
@@ -178,7 +198,6 @@ const removeFileProtocol = (path) => {
 .parking-type {
   font-size: 12px;
   flex: 1.2;
-  
 }
 
 .tab-buttons {
@@ -194,19 +213,19 @@ const removeFileProtocol = (path) => {
   text-decoration: none;
   background-color: white;
   cursor: pointer;
-  color: #4A4A4A;
+  color: #4a4a4a;
 }
 
 .tab-buttons .tab.active {
   background-color: white;
-  color: #9A64E8;
+  color: #9a64e8;
   font-weight: 700;
   border-bottom: 2px solid #757575;
 }
 
 .tab-buttons .tab:hover {
   background-color: white;
-  color: #9A64E8;
+  color: #9a64e8;
 }
 
 #favorite {
