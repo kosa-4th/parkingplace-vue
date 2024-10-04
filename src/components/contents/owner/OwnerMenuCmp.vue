@@ -57,7 +57,7 @@ export default {
         { text: '예약 관리', link: '/owner/reservations' },
         { text: '리뷰 관리', link: '/owner/reviews' },
         { text: '문의 관리', link: '/owner/qna' },
-        { text: '그래프', link: '/owner/graph' },
+        { text: '수익 통계', link: '/owner/graph' },
       ]
     }
   },
