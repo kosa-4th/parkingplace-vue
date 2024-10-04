@@ -111,7 +111,7 @@
             :key="idx"
             :id="`image-${image.id}`"
             class="img-thumbnail"
-            src="@/assets/img/parkingLot.png"
+            :src="image.path"
             style="width: 100px"
             @click="addDeleteImgList(image.id)"
           />
