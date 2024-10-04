@@ -8,23 +8,23 @@ import router from './router'
 import './assets/base.scss'
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Popper.js 포함
+import 'bootstrap/dist/js/bootstrap.bundle.min.js' // Popper.js 포함
 import { useKakao } from 'vue3-kakao-maps'
 import { AuthStore } from './stores/store'
-import DatePicker from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css';
-import TimePicker from 'vue3-timepicker';
-import 'vue3-timepicker/dist/VueTimepicker.css';
+import DatePicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
+import TimePicker from 'vue3-timepicker'
+import 'vue3-timepicker/dist/VueTimepicker.css'
 
-useKakao('518babc0abbb1482c00d27da382d813c')
+useKakao('10bd665d6f227d61cfe9917682262fb9')
 
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
 
-app.component('DatePicker', DatePicker);
-app.component('TimePicker', TimePicker);
+app.component('DatePicker', DatePicker)
+app.component('TimePicker', TimePicker)
 
 app.mount('#app')
 

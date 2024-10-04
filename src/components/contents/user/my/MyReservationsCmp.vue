@@ -2,7 +2,7 @@
   <div class="reservation-container">
     <div class="reservation-toggle">
       <div class="title">예약 내역</div>
-  
+
       <!-- 토글 버튼 -->
       <div class="toggle-search">
         <button @click="toggleDatepicker" class="toggle-btn">
@@ -39,8 +39,8 @@
       <button class="search-btn" @click="getNewReservations">검색하기</button>
     </div>
 
-    <div v-if="reservations.length === 0" class="no-reservations">
-      예약 내역이 없습니다.
+    <div v-if="reservations.length === 0" class="posts-end" style="margin-top: 20px">
+      <p class="loading-msg">등록된 예약이 없습니다</p>
     </div>
 
     <div v-else class="reservation-list">
@@ -55,8 +55,8 @@
         </div>
         <div class="reservation-info">
           <div class="parking-name">{{ reservation.parkingLotName }}</div>
-          <div class="car-info">차량 번호: {{ reservation.carNumber }} </div>
-            <!-- | {{ reservation.carType }}</div> -->
+          <div class="car-info">차량 번호: {{ reservation.carNumber }}</div>
+          <!-- | {{ reservation.carType }}</div> -->
           <div class="reservation-dates">
             주차 시간: {{ DateFormat(reservation.startDate) }} <br />
             출차 시간: {{ DateFormat(reservation.endDate) }}
@@ -66,11 +66,13 @@
           <router-link
             :to="`/my/reservations/${reservation.reservationId}`"
             class="detail-btn"
-            >예약상세</router-link>
+          >예약상세
+          </router-link>
           <router-link
             :to="`/lot/${reservation.parkinglotId}`"
             class="rebook-btn"
-            >재예약</router-link>
+          >재예약
+          </router-link>
         </div>
       </div>
     </div>
@@ -89,100 +91,104 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
-import axios from 'axios';
-import ConfirmModal from '@/components/modal/ConfirmModal.vue';
-import Datepicker from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css';
+import { onMounted, reactive, ref } from 'vue'
+import axios from 'axios'
+import ConfirmModal from '@/components/modal/ConfirmModal.vue'
+import Datepicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 
-const showDatePicker = ref(false);
-const startDate = ref(new Date(Date.UTC(2000, 0, 1, 0, 0, 0)));
-const endDate = ref(new Date());
-endDate.value.setDate(endDate.value.getDate() + 30);
-endDate.value.setUTCHours(0, 0, 0, 0);
-const page = ref(0);
-const size = 5;
-const hasMoreData = ref(false);
+const showDatePicker = ref(false)
+const startDate = ref(new Date(Date.UTC(2000, 0, 1, 0, 0, 0)))
+const endDate = ref(new Date())
+endDate.value.setDate(endDate.value.getDate() + 30)
+endDate.value.setUTCHours(0, 0, 0, 0)
+const page = ref(0)
+const size = 5
+const hasMoreData = ref(false)
 
-const reservations = ref([]);
+const reservations = ref([])
 
 const modal = reactive({
   error: true,
   isModalVisible: false,
-  modalMessage: '',
+  modalMessage: ''
 })
 
 const handleModalClose = () => {
-  modal.isModalVisible = false;
+  modal.isModalVisible = false
 }
 
 // 예약 가져오기
 const getMyReservations = async () => {
   try {
-    const response = await axios.get("/api/users/reservations/protected", {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/reservations/protected`, {
       params: {
         startDate: formatDate(startDate.value),
         endDate: formatDate(endDate.value),
-        page:page.value,
+        page: page.value,
         size: size
+      },
+      headers: {
+        Authorization: `Bearer ${this.authStore.token}`,  // 인증 토큰 추가
+        'Content-Type': 'application/json'
       }
-    });
-    const newReserve = response.data.reservations;
-    reservations.value = [...reservations.value, ...newReserve];
-    hasMoreData.value = response.data.nextPage;
-  } catch (error){
+    })
+    const newReserve = response.data.reservations
+    reservations.value = [...reservations.value, ...newReserve]
+    hasMoreData.value = response.data.nextPage
+  } catch (error) {
     // console.log(error.response.data);
-    modal.modalMessage = "잠시 후 다시 시도해 주세요.";
-    modal.isModalVisible = true;
+    modal.modalMessage = '잠시 후 다시 시도해 주세요.'
+    modal.isModalVisible = true
   }
 }
 
 // date 변환해서 보내기
 const formatDate = (date) => {
-  const localDate = new Date(date);
-  localDate.setUTCHours(0, 0, 0, 0);
-  return date.toISOString().substring(0, 19);
+  const localDate = new Date(date)
+  localDate.setUTCHours(0, 0, 0, 0)
+  return date.toISOString().substring(0, 19)
 }
 
 //토클
 const toggleDatepicker = () => {
-  showDatePicker.value = !showDatePicker.value;
+  showDatePicker.value = !showDatePicker.value
 }
 
 //Date 포맷
 const DateFormat = (dateString) => {
-  return dateString.replace('T', '  ').substring(0, 17);
-};
+  return dateString.replace('T', '  ').substring(0, 17)
+}
 
 //글씨 색
 const getStatusClass = (status) => {
   switch (status) {
     case '예약 취소':
-      return 'canceled';  // 빨간색
+      return 'canceled'  // 빨간색
     case '결제 대기':
-      return 'pending';  // 회색
+      return 'pending'  // 회색
     case '결제 완료':
-      return 'completed';  // 보라색
+      return 'completed'  // 보라색
     case '예약 확정':
-      return 'confirmed';  // 초록색
+      return 'confirmed'  // 초록색
     default:
-      return '';  // 기본값
+      return ''  // 기본값
   }
 }
 
-const getMoreReservations  = () => {
-  page.value++;
-  getMyReservations();
+const getMoreReservations = () => {
+  page.value++
+  getMyReservations()
 }
 
 const getNewReservations = () => {
-  page.value = 0;
-  reservations.value = [];
-  getMyReservations();
+  page.value = 0
+  reservations.value = []
+  getMyReservations()
 }
 
 onMounted(() => {
-  getMyReservations();
+  getMyReservations()
 })
 
 </script>
@@ -218,7 +224,7 @@ onMounted(() => {
 .date-picker label {
   /* width: 130px; */
   flex: 1;
-  padding: 0 0 10px 5px ;
+  padding: 0 0 10px 5px;
 }
 
 .date-picker div {
@@ -230,7 +236,7 @@ onMounted(() => {
 }
 
 .date-input {
-  flex:2;
+  flex: 2;
   width: 100%;
 }
 
@@ -301,6 +307,7 @@ onMounted(() => {
   margin-bottom: 5px;
   cursor: pointer;
 }
+
 .search-btn {
   width: 100%;
   height: 40px;

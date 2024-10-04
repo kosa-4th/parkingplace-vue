@@ -156,9 +156,10 @@ const autoResize = (event) => {
 
 //리뷰 불러오기
 const getReviews = async () => {
+  const api = import.meta.env.VITE_API_URL;
+  console.log("review api: " + api);
   try {
     const response = await axios.get(`/api/parkinglots/${parkinglotId}/reviews?page=${page.value -1}&size=${size}`);
-    console.log(response.data.reviews)
     const newReviews = response.data.reviews.map(review => ({
       ...review,
       isEditing: false
@@ -219,7 +220,7 @@ const isReviewOwner = (review) => {
 const deleteReview = async (reviewid) => {
   if (authStore.isLoggedIn) {
 
-    await axios.delete(`/api/parkinglots/${parkinglotId}/reviews/${reviewid}/protected`);
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}/reviews/${reviewid}/protected`);
     showConfirmModal("리뷰가 삭제되었습니다.")
     resetData();
   } else {

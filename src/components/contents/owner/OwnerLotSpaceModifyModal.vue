@@ -118,7 +118,7 @@ export default {
         maintenancePrice: this.editParkingSpace.maintenancePrice
       };
       try {
-        await axios.put(`/api/parking-manager/info/parkingArea/protected`, parkingSpaceData);
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/parking-manager/info/parkingArea/protected`, parkingSpaceData);
         alert('주차 구역이 성공적으로 수정되었습니다.');
 
         // 부모 컴포넌트로 이벤트 발행: 데이터 새로고침

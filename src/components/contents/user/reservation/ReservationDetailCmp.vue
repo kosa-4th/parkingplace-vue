@@ -95,6 +95,9 @@
 </template>
 <script>
 import axios from 'axios'
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
+import { modalState, showInfoModal, handleCloseModal, showConfirmModal } from '@/components/modal/ConfirmModalService';
+
 
 export default {
   data() {
@@ -154,7 +157,7 @@ export default {
      * */
     async cancelPayment() {
       try {
-        const url = `/api/payment/${this.reservationId}/cancel/protected`
+        const url = `${import.meta.env.VITE_API_URL}/api/payment/${this.reservationId}/cancel/protected`
         const paramData = {
           merchantUid: this.reservationInfo.reservationUuid,
           reason: '사용자 요청 취소'
@@ -163,7 +166,7 @@ export default {
 
         // API 요청이 성공했을 경우
         if (response && response.status === 200) {
-          alert('예약 및 결제가 성공적으로 취소되었습니다.')
+          showInfoModal('예약 및 결제가 성공적으로 취소되었습니다.')
           window.location.href = '/' // 메인 페이지로 리다이렉트
         } else {
           console.error('예약 취소 요청이 실패했습니다.')
@@ -180,13 +183,13 @@ export default {
      * */
     async cancelReservation() {
       try {
-        const url = `/api/reservation/${this.reservationId}/cancel/protected`
+        const url = `${import.meta.env.VITE_API_URL}/api/reservation/${this.reservationId}/cancel/protected`
 
         const response = await axios.put(url)
 
         // API 요청이 성공했을 경우
         if (response && response.status === 200) {
-          alert('예약이 성공적으로 취소되었습니다.')
+          showInfoModal('예약이 성공적으로 취소되었습니다.')
           window.location.href = '/' // 메인 페이지로 리다이렉트
         } else {
           console.error('예약 취소 요청이 실패했습니다.')
@@ -201,7 +204,7 @@ export default {
     //예약정보에서 데이터 가져오기
     async getReservationPaymentData() {
       try {
-        const url = `/api/payment/${this.reservationId}/protected`
+        const url = `${import.meta.env.VITE_API_URL}/api/payment/${this.reservationId}/protected`
         const responseReservationPaymentData = await axios.get(url)
         this.reservationInfo = {
           reservationUuid: responseReservationPaymentData.data.reservationUuid,
@@ -236,7 +239,7 @@ export default {
         name: this.reservationInfo.lotName + '예약',                  // 주문명
         buyer_name: this.reservationInfo.userName,
         buyer_email: this.reservationInfo.userEmail,
-        m_redirect_url: `http://localhost:8080/api/payment/${this.reservationId}/complete`
+        m_redirect_url: `${import.meta.env.VITE_API_URL}/api/payment/${this.reservationId}/complete`
 
       }
       IMP.request_pay(paymentData,
@@ -244,13 +247,13 @@ export default {
           if (rsp.success) {
             this.sendPaymentData(rsp)
           } else {
-            alert('결제가 실패가 되었습니다.' + rsp.error_msg)
+            showInfoModal('결제가 실패가 되었습니다.' + rsp.error_msg)
           }
         })
     },
     async sendPaymentData(rsp) {
       try {
-        const response = await axios.post(`/api/payment/${this.reservationId}/complete/protected`, {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/payment/${this.reservationId}/complete/protected`, {
           impUid: rsp.imp_uid, // 아임포트 결제 고유번호
           merchantUid: rsp.merchant_uid,
           amount: rsp.paid_amount, // 결제 금액
@@ -263,12 +266,9 @@ export default {
           cardNumber: rsp.cardNumber,
           paidAt: rsp.paid_at
         })
-        alert('결제 정보 서버 전송 성공:', response.data)
-        // 결제 성공 후 성공 페이지로 리다이렉트
         window.location.reload() // 현재 페이지를 새로고침
       } catch (error) {
-        console.error('결제 정보 서버 전송 실패:', error)
-        alert('결제 정보 전송에 실패했습니다.')
+        showInfoModal('결제 실패')
         // 결제 실패 페이지로 리다이렉트
         window.location.reload() // 현재 페이지를 새로고침
       }
