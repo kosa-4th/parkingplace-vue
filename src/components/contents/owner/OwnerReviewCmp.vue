@@ -96,7 +96,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import OwnerReviewComplaintModal from './OwnerReviewComplaintModal.vue';
 import axios from 'axios';
 
@@ -133,7 +133,7 @@ const getParkingReviews = async () => {
       // actionType: activeTab.value
     };
     
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parking-manager/parkinglots/${props.selectedLotId}/reviews/protected`, { params });
+    const response = await axios.get(`/api/parking-manager/parkinglots/${props.selectedLotId}/reviews/protected`, { params });
     console.log(response.data);
     reviewData.value = response.data.parkingReviews;
     totalPages.value = response.data.totalPages;
@@ -188,10 +188,6 @@ const handleCloseModal = () => {
 onMounted(() => {
   getParkingReviews();
 })
-// selectedLotId가 변경될 때 주차장 데이터를 다시 가져옴
-watch( () => {
-  getParkingReviews();
-});
 
 </script>
 
@@ -263,21 +259,15 @@ watch( () => {
   color: white;
 }
 
-.bg-green {
-  background-color: #76D672; /* 기본 초록색 */
-  color: white;
-}
-
-.bg-red {
-  background-color: #F93A41; /* 기본 보라색 */
-  color: white;
-}
-
-
-
 .bg-purple:hover {
   background-color: #8e44ad; /* hover 시 보라색을 더 진하게 */
   color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
+
+}
+
+.bg-green {
+  background-color: #76D672; /* 기본 보라색 */
+  color: white;
 }
 
 .bg-green:hover {
@@ -285,7 +275,10 @@ watch( () => {
   color: white; /* 흰색이 아닌 다른 색을 사용하지 않음 */
 }
 
-
+.bg-red {
+  background-color: #F93A41; /* 기본 보라색 */
+  color: white;
+}
 
 .bg-red:hover {
   background-color: #F93A41; /* hover 시 보라색을 더 진하게 */

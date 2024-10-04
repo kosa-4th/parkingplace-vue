@@ -311,7 +311,7 @@ export default {
     async getParkingLotDetail() {
       await axios({
         method: 'get',
-        url: `${import.meta.env.VITE_API_URL}/api/parkinglots/${this.selectedLotId}/owner/protected`,
+        url: `/api/parkinglots/${this.selectedLotId}/owner/protected`,
         headers: {
           Authorization: `Bearer ${this.authStore.token}`,
           'Content-Type': 'application/json'
@@ -327,9 +327,8 @@ export default {
     },
     confirmModalAction() {
       axios
-        .delete(`${import.meta.env.VITE_API_URL}/api/parking-manager/info/parkingArea/protected`, {
+        .delete(`/api/parking-manager/info/parkingArea/protected`, {
           headers: {
-            Authorization: `Bearer ${this.authStore.token}`,
             parkingSpaceId: this.selectedParkingSpaceId
           }
         })

@@ -112,8 +112,6 @@
 <script>
 import axios from 'axios'
 import TimePicker from 'vue3-timepicker'
-import ConfirmModal from '@/components/modal/ConfirmModal.vue';
-import { modalState, showInfoModal, handleCloseModal, showConfirmModal } from '@/components/modal/ConfirmModalService';
 
 export default {
   components: { TimePicker },
@@ -132,7 +130,7 @@ export default {
     async saveChanges() {
       try {
         // PUT 요청으로 editableLotData의 수정된 데이터를 서버로 전송
-        const response = await axios.put(`${import.meta.env.VITE_API_URL}/api/System-Manager/parkingLotData/modify/protected`, {
+        const response = await axios.put('/api/System-Manager/parkingLotData/modify/protected', {
           id: this.editableLotData.id,
           name: this.editableLotData.name,
           tel: this.editableLotData.tel,
@@ -150,19 +148,17 @@ export default {
 
         // 요청 성공 시 처리
         if (response.status === 200) {
-          showConfirmModal('주차장 정보가 성공적으로 수정되었습니다.')
+          alert('주차장 정보가 성공적으로 수정되었습니다.')
           // 필요하다면, 수정된 데이터를 다시 로드하거나 상태를 업데이트
           this.$emit('refreshData')
           this.$emit('close-modal') // 모달 창을 닫음
 
         } else {
-          showInfoModal('수정에 실패했습니다.')
+          alert('수정에 실패했습니다.')
         }
       } catch (error) {
         console.error('주차장 정보 수정 중 오류 발생:', error)
-        showInfoModal('주차장 수정에 실패했습니다.')
-
-
+        alert('오류가 발생했습니다.')
       }
     }
   }

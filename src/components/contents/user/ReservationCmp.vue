@@ -222,7 +222,7 @@
 <script>
 import axios from 'axios'
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
-import { modalState, showInfoModal, handleCloseModal, showConfirmModal } from '@/components/modal/ConfirmModalService';
+import { modalState, showInfoModal, handleCloseModal } from '@/components/modal/ConfirmModalService';
 
 export default {
   components: {
@@ -296,7 +296,7 @@ export default {
     //axios를 통한 데이터 가져오기
     async getReservationLotData() {
       try {
-        const url = `${import.meta.env.VITE_API_URL}/api/parkingLots/${this.parkingLotId}/reservation/protected`
+        const url = `/api/parkingLots/${this.parkingLotId}/reservation/protected`
         const responseReservationLotData = await axios.get(url)
         this.parkingLotInfo = responseReservationLotData.data.parkingLotInfo
         this.userCars = responseReservationLotData.data.userCars
@@ -310,7 +310,7 @@ export default {
       }
     },
     getCheckingParkingAndTotalFee() {
-      const url = `${import.meta.env.VITE_API_URL}/api/parkingLots/${this.parkingLotId}/reservation/parkingCheck`
+      const url = `/api/parkingLots/${this.parkingLotId}/reservation/parkingCheck`
       const requestAvailableDto = {
         plateNumber: this.selectedCarNumber,
         startTime: this.entranceDateTimeResult,
@@ -334,7 +334,7 @@ export default {
         })
     },
     reservationAndPayment() {
-      const url = `${import.meta.env.VITE_API_URL}/api/parkingLots/${this.parkingLotId}/reservation/protected`
+      const url = `/api/parkingLots/${this.parkingLotId}/reservation/protected`
 
       const requestReservationDto = {
         parkingSpaceId: this.parkingSpaceId,
@@ -352,7 +352,7 @@ export default {
           if (data.reservationUuid != null) {
             window.location.href = `/reservation/detail/${response.data.reservationId}`
           } else {
-            showInfoModal('예약 실패')
+            alert('예약 실패')
           }
         })
         .catch((error) => {
@@ -516,7 +516,7 @@ export default {
 
         // 유효한 Date 객체인지 확인
         if (isNaN(selectedEntranceDate.getTime())) {
-          showInfoModal('유효하지 않은 날짜입니다.')
+          alert('유효하지 않은 날짜입니다.')
           return
         }
 
@@ -535,7 +535,7 @@ export default {
           )
 
           if (selectedEntranceDate >= selectedExitDate) {
-            showInfoModal('입차 시간이 출차 시간보다 늦을 수 없습니다.')
+            alert('입차 시간이 출차 시간보다 늦을 수 없습니다.')
             return
           }
         }
@@ -543,7 +543,7 @@ export default {
         // 현재 시간과 비교
         const now = new Date()
         if (selectedEntranceDate <= now) {
-          showInfoModal('입차 시간이 현재 시간보다 빠를 수 없습니다.')
+          alert('입차 시간이 현재 시간보다 빠를 수 없습니다.')
           return
         }
 
@@ -552,8 +552,9 @@ export default {
         const formattedTime = `${this.selectedEntranceHour.toString().padStart(2, '0')}:${this.selectedEntranceMinute.toString().padStart(2, '0')}` // 'HH:mm' 형식으로 변환
         this.entranceDateTimeResult = `${formattedDate} ${formattedTime}:00` // 날짜와 시간을 결합하여 'yyyy-MM-dd HH:mm:ss' 형식으로 저장
         this.selectedEntranceTime = `${formattedTime}`
+        alert(`입차 시간이 성공적으로 설정되었습니다: ${this.entranceDateTimeResult}`)
       } else {
-        showInfoModal('입차 시간 및 날짜를 모두 선택해 주세요.')
+        alert('입차 시간 및 날짜를 모두 선택해 주세요.')
       }
     },
 
@@ -584,7 +585,7 @@ export default {
 
         // 입차 시간이 출차 시간보다 빠르면 경고
         if (selectedExitDate <= selectedEntranceDate) {
-          showInfoModal('출차 시간이 입차 시간보다 빠를 수 없습니다.')
+          alert('출차 시간이 입차 시간보다 빠를 수 없습니다.')
           this.selectedExitHour = null
           this.selectedExitMinute = null
           this.selectedExitTime = '' // 초기화
@@ -594,9 +595,10 @@ export default {
           const formattedTime = `${this.selectedExitHour.toString().padStart(2, '0')}:${this.selectedExitMinute.toString().padStart(2, '0')}` // 'HH:mm' 형식으로 변환
           this.selectedExitTime = formattedTime
           this.exitDateTimeResult = `${formattedDate} ${formattedTime}:00` // 'yyyy-MM-dd HH:mm:ss' 형식으로 저장
+          alert(`출차 시간이 성공적으로 설정되었습니다: ${this.exitDateTimeResult}`)
         }
       } else {
-        showInfoModal('입차 시간 및 출차 시간을 모두 선택해 주세요.')
+        alert('입차 시간 및 출차 시간을 모두 선택해 주세요.')
       }
     },
     calculateTotalTime() {
@@ -617,7 +619,7 @@ export default {
 
         // 입차 시간이 출차 시간보다 빠를 경우 경고
         if (diffInMs <= 0) {
-          showInfoModal('출차 시간이 입차 시간보다 빠를 수 없습니다.')
+          alert('출차 시간이 입차 시간보다 빠를 수 없습니다.')
           this.totalTime = '00:00' // 기본값
           return
         }

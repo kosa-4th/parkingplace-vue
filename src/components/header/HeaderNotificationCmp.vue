@@ -93,7 +93,7 @@ export default {
 
       await axios({
         method: 'get',
-        url: `${import.meta.env.VITE_API_URL}/api/notifications/protected`,
+        url: '/api/notifications/protected',
         params: {
           page: this.page
         },
@@ -126,7 +126,7 @@ export default {
       try {
         await axios({
           method: 'put',
-          url: `${import.meta.env.VITE_API_URL}/api/notifications/all/protected`,
+          url: '/api/notifications/all/protected',
           headers: {
             Authorization: `Bearer ${this.authStore.token}`,
             'Content-Type': 'application/json'
@@ -145,7 +145,7 @@ export default {
       try {
         await axios({
           method: 'delete',
-          url: `${import.meta.env.VITE_API_URL}/api/notifications/all/protected`,
+          url: '/api/notifications/all/protected',
           headers: {
             Authorization: `Bearer ${this.authStore.token}`,
             'Content-Type': 'application/json'
@@ -161,7 +161,7 @@ export default {
       try {
         await axios({
           method: 'put',
-          url: `${import.meta.env.VITE_API_URL}/api/notifications/${notificationId}/protected`,
+          url: `/api/notifications/${notificationId}/protected`,
           headers: {
             Authorization: `Bearer ${this.authStore.token}`,
             'Content-Type': 'application/json'
@@ -183,7 +183,7 @@ export default {
       try {
         await axios({
           method: 'delete',
-          url: `${import.meta.env.VITE_API_URL}/api/notifications/${notificationId}/protected`,
+          url: `/api/notifications/${notificationId}/protected`,
           headers: {
             Authorization: `Bearer ${this.authStore.token}`,
             'Content-Type': 'application/json'

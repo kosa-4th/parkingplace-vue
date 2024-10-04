@@ -68,7 +68,7 @@ export default {
   methods: {
     async getUserData() {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/System-Manager/userDetailData/protected`, {
+        const response = await axios.get('/api/System-Manager/userDetailData/protected', {
           params: {
             userId: this.userId
           }

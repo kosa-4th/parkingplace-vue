@@ -7,9 +7,6 @@
 
 <template>
   <div class="tabs-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-      <h3 style="margin: 0;">고객 관리</h3>
-    </div>
     <!-- 부트스트랩 네비게이션 탭 -->
     <ul class="nav nav-tabs">
       <li class="nav-item">
@@ -173,7 +170,7 @@ export default {
     },
     async getAllUserData() {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/System-Manager/userData/protected`, {
+        const response = await axios.get('/api/System-Manager/userData/protected', {
           params: {
             requestAuth: this.getUserRole(),  // 상태에 맞는 데이터를 요청
             page: this.currentPage - 1,

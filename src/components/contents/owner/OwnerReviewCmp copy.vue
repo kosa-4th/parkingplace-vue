@@ -1,21 +1,13 @@
-<!--
-@Author김경민
-@Date 2024.09.23-24
-23일 주차장 데이터 가져오기
-24일 모달 및 수정하기
--->
 <template>
-  <div>
+  <!-- 화면 디자인: 김경민
+  작성자: 오지수
+  2024-09-26 -->
+  <div class="main-container ">
     <div>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <h3 style="margin: 0;">주차장 관리</h3>
-        <button class="btn bg-purple btn-sm" @click="openCreateModal">신규 주차장 등록</button>
+        <h3 style="margin: 0;">주차장 리뷰 관리</h3>
       </div>
       <div class="search-container">
-        <select v-model="searchOption" class="form-control search-select">
-          <option value="name">주차장 이름</option>
-          <option value="address">주소</option>
-        </select>
         <input
           type="text"
           v-model="searchKeyword"
@@ -29,22 +21,20 @@
       <thead class="thead-dark">
       <tr>
         <th scope="col">NO</th>
-        <th scope="col">주차장명</th>
-        <th scope="col">주소</th>
-        <th scope="col">전화번호</th>
-        <th scope="col">관리자명</th>
-        <th scope="col">상세보기</th>
+        <th scope="col">리뷰어 이름</th>
+        <th scope="col">리뷰</th>
+        <th scope="col">날짜</th>
+        <th scope="col">신고</th>
       </tr>
       </thead>
-      <tbody v-if="lotData.length > 0">
-      <tr v-for="(parkingLot, index) in lotData" :key="parkingLot.id">
-        <td>{{ (index + 1) + ((currentPage - 1) * pageSize) }}</td>
-        <td>{{ parkingLot.name }}</td>
-        <td>{{ parkingLot.address }}</td>
-        <td>{{ parkingLot.tel }}</td>
-        <td>{{ parkingLot.user ? parkingLot.user.userName : 'N/A' }}</td>
+      <tbody v-if="reviewData.length > 0">
+      <tr v-for="(review, index) in reviewData" :key="index">
+        <td>{{ index + 1}}</td>
+        <td>{{ review.reviewer }}</td>
+        <td>{{ review.review }}</td>
+        <td>{{ review.reviewDate }}</td>
         <td>
-          <button class="btn bg-purple btn-sm" @click="viewDetails(parkingLot)">보기 및 수정</button>
+          <button class="btn bg-red btn-red-sm" @click="viewDetails(parkingLot)">신고</button>
         </td>
       </tr>
       </tbody>
@@ -75,60 +65,29 @@
         </li>
       </ul>
     </nav>
-    <ShowDetailLotModal
-      v-if="showModifyModal"
-      :lotData="selectedLotData"
-      @close-modal="closeModifyModal"
-      @refreshData="reloadParkingLotData"
-    />
-    <!-- 신규 주차장 등록 모달 -->
-    <ShowCreateLotModal
-      v-if="showCreateModal"
-      @close-modal="closeCreateModal"
-      @refreshData="reloadParkingLotData"
-    />
   </div>
 </template>
 
 <script>
 import axios from 'axios'
-import ShowDetailLotModal from '@/components/contents/manager/ShowDetailLotModal.vue'
-import ShowCreateLotModal from '@/components/contents/manager/ShowCreateLotModal.vue'
 
 export default {
-  components: { ShowCreateLotModal, ShowDetailLotModal },
+  props: ['selectedLotId'],
   data() {
     return {
-      searchOption: 'name', // 기본 검색 옵션 (주차장 이름)
-      searchKeyword: '',    // 검색 키워드
-      lotData: [],           // 주차장 데이터 리스트
-      currentPage: 1,         // 현재 페이지 번호
-      totalPages: 0,          // 총 페이지 수
-      pageSize: 10,           // 한 페이지에 보여줄 데이터 수
-      searchName: '',         // 검색할 주차장 이름
-      searchAddress: '',       // 검색할 주소
-      paginationSize: 10,  // 한번에 표시할 페이지 버튼 수
-      showModifyModal: false, //상세보기 모달
-      showCreateModal: false, //주자장 만들기 모달
-      selectedLotData: this.lotData // 선택된 주차장 데이터
+
+      searchOption: 'name',
+      searchKeyword: '',
+      reviewData: [],
+      currentPage: 1,
+      totalPages: 0,
+      pageSize: 10,
+      paginationSize: 10,
+      from: null,
+      to: null
     }
   },
   methods: {
-    openCreateModal() {
-      this.showCreateModal = true
-    },
-    closeCreateModal() {
-      this.showCreateModal = false
-    },
-    viewDetails(parkingLot) {
-      console.log('Opening Modal for userId : ', parkingLot)
-      this.selectedLotData = parkingLot
-      this.showModifyModal = true  // 모달을 열기
-    },
-    closeModifyModal() {
-      this.showModifyModal = false
-      this.selectedUserId = null
-    },
     reloadParkingLotData() {
       // 상위 컴포넌트의 데이터를 다시 불러오는 로직
       this.getParkingLotData()
@@ -137,7 +96,9 @@ export default {
     async getParkingLotData(page = 1) {
       let params = {
         page: page - 1,
-        size: this.pageSize
+        size: this.pageSize,
+        from: this.from,
+        to: this.to
       }
 
       // 선택된 검색 옵션에 따라 파라미터 설정
@@ -148,10 +109,11 @@ export default {
       }
 
       try {
-        const response = await axios.get('/api/System-Manager/parkingLotData/protected', { params })
-        this.lotData = response.data.content
+        const response = await axios.get(`/api/parking-manager/parkinglots/${this.$props.selectedLotId}/reviews/protected`, { params })
+        console.log(response.data);
+        this.reviewData = response.data.parkingReviews
         this.totalPages = response.data.totalPages
-        this.currentPage = page
+        this.currentPage = response.data.currentPage + 1
       } catch (error) {
         console.error('데이터를 불러오는 중 오류가 발생했습니다:', error)
       }
@@ -183,6 +145,7 @@ export default {
 
 <style scoped>
 .search-container {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -235,10 +198,6 @@ export default {
   background-color: #9A64E8; /* 기본 보라색 */
   color: white;
 }
-.bg-purple {
-  background-color: #9A64E8; /* 기본 보라색 */
-  color: white;
-}
 
 /* 이전, 다음 버튼에 보라색 적용 */
 .pagination .page-item .page-link {
@@ -249,5 +208,19 @@ export default {
   color: #6c757d; /* 비활성화된 버튼 색상 */
 }
 
+.bg-purple {
+  background-color: #9A64E8; /* 기본 보라색 */
+  color: white;
+}
 
+.bg-red {
+  font-size: 14px;
+  background-color: #F93A41;
+  color: white;
+  padding: 3px 5px;
+}
+.btn.btn-red-sm:hover{
+  background-color: #F93A41; /* 기본 보라색 */
+  color: white;
+}
 </style>

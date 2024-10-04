@@ -97,7 +97,7 @@ const handleInquiryEdit = (inquiryId, inquiryContent) => {
 
 // 문의 가져오기
 const getInquiries = async () => {
-  const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parkingLots/${parkinglotId}/inquiries?page=${page.value}&size=${size}`);
+  const response = await axios.get(`/api/parkingLots/${parkinglotId}/inquiries?page=${page.value}&size=${size}`);
   const newInquiries = response.data.inquiries;
   inquiries.value = [...inquiries.value, ...newInquiries];
   hasMoreReviews.value = response.data.nextPage;

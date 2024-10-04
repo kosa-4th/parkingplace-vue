@@ -56,8 +56,7 @@ export default {
         { text: '주차장 관리', link: '/owner/lots' },
         { text: '예약 관리', link: '/owner/reservations' },
         { text: '리뷰 관리', link: '/owner/reviews' },
-        { text: '문의 관리', link: '/owner/qna' },
-        { text: '그래프', link: '/owner/graph' },
+        { text: '문의 관리', link: '/owner/qna' }
       ]
     }
   },
@@ -192,9 +191,10 @@ p {
 
 select {
   display: block;
-  width: 200px;
+  width: 100%;
   padding: 10px;
-
+  margin: auto;
+  margin-top: 10px;
   border: 1px solid #d3d3d3;
   border-radius: 5px;
   font-size: 15px;

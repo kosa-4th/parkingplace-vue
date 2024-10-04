@@ -188,7 +188,7 @@ export default {
 
       axios({
         method: 'get',
-        url: `${import.meta.env.VITE_API_URL}/api/parkinglots`, // 환경 변수로 API URL 설정
+        url: '/api/parkinglots',
         params: {
           minLat: bound.qa,
           maxLat: bound.pa,
@@ -213,8 +213,8 @@ export default {
           this.lots.forEach((item, index) => {
             //마커 형태 구분
             const imageSrc = item.hasUser
-              ? 'https://parple-s3-bucket.s3.ap-northeast-2.amazonaws.com/basic-lot-marker.png'
-              : 'https://parple-s3-bucket.s3.ap-northeast-2.amazonaws.com/marker-lot-no-owner.png'
+              ? '/src/assets/img/basic-lot-marker.png'
+              : '/src/assets/img/marker-lot-no-owner.png'
             const imageSize = new kakao.maps.Size(40, 40)
             const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
 

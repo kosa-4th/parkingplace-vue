@@ -2,9 +2,8 @@
   <div class="review-container">
     <div class="title">내 리뷰</div>
 
-    <div v-if="reviews.length === 0" class="posts-end">
-      <p class="loading-msg">등록된 리뷰 없습니다</p>
-    </div>
+    <div v-if="reviews.length === 0">작성된 리뷰가 없습니다.</div>
+
     <div v-for="(review, index) in reviews" :key="index" class="review-box" @click="gotoReview(review.parkinglotId)">
       <div class="review-header">
         <div class="parking-name">{{ review.parkinglotName }}</div>
@@ -21,7 +20,7 @@
               </g>
             </svg>
       </span>
-    </div>
+    </div>  
 
     <!-- 더보기 버튼 -->
     <hr class="more-separatior" v-if="hasMoreReviews">
@@ -35,44 +34,38 @@ import { useRouter } from 'vue-router';
 import ShowStarCmp from '@/components/mini-component/ShowStarCmp.vue';
 import axios from 'axios';
 
-const router = useRouter()
+const router = useRouter();
 
-const reviews = ref([])
-const page = ref(0)
-const size = 5
-const hasMoreReviews = ref(true)
+const reviews = ref([]);
+const page = ref(0);
+const size = 5;
+const hasMoreReviews = ref(true);
 
 const getReviews = async () => {
-  const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/reviews/protected`,
-    {
-      params: {
-        page: page.value,
-        size: size
-      },
-      headers: {
-        Authorization: `Bearer ${this.authStore.token}`,  // 인증 토큰 추가
-        'Content-Type': 'application/json'
-      }
-    }
-  )
-  console.log(response.data)
-  const newReviews = response.data.reviews
-  reviews.value = [...reviews.value, ...newReviews]
-  hasMoreReviews.value = response.data.nextPage
+  const response = await axios.get(`/api/users/reviews/protected`,
+    {params: {
+      page: page.value,
+      size: size
+    }}
+  );
+  console.log(response.data);
+  const newReviews = response.data.reviews;
+  reviews.value = [...reviews.value, ...newReviews];
+  hasMoreReviews.value = response.data.nextPage;
 }
 
 const getMoreReviews = () => {
-  page.value++
-  getReviews()
+  page.value++;
+  getReviews();
 }
 
 const gotoReview = (parkinglotId) => {
-  router.push(`/lot/${parkinglotId}/review`)
+  router.push(`/lot/${parkinglotId}/review`);
 }
 
 onMounted(() => {
-  getReviews()
-})
+  getReviews();
+});
 </script>
 
 <style scoped>

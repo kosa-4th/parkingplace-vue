@@ -177,7 +177,7 @@ const updateInfo = async () => {
   //   return;
   // }
   try {
-    const response = await axios.put(`https://gaeng.d1oei463ugcb72.amplifyapp.comhttps://gaeng.d1oei463ugcb72.amplifyapp.com/api/users/profile/protected`, {
+    const response = await axios.put("/api/users/profile/protected", {
       password: user.currentPassword,
       newPassword: user.newPassword
     });
@@ -194,7 +194,7 @@ const updateInfo = async () => {
 // 회원 탈퇴
 const deleteAccount = async () => {
   try {
-    await axios.delete(`https://gaeng.d1oei463ugcb72.amplifyapp.com/api/users/profile/protected`);
+    await axios.delete("/api/users/profile/protected");
     logout();
     showConfirmModal("회원 탈퇴처리 되었습니다.", '/')
   } catch (error) {

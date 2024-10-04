@@ -304,7 +304,7 @@ export default {
   methods: {
     async ignoreReservation(reservationId, reservationUid) {
       try {
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/parking-manager/reservation/cancel/${reservationId}/protected`, {
+        const response = await axios.post(`/api/parking-manager/reservation/cancel/${reservationId}/protected`, {
           merchantUid: reservationUid,
           reason: '주차장업주 환불'
         })
@@ -323,7 +323,7 @@ export default {
     async permitReservation(reservationId) {
       try {
         // PUT 요청을 통해 예약 상태를 '허가'로 변경
-        const response = await axios.put(`${import.meta.env.VITE_API_URL}/api/parking-manager/reservation/${reservationId}`, {
+        const response = await axios.put(`/api/parking-manager/reservation/${reservationId}`, {
           reservationConfirmed: 'Y' // 허가 상태를 'Y'로 설정
         })
 
@@ -350,7 +350,7 @@ export default {
         }
 
         // Axios 요청
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parking-manager/reservation`, {
+        const response = await axios.get('/api/parking-manager/reservation', {
           params: {
             ...requestData, // 필터 조건 추가
             page: page - 1, // 0-based pagination 처리
@@ -410,9 +410,6 @@ export default {
   },
   mounted() {
     this.getReservationByConfirmed(this.getReservationStatus(), this.currentPage, this.pageSize)
-  },
-  watch(){
-    this.getReservationByConfirmed(this.getReservationStatus())
   }
 }
 </script>

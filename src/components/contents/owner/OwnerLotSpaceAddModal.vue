@@ -140,7 +140,7 @@ export default {
       }
       try {
         console.log(this.newParkingSpace)
-        await axios.post(`${import.meta.env.VITE_API_URL}/api/parking-manager/info/parkingArea/protected`, this.newParkingSpace)
+        await axios.post('/api/parking-manager/info/parkingArea/protected', this.newParkingSpace)
         alert('주차구역이 추가되었습니다.')
         alert('새로운 주차장이 성공적으로 등록되었습니다.')
         this.$emit('refreshData')

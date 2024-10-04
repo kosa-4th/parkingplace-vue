@@ -216,7 +216,7 @@ export default {
 
       axios({
         method: 'get',
-        url: `${import.meta.env.VITE_API_URL}/api/parkinglots/recommend`,
+        url: '/api/parkinglots/recommend',
         params: {
           longitude: this.centerPosition.longitude,
           latitude: this.centerPosition.latitude,
@@ -237,7 +237,7 @@ export default {
     async getSelectableCarTypes() {
       await axios({
         method: 'get',
-        url: `${import.meta.env.VITE_API_URL}/api/car-type`
+        url: '/api/car-type'
       })
         .then((response) => {
           this.selectableCarTypes = response.data.carTypes

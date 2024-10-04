@@ -130,7 +130,7 @@ export default {
     updateLotInfo(lotInfo) {
       axios({
         method: 'get',
-        url: `${import.meta.env.VITE_API_URL}/api/parkinglots/preview/` + lotInfo.lotId
+        url: '/api/parkinglots/preview/' + lotInfo.lotId
       })
         .then((response) => {
           this.currentLotInfo = { ...response.data }
@@ -145,7 +145,7 @@ export default {
     async getHasFavorite() {
       await axios({
         method: 'get',
-        url: `${import.meta.env.VITE_API_URL}/api/favorites/parkingLot/` + this.lotInfo.lotId + '/protected',
+        url: '/api/favorites/parkingLot/' + this.lotInfo.lotId + '/protected',
         headers: {
           Authorization: `Bearer ${this.authStore.token}`,
           'Content-Type': 'application/json'
@@ -161,7 +161,7 @@ export default {
     async toggleFavorite() {
       await axios({
         method: 'post',
-        url: `${import.meta.env.VITE_API_URL}/api/favorites/protected`,
+        url: '/api/favorites/protected',
         params: {
           parkingLotId: this.lotInfo.lotId
         },

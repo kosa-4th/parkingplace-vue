@@ -75,7 +75,7 @@ const hasFavorite = ref(false);
 const getParkingLotDetails = async () => {
   try {
     
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}`);
+    const response = await axios.get(`/api/parkinglots/${parkinglotId}`);
     parkingLotDetail.value = response.data;
     images.value = response.data.images;
     getHasFavorite();
@@ -85,7 +85,7 @@ const getParkingLotDetails = async () => {
 }
 
 const getHasFavorite = async () => {
-  const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/favorites/parkingLot/${parkinglotId}/protected`);
+  const response = await axios.get(`/api/favorites/parkingLot/${parkinglotId}/protected`);
   hasFavorite.value = response.data.hasFavorite;
 }
 
@@ -97,7 +97,7 @@ onMounted(() => {
 const isActiveTab = (tab) => route.path.includes(tab);
 
 const toggleFavorite = async () => {
-  const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/favorites/protected`, null, {
+  const response = await axios.post('/api/favorites/protected', null, {
     params: {
       parkingLotId: parkinglotId
     },
