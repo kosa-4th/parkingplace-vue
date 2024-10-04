@@ -328,9 +328,12 @@ export default {
     confirmModalAction() {
       axios
         .delete(`${import.meta.env.VITE_API_URL}/api/parking-manager/info/parkingArea/protected`, {
+          params: {
+            parkingSpaceId: this.selectedParkingSpaceId // 쿼리 파라미터로 전달
+          },
           headers: {
             Authorization: `Bearer ${this.authStore.token}`,
-            parkingSpaceId: this.selectedParkingSpaceId
+            'Content-Type': 'application/json'
           }
         })
         .then(() => {
