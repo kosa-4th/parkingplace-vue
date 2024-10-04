@@ -4,13 +4,21 @@
 
   <div class="review-detail">
     <div class="review-input">
-      <textarea
-        placeholder="리뷰를 작성해주세요."
-        v-model="newReview"
-        rows="1"
-        class="review-write-textarea"
-        @input="autoResize($event)"></textarea>
-      <button class="submit-btn" @click="registerReview">리뷰 등록</button>
+      <star-cmp
+        class="star-cmp"
+        v-model:rating="rating">
+      </star-cmp>
+        
+      <div>
+        <textarea
+          placeholder="리뷰를 작성해주세요."
+          v-model="newReview"
+          rows="1"
+          class="review-write-textarea"
+          @input="autoResize($event)"></textarea>
+          <button class="submit-btn" @click="registerReview">리뷰 등록</button>
+        </div>
+
     </div>
 
     <div v-if="reviews.length == 0" class="no-review">
@@ -21,8 +29,11 @@
     <div v-else class="review-items">
       <hr>
       <div v-for="(review, index) in reviews" :key="index" class="review-item">
-        <div>
-          <span class="review-reviewer">{{ review.reviewer }}</span> | <span class="review-date">{{ review.reviewDate }}</span>
+        <div class="review-header">
+          <div>
+            <span class="review-reviewer">{{ review.reviewer }}</span> | <span class="review-date">{{ review.reviewDate }}</span>
+          </div>
+          <show-star-cmp :rating="review.rating"></show-star-cmp>
         </div>
         
         <textarea
@@ -30,7 +41,7 @@
           readonly
           rows="1"
           v-model="review.review"
-          class="read-only-textarea"
+          :class="{'read-only-textarea': true, 'italic-text': !review.modifiable}"
           @input="autoResize($event)"
           ref="reviewTextarea"
           ></textarea>
@@ -43,7 +54,7 @@
           class="editable"></textarea>
 
         <!-- 수정 모드 아닐 때 -->
-        <div v-if="isReviewOwner(review) && !review.isEditing" class="review-actions">
+        <div v-if="review.modifiable && isReviewOwner(review) && !review.isEditing" class="review-actions">
           <button class="edit-btn" @click="modifyReview(review)">수정</button>
           <button class="delete-btn" @click="openDeleteModal(review)">삭제</button>
         </div>
@@ -86,6 +97,8 @@ import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 import ConfirmCancelModal from '@/components/modal/ConfirmCancelModal.vue';
 import { modalState, handleCloseModal, showConfirmModal, showInfoModal, showErrorModal } from '@/components/modal/ConfirmModalService';
 import { confirmCancelModalState, handleColseCCModal, showConfirmCancelModal, showCCInfoModal } from '@/components/modal/ConfirmModalService';
+import StarCmp from '@/components/mini-component/StarCmp.vue';
+import ShowStarCmp from '@/components/mini-component/ShowStarCmp.vue';
 import axios from 'axios';
 
 const authStore = AuthStore();
@@ -97,6 +110,7 @@ const loggedInUser = computed(() => authStore.email);
 // 리뷰 목록 데이터
 const newReview = ref('');
 const reviews = ref([]);
+const rating = ref(0);
 const page = ref(1);
 const size = 5;
 const hasMoreReviews = ref(true);
@@ -145,7 +159,7 @@ const getReviews = async () => {
   const api = import.meta.env.VITE_API_URL;
   console.log("review api: " + api);
   try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}/reviews?page=${page.value -1}&size=${size}`);
+    const response = await axios.get(`/api/parkinglots/${parkinglotId}/reviews?page=${page.value -1}&size=${size}`);
     const newReviews = response.data.reviews.map(review => ({
       ...review,
       isEditing: false
@@ -166,16 +180,25 @@ const getReviews = async () => {
 
 // 리뷰등록
 const registerReview = async () => {
+  console.log("rating: " + rating.value);
   if (!newReview.value.trim()) {
     showInfoModal("리뷰를 작성해주세요.")
     return;
   }
+  if (rating.value <= 0) {
+    showInfoModal("별점을 선택해주세요.")
+    return;
+  }
+
   if (authStore.isLoggedIn) {
-    await axios.post(`${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}/reviews/protected`,
-      {newReview : newReview.value},
+    await axios.post(`/api/parkinglots/${parkinglotId}/reviews/protected`,
+      {newReview : newReview.value,
+        rating: rating.value
+      },
     );
     showConfirmModal("리뷰가 등록되었습니다.")
     resetData();
+    rating.value = 0;
   } else {
     // 로그인되지 않음
     showInfoModal("로그인 후 이용해주세요.")
@@ -231,8 +254,9 @@ const cancelEdit = (review) => {
 //리뷰 수정 저장
 const saveReview = async (review) => {
   try {
-    await axios.put(`${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}/reviews/${review.id}/protected`,
-      {newReview: editingReview.value}
+    await axios.put(`/api/parkinglots/${parkinglotId}/reviews/${review.id}/protected`,
+      {newReview: editingReview.value,
+      }
     );
     
     review.review = editingReview.value;
@@ -295,9 +319,6 @@ textarea.read-only-textarea {
   outline: none;
 }
 
-.review-input textarea {
-  width: calc(100% - 95px);
-}
 
 .review-detail {
   width: 90%;
@@ -325,11 +346,25 @@ textarea.read-only-textarea {
 
 .review-input {
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
+  flex-direction: column;
   border: 1px solid #ddd;
   border-radius: 5px;
+}
+
+.review-input > div {
+  display: flex;
+  flex-direction: row;
   padding: 5px;
+}
+.star-cmp {
+  margin-left: 10px;
+}
+
+
+.review-input div textarea {
+  width: calc(100% - 95px);
+  margin-left: 5px;
+  border: 1px solid #ddd;
 }
 
 button {
@@ -358,6 +393,18 @@ button {
   border-radius: 5px;
   padding: 10px;
   margin-bottom: 4px;
+}
+
+.review-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.italic-text {
+  font-style: italic;
+  text-decoration: underline
 }
 
 .review-item textarea {

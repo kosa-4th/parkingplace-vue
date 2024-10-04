@@ -9,7 +9,8 @@
       <div class="review-header">
         <div class="parking-name">{{ review.parkinglotName }}</div>
         <div class="review-date">{{ review.reviewDate }}</div>
-        <div class="review-content">
+        <show-star-cmp :rating="review.rating"></show-star-cmp>
+        <div :class="{'review-content':true, 'italic-text':!review.modifable}" >
           {{ review.review }}
         </div>
       </div>
@@ -29,9 +30,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import axios from 'axios'
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import ShowStarCmp from '@/components/mini-component/ShowStarCmp.vue';
+import axios from 'axios';
 
 const router = useRouter()
 
@@ -141,4 +143,10 @@ onMounted(() => {
   align-self: center;
   z-index: 1;
 }
+
+.italic-text {
+  font-style: italic;
+  text-decoration: underline
+}
+
 </style>

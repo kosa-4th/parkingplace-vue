@@ -123,6 +123,37 @@ function getTokenExpiration(token) {
 }
 
 // Axios 인터셉터 설정
+// axios.interceptors.request.use(
+//     async config => {
+//         const authStore = AuthStore();
+//         let token = authStore.token;
+
+//         // 특정 URL 패턴에 대해서만 JWT를 포함
+//         if (config.url.startsWith('/api/') && config.url.endsWith('/protected')) {
+//             const tokenExpiration = getTokenExpiration(token);
+//             const now = Date.now();
+
+//             //토큰 만료시간 확인 및 갱신 필요 여부 판단
+//             if (tokenExpiration && tokenExpiration <= now) {
+//                 token = await refreshToken();
+//             }
+
+//             // 갱신된 토큰이 있다면 Authorization 헤더에 추가
+//             if (token) {
+//                 config.headers.Authorization = `Bearer ${token}`;
+//             } else {
+//                 authStore.clearAuthData();
+//                 return Promise.reject(new Error("유효한 토큰이 아닙니다."))
+//             }
+//         }
+//         return config;
+//     },
+//     error => {
+//         return Promise.reject(error);
+//     }
+// )
+
+// Axios 인터셉터 설정
 axios.interceptors.request.use(
     async config => {
         const authStore = AuthStore();
