@@ -96,7 +96,7 @@ const handleModalClose = () => {
 
 const getData = async () => {
   try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/cars/protected`);
+    const response = await axios.get(`/api/users/cars/protected`);
     myCars.value = response.data.myCars;
     carTypes.value = response.data.carTypes;
     selectedCar.value = carTypes.value[0].carType;
@@ -134,7 +134,7 @@ const removeCar = async (car) => {
   //   modal.modalMessage = "차량은 1개 이상<br/>등록되어야 합니다.";
   //   modal.isModalVisible = true;
   // } else {
-    await axios.delete(`${import.meta.env.VITE_API_URL}/api/users/cars/${car.id}/protected`, {
+    await axios.delete(`/api/users/cars/${car.id}/protected`, {
         data: {
           carType: car.carType,
           plateNumber: car.plateNumber
@@ -156,7 +156,7 @@ const registerCar = async () => {
   }
 
   try {
-    await axios.post(`${import.meta.env.VITE_API_URL}/api/users/cars/protected`,
+    await axios.post(`/api/users/cars/protected`,
     {
       carType: selectedCar.value,
       plateNumber: newCarNumber.value

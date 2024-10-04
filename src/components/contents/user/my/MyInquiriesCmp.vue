@@ -48,18 +48,13 @@ const size = 5
 const hasMoreinquiries = ref(true)
 
 const getinquiries = async () => {
-  const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/inquiries/protected`,
+  const response = await axios.get(`/api/users/inquiries/protected`,
     {
       params: {
         page: page.value,
         size: size
       }
-    }, {
-      headers: {
-        Authorization: `Bearer ${this.authStore.token}`,  // 인증 토큰 추가
-        'Content-Type': 'application/json'
-      }
-    }
+    },
   )
   const newinquiries = response.data.inquiries
   inquiries.value = [...inquiries.value, ...newinquiries]
