@@ -27,15 +27,23 @@
       <router-link to="/" class="navbar-brand position-absolute start-50 translate-middle-x">
         <img src="@/assets/img/logo.png" style="height: 25px" alt="Parking Place" />
       </router-link>
-      <!-- 알림 버튼 -->
 
+      <!-- 알림 버튼 -->
       <div class="d-flex" v-if="authStore.isLoggedIn && authStore.getAuth === 'ROLE_USER'">
         <button href="#" class="nav-link text-dark" @click="toggleNotificationModal">
           <img src="@/assets/img/bell.svg" style="width: 20px; height: 20px; margin-right: 15px" />
         </button>
+        <div
+          id="notification-count"
+          v-if="uncheckedNotificationCount > 0"
+          @click="toggleNotificationModal"
+        >
+          {{ uncheckedNotificationCount }}
+        </div>
         <header-notification-cmp
           v-if="isNotificationOpen"
           @closed="closeNotificationModal"
+          @notificationChanged="getUncheckedNotificationCount"
         ></header-notification-cmp>
       </div>
       <div v-else></div>
@@ -101,6 +109,7 @@ import { useRouter } from 'vue-router'
 import { logout } from '@/service/authService'
 import HeaderNotificationCmp from './HeaderNotificationCmp.vue'
 import { useRoute } from 'vue-router'
+import axios from 'axios'
 
 const isSidebarOpen = ref(false)
 const isLoggedIn = ref(false)
@@ -109,6 +118,8 @@ let isNotificationOpen = ref(false)
 const route = useRoute()
 const currentUrl = ref(route.fullPath)
 const router = useRouter()
+
+const uncheckedNotificationCount = ref(0)
 
 const authStore = AuthStore()
 
@@ -162,12 +173,34 @@ const closeNotificationModal = () => {
   isNotificationOpen.value = false
 }
 
+const getUncheckedNotificationCount = async () => {
+  await axios({
+    method: 'get',
+    url: `${import.meta.env.VITE_API_URL}/api/notifications/count/protected`,
+    headers: {
+      Authorization: `Bearer ${authStore.token}`, // 'this' 없이 사용
+      'Content-Type': 'application/json'
+    }
+  })
+    .then((response) => {
+      uncheckedNotificationCount.value = response.data.uncheckedNotificationCount
+    })
+    .catch(function (e) {
+      console.error(e)
+    })
+}
+
+onMounted(() => {
+  getUncheckedNotificationCount()
+})
+
 watch(
   () => route.fullPath, // fullPath를 감시
   (newUrl, oldUrl) => {
     console.log('URL이 변경되었습니다:', oldUrl, '=>', newUrl)
     currentUrl.value = newUrl
     isNotificationOpen.value = false
+    getUncheckedNotificationCount()
   }
 )
 </script>
@@ -321,5 +354,24 @@ watch(
 .nav-register {
   color: black;
   font-weight: 600;
+}
+
+.d-flex {
+  position: relative;
+}
+
+#notification-count {
+  position: absolute;
+  top: -5px;
+  right: 10px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  line-height: 20px;
+  font-size: 12px;
+  font-weight: bold;
 }
 </style>
