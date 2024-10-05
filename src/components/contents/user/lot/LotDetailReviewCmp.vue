@@ -1,12 +1,6 @@
 <template>
   <!-- 작성자: 오지수
       주차장 상세 페이지: 리뷰 -->
-  <div v-if="isLoading" class="loading-container">
-    <div class="loading">
-      <Fade-loader />
-    </div>
-  </div>
-
   <div class="review-detail">
     <div class="review-input">
       <star-cmp
@@ -91,6 +85,12 @@
       @close="handleColseCCModal"
       @confirm="confirmModalAction"
     />
+
+    <div v-if="isLoading" class="loading-container">
+      <div class="loading">
+        <Fade-loader />
+      </div>
+    </div>
   </div>
 </template>
 

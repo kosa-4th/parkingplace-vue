@@ -1,10 +1,4 @@
 <template>
-  <div v-if="isLoading" class="loading-container">
-    <div class="loading">
-      <Fade-loader />
-    </div>
-  </div>
-
   <div class="inquriy-container">
     <button class="inquiry-btn" @click="navigateToMakeInquiry">문의하기</button>
 
@@ -67,6 +61,12 @@
 
     <hr class="more-separatior" v-if="hasMoreReviews">
     <button class="more-btn" v-if="hasMoreReviews" @click="getMoreReviews">더보기 ∨</button>
+
+    <div v-if="isLoading" class="loading-container">
+      <div class="loading">
+        <Fade-loader />
+      </div>
+    </div>
   </div>
 </template>
 

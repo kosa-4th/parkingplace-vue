@@ -101,18 +101,17 @@ const modules = [Navigation, Pagination]
 const isLoading = ref(false);
 
 // 로딩 상태에 따른 body 스크롤 제어
-watch(isLoading, (newValue) => {
-  if (newValue) {
-    document.body.style.overflow = 'hidden';  // 스크롤 비활성화
-  } else {
-    document.body.style.overflow = 'auto';    // 스크롤 활성화
-  }
-});
+// watch(isLoading, (newValue) => {
+//   if (newValue) {
+//     document.body.style.overflow = 'hidden';  // 스크롤 비활성화
+//   } else {
+//     document.body.style.overflow = 'auto';    // 스크롤 활성화
+//   }
+// });
 
 const getParkingLotDetails = async () => {
   try {
     isLoading.value = true;
-    await new Promise(resolve => setTimeout(resolve, 5000));
     const response = await axios.get(
       `${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}`
     )
@@ -121,6 +120,7 @@ const getParkingLotDetails = async () => {
     images.value = response.data.images
     getHasFavorite()
   } catch (error) {
+    isLoading.value = false;
     //error
   }
 }
