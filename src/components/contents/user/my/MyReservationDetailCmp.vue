@@ -3,7 +3,7 @@
  * @Author 김경민
  * @Date 2024.09.18 MyPage 예약 상세 관련 Design 기본 틀
  * @DATE 2024.09.19 Axios를 통한 데이터 받아오기 및 결제 취소 및 예약 취소
- * @DATE 2024.10.04 예약시간 비교해서 에약 확정이나, 결제 취소하기 버튼 안뜨게 
+ * @DATE 2024.10.04 예약시간 비교해서 에약 확정이나, 결제 취소하기 버튼 안뜨게
  * */
 import axios from 'axios'
 
@@ -67,7 +67,6 @@ export default {
             paidAt: rsp.paid_at
           }
         )
-        alert('결제 정보 서버 전송 성공:', response.data)
         // 결제 성공 후 성공 페이지로 리다이렉트
         window.location.reload() // 현재 페이지를 새로고침
       } catch (error) {
@@ -216,7 +215,6 @@ export default {
 
         <hr>
 
-        <!-- 차량 번호 및 변경 버튼 -->
         <div class="mb-3 d-flex align-items-center">
           <img src="../../../../assets/img/icon-car.png" alt="서비스 아이콘" width="22" height="22" class="me-2">
           <i class="bi bi-car-front-fill text-muted me-2 fs-5"></i>
@@ -230,10 +228,12 @@ export default {
                   @click="requestPayment">결제하기
           </button>
           <div class="mt-1"></div>
-          <button v-if="reservationDetails.reservationConfirmed === 'Y' && new Date(reservationDetails.startTime) >= localtime"
+
+          <button v-if="reservationDetails.reservationConfirmed === 'C'||reservationDetails.reservationConfirmed === 'Y' && new Date(reservationDetails.startTime) <= localtime"
                   class="btn btn-block w-100"
                   style="background-color: #f3e8ff; color: #a678e1;">예약 취소하기
           </button>
+
         </div>
 
         <!-- 모달 -->
