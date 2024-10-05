@@ -14,8 +14,8 @@
     </div>
 
     <div v-else>
-      <swiper class="mySwiper">
-        <swiper-slide v-for="(image, index) in images" :key="index">
+      <swiper class="mySwiper" :navigation="true" :pagination="true">
+        <swiper-slide v-for="(image, index) in images" :key="index" class="image-slider">
           <img :src="removeFileProtocol(image)" alt="Parking image" class="parking-image" />
         </swiper-slide>
       </swiper>
@@ -67,7 +67,7 @@
     </div>
 
     <!-- 선택된 컴포넌트 출력 -->
-    <router-view :parkingLotDetail="parkingLotDetail"></router-view>
+    <router-view :parkingLotDetail="parkingLotDetail" style="margin: auto"></router-view>
   </div>
 </template>
 
@@ -143,7 +143,7 @@ const removeFileProtocol = (path) => {
 <style scoped>
 .parking-detail {
   width: 100%;
-  display: flex;
+  /* display: flex; */
   flex-direction: column;
   align-items: center;
   max-width: 700px;
@@ -153,7 +153,7 @@ const removeFileProtocol = (path) => {
 .image-slider {
   width: 100%;
   height: 300px;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
 
 .default-image {
@@ -167,7 +167,7 @@ const removeFileProtocol = (path) => {
 
 .parking-image {
   width: 100%;
-  height: 100%;
+  height: 300px;
   object-fit: cover;
 }
 
