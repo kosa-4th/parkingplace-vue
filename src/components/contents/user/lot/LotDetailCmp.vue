@@ -16,7 +16,7 @@
     <div v-else>
       <swiper class="mySwiper">
         <swiper-slide v-for="(image, index) in images" :key="index">
-          <img :src="removeFileProtocol(image)" alt="Parking image" />
+          <img :src="removeFileProtocol(image)" alt="Parking image" class="parking-image" />
         </swiper-slide>
       </swiper>
     </div>
