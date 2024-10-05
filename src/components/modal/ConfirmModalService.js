@@ -12,14 +12,17 @@ export const modalState = ref({
 
 // 초록 모달 화면 / only 확인 버튼
 export function showConfirmModal(message = null, path = '', title = '알림') {
-    modalState.value = {
-        isVisible : true,
-        title,
-        message: message || '작업이 완료되었습니다.',
-        confirm: true,
-        error: false,
-        path
-    }
+    return new Promise((resolve) => {
+        modalState.value = {
+            isVisible : true,
+            title,
+            message: message || '작업이 완료되었습니다.',
+            confirm: true,
+            error: false,
+            path,
+            onClose: () => resolve()
+        }
+    })
 }
 
 // 빨간 모달 화면 / only 확인 버튼

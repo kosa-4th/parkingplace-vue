@@ -93,9 +93,10 @@
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { googleSignIn } from '@/service/authService';
-import router from '@/router';
+import {router} from '@/router';
 import axios from 'axios';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
+
 
 //비밀 번호 인증 여부
 const verification = ref(false);
@@ -246,7 +247,14 @@ modal.handleModalClose = () => {
 const handleGoogleLogin = () => {
   // Google OAuth  로그인 창 띄우기
   const clientId = '1088898736830-18dd892tdheuuaqdimgq4cecn7164edk.apps.googleusercontent.com'; // Google 클라이언트 ID
-  const redirectUri = "http://localhost:5173/login"; 
+  const url = `${import.meta.env.VITE_API_URL}`
+  let redirect_uri;
+  if (url === 'http://localhost:8080') {
+    redirect_uri = 'http://localhost:5173';
+  } else if (url === 'https://parkingback.store') {
+    redirect_uri = 'https://www.parkingplace.store';
+  }
+  const redirectUri = `${redirect_uri}/login`; 
   const scope = 'email profile';
 
   const googleLoginUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}&include_granted_scopes=true`;
@@ -267,7 +275,7 @@ const handleGoogleLoginCallback = async () => {
     try {
       const success = await googleSignIn(accessToken, tokenType, expiresIn);
       if (success === true) {
-        router.push('/');
+        router("/")
       } else {
         modal.modalMessage = success;
         modal.isModalVisible = true;

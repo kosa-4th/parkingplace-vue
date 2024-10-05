@@ -45,7 +45,7 @@
 
         <!-- 답변영역 -->
         <div v-if="selectedInquiry === index && inquiry.answerDate">
-          <div v-if="inquiry.secret && userEmail !== inquiry.inquirerEmail" class="answer-box">
+          <div v-if="inquiry.secret && userEmail !== inquiry.iqnuirerEmail" class="answer-box">
             <hr>
             <div class="secret-font"><i>"비밀로 작성된 문의글입니다."</i></div>
           </div>

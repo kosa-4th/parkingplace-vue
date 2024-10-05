@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import router from '@/router'
+import {router} from '@/router'
 import { useRoute } from 'vue-router'
 import lib from '@/scripts/lib'
 

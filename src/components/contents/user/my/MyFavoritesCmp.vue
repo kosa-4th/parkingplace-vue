@@ -68,7 +68,7 @@
 
 <script>
 import axios from 'axios'
-import router from '@/router'
+import {router} from '@/router'
 import { AuthStore } from '@/stores/store'
 import { InfiniteLoading } from 'infinite-loading-vue3-ts'
 

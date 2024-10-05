@@ -6,8 +6,8 @@
         <li class="nav-item">
           <a
             class="nav-link subtitle"
-            :class="{ active: activeTab === 'All' }"
-            @click="switchTab('All')"
+            :class="{ active: activeTab === 'Unprocessed' }"
+            @click="switchTab('Unprocessed')"
           >
             신고 미처리
           </a>
@@ -15,8 +15,8 @@
         <li class="nav-item">
           <a
             class="nav-link subtitle"
-            :class="{ active: activeTab === 'UnAnswered' }"
-            @click="switchTab('UnAnswered')"
+            :class="{ active: activeTab === 'Processed' }"
+            @click="switchTab('Processed')"
           >
             신고 처리 완료
           </a>
@@ -24,8 +24,8 @@
         <li class="nav-item">
           <a
             class="nav-link subtitle"
-            :class="{ active: activeTab === 'Answered' }"
-            @click="switchTab('Answered')"
+            :class="{ active: activeTab === 'All' }"
+            @click="switchTab('All')"
           >
             전체 신고 리뷰
           </a>
@@ -52,40 +52,24 @@
           <thead class="thead-dark">
           <tr>
             <th scope="col">NO</th>
-            <th scope="col">문의 내용</th>
-            <th scope="col">등록자</th>
-            <th scope="col">문의 등록일</th>
-            <th scope="col">답변 여부</th>
-            <th scope="col">편집</th>
+            <th scope="col">리뷰</th>
+            <th scope="col">신고 사유</th>
+            <th scope="col">신고 날짜</th>
+            <th scope="col">신고 처리</th>
           </tr>
           </thead>
           <tbody>
-          <tr v-for="(inquiry, index) in inquiryData" :key="index">
-            <td>{{ index + 1 }}</td>
-            <td>
-              {{ inquiry.inquiry }}
-
-            </td>
-            <td>
-              {{ inquiry.inquirer }}
-            </td>
-            <td>
-              {{ inquiry.inquiryDate }} 
-            </td>
-            <td class="center-text">
-              <span v-if="inquiry.isIfAnswer" class="font-green">
-                답변완료
-              </span>
-              <span v-else class="font-red">
-                미답변
-              </span>
-            </td>
-            <td class="center-text">
-              <button class="btn btn-sm bg-purple"
-                      @click="openEditModal(inquiry.inquiryId)">편집
-              </button>
-            </td>
-          </tr>
+            <tr v-for="(review, index) in reviewData" :key="index">
+                <td>{{ index + 1 }}</td>
+                <td>{{ review.review }}</td>
+                <td>{{ review.complaintReason }}</td>
+                <td>{{ review.complaintDate }}</td>
+                <td class="center-text">
+                <button class="btn btn-sm bg-purple"
+                        @click="openEditModal(review.reviewId)">신고 처리
+                </button>
+                </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -114,9 +98,9 @@
         </ul>
       </nav>
 
-      <owner-qna-modal
+      <manager-review-modal
         v-if="isModalVisible"
-        :inquiryId="selectedInquiry"
+        :reviewId="selectedReviewId"
         :parkinglotId="selectedLotId"
         @close-modal="handleCloseModal"
       />
@@ -127,18 +111,10 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
-// import OwnerQnaModal from './OwnerQnaModal.vue';
+import ManagerReviewModal from './ManagerReviewModal.vue';
 import axios from 'axios';
 
-
-const props = defineProps({
-  selectedLotId: {
-    type: Number,
-    required: true
-  }
-})
-
-const activeTab = ref("All");
+const activeTab = ref("Unprocessed");
 const startDate = ref(null);
 const endDate = ref(null);
 
@@ -147,14 +123,14 @@ const totalPages = ref(0)
 const pageSize = 10
 const paginationSize = 10
 
-const inquiryData = ref([]);
+const reviewData = ref([]);
 
 //모달 문의
 const isModalVisible = ref(false);
-const selectedInquiry = ref(null);
+const selectedReviewId = ref(null);
 
-// 문의 가져오기
-const getParkingInquiries = async () => {
+// 리뷰 가져오기
+const getSystemReviews = async () => {
   try {
     const params = {
       page: currentPage.value - 1,
@@ -164,9 +140,9 @@ const getParkingInquiries = async () => {
       actionType: activeTab.value
     };
     
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parking-manager/parkinglots/${props.selectedLotId}/inquiries/protected`, { params });
+    const response = await axios.get(`/api/system-manager/reviews/protected`, { params });
     console.log(response.data);
-    inquiryData.value = response.data.inquiries;
+    reviewData.value = response.data.reviews;
     totalPages.value = response.data.totalPages;
     currentPage.value = response.data.currentPage + 1;
   } catch (error) {
@@ -177,7 +153,7 @@ const getParkingInquiries = async () => {
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
-    getParkingInquiries(); // 페이지 변경 시 데이터 다시 가져오기
+    getSystemReviews(); // 페이지 변경 시 데이터 다시 가져오기
   }
 }
 
@@ -196,31 +172,31 @@ const applyDateFilter = () => {
     alert('잘못된 날짜 범위입니다.');
   } else {
     currentPage.value = 1; // Reset to page 1 when filtering
-    getParkingInquiries();
+    getSystemReviews();
   }
 };
 
 const switchTab = (tabName) => {
   activeTab.value = tabName;
   currentPage.value = 1;
-  getParkingInquiries();
+  getSystemReviews();
 };
 
 const openEditModal = (inquiryId) => {
-  selectedInquiry.value = inquiryId;
+  selectedReviewId.value = inquiryId;
   isModalVisible.value = true;
 }
 
 const handleCloseModal = () => {
-  getParkingInquiries();
+    getSystemReviews();
   isModalVisible.value = false;
 }
 
 onMounted(() => {
-  getParkingInquiries();
+    getSystemReviews();
 })
 watch(()=>{
-  getParkingInquiries();
+    getSystemReviews();
 })
 
 </script>

@@ -196,9 +196,9 @@ const registerReview = async () => {
         rating: rating.value
       },
     );
-    showConfirmModal("리뷰가 등록되었습니다.")
     resetData();
     rating.value = 0;
+    showConfirmModal("리뷰가 등록되었습니다.")
   } else {
     // 로그인되지 않음
     showInfoModal("로그인 후 이용해주세요.")

@@ -31,7 +31,7 @@
 
 <script>
 import { AuthStore } from '@/stores/store.js'
-import router from '@/router/index.js'
+import {router} from '@/router/index.js'
 
 export default {
   data() {

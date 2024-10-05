@@ -72,7 +72,7 @@
 import axios from 'axios'
 import { AuthStore } from '@/stores/store'
 import { InfiniteLoading } from 'infinite-loading-vue3-ts'
-import router from '@/router'
+import {router} from '@/router'
 
 export default {
   components: {

@@ -55,11 +55,21 @@
 </template>
 
 <script setup>
-import { onMounted, reactive } from 'vue';
-import router from '@/router';
+import { onMounted, reactive, ref } from 'vue';
+import { previousRoute, router } from '@/router';
 import { googleSignIn, signIn } from '@/service/authService';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
-import axios from 'axios';
+
+const prePath = ref(null);
+
+const redirectionMethod = () => {
+  console.log("redirection: " + prePath.value)
+  if (prePath.value !== '/register') {
+    router.push(prePath.value || '/');
+  } else {
+    router.push("/");
+  }
+}
 
 const user = reactive({
   email: "",
@@ -80,7 +90,7 @@ const handleLogin = async () => {
   try {
     const success = await signIn(user);
     if (success) {
-      router.push("/");
+      redirectionMethod();
     } else {
       modal.modalMessage = `이메일 혹은 비밀번호를<br/>잘못 입력하셨습니다.`;
       modal.isModalVisible = true;
@@ -127,7 +137,7 @@ const handleGoogleLoginCallback = async () => {
     try {
       const success = await googleSignIn(accessToken, tokenType, expiresIn);
       if (success === true) {
-        router.push('/');
+        redirectionMethod();
       } else {
         modal.modalMessage = success;
         modal.isModalVisible = true;
@@ -141,6 +151,10 @@ const handleGoogleLoginCallback = async () => {
 }
 
 onMounted(() => {
+  if (!prePath.value) {
+    prePath.value = previousRoute.value;
+  }
+  console.log("pre : " + prePath.value)
   handleGoogleLoginCallback();
 })
 

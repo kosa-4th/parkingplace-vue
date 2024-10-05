@@ -158,14 +158,11 @@ axios.interceptors.request.use(
     async config => {
         const authStore = AuthStore();
         let token = authStore.token;
-        console.log("토큰: " + token)
 
         const url = new URL(config.url, import.meta.env.VITE_API_URL);
-        console.log("인터셉터: " + url.pathname)
 
         // 특정 URL 패턴에 대해서만 JWT를 포함
         if (url.pathname.startsWith('/api/') && url.pathname.endsWith('/protected')) {
-            console.log("조건 충족")
             const tokenExpiration = getTokenExpiration(token);
             const now = Date.now();
 
@@ -176,7 +173,6 @@ axios.interceptors.request.use(
 
             // 갱신된 토큰이 있다면 Authorization 헤더에 추가
             if (token) {
-                console.log(`Bearer ${token}`)
                 config.headers.Authorization = `Bearer ${token}`;
             } else {
                 authStore.clearAuthData();

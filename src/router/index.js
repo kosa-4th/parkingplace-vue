@@ -9,11 +9,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import mainRoute from './main-route'
 import { AuthStore } from '@/stores/store'
+import { ref } from 'vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [...mainRoute]
 })
+
+const previousRoute = ref(null);
 
 router.beforeEach((to, from, next) => {
   const authStore = AuthStore()
@@ -21,7 +24,9 @@ router.beforeEach((to, from, next) => {
   const ownerRequires = ['/owner']
   const managerRequires = ['/manager']
   const loginRequires = [...userRequires, ...ownerRequires, ...managerRequires]
-  let redirectPath = null
+  let redirectPath = null;
+
+  previousRoute.value = from.fullPath;
 
   if (to.path === '/') {
     if (authStore.isLoggedIn) {
@@ -59,4 +64,4 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-export default router
+export { router, previousRoute };
