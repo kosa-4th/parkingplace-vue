@@ -77,6 +77,7 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import { AuthStore } from '@/stores/store'
+import 'swiper/css'
 
 const authStore = AuthStore()
 const route = useRoute()
