@@ -14,7 +14,7 @@
     </div>
 
     <div v-else>
-      <swiper class="mySwiper" :navigation="true" :pagination="true">
+      <swiper class="mySwiper" :modules="modules" :pagination="{ clickable: true }" loop>
         <swiper-slide v-for="(image, index) in images" :key="index" class="image-slider">
           <img :src="removeFileProtocol(image)" alt="Parking image" class="parking-image" />
         </swiper-slide>
@@ -74,10 +74,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Pagination, Navigation } from 'swiper/modules'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import { AuthStore } from '@/stores/store'
-import 'swiper/css'
+import 'swiper/css/bundle'
 
 const authStore = AuthStore()
 const route = useRoute()
@@ -87,6 +88,8 @@ const parkingLotDetail = ref([])
 
 const images = ref([])
 const hasFavorite = ref(false)
+
+const modules = [Navigation, Pagination]
 
 const getParkingLotDetails = async () => {
   try {
@@ -238,5 +241,9 @@ const removeFileProtocol = (path) => {
 .favorite-image {
   width: 30px;
   height: 30px;
+}
+
+.swiper .swiper-pagination-bullet {
+  background-color: #000;
 }
 </style>
