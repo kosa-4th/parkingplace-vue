@@ -1,6 +1,11 @@
 <template>
   <!-- 작성자: 오지수
       주차장 상세 페이지: 리뷰 -->
+  <div v-if="isLoading" class="loading-container">
+    <div class="loading">
+      <Fade-loader />
+    </div>
+  </div>
 
   <div class="review-detail">
     <div class="review-input">
@@ -99,6 +104,7 @@ import { modalState, handleCloseModal, showConfirmModal, showInfoModal, showErro
 import { confirmCancelModalState, handleColseCCModal, showConfirmCancelModal, showCCInfoModal } from '@/components/modal/ConfirmModalService';
 import StarCmp from '@/components/mini-component/StarCmp.vue';
 import ShowStarCmp from '@/components/mini-component/ShowStarCmp.vue';
+import FadeLoader from 'vue-spinner/src/FadeLoader.vue'
 import axios from 'axios';
 
 const authStore = AuthStore();
@@ -122,6 +128,8 @@ const parkinglotId = route.params.lotId;
 
 const actionType = ref('');
 const reviewVal = ref(null);
+
+const isLoading = ref(false);
 
 //리뷰 삭제 모달 열기
 const openDeleteModal = (review) => {
@@ -156,14 +164,14 @@ const autoResize = (event) => {
 
 //리뷰 불러오기
 const getReviews = async () => {
-  const api = import.meta.env.VITE_API_URL;
-  console.log("review api: " + api);
   try {
+    isLoading.value = true;
     const response = await axios.get(`/api/parkinglots/${parkinglotId}/reviews?page=${page.value -1}&size=${size}`);
     const newReviews = response.data.reviews.map(review => ({
       ...review,
       isEditing: false
     }));
+    isLoading.value = false;
 
     hasMoreReviews.value = response.data.nextPage;
     reviews.value = [...reviews.value, ...newReviews];
@@ -174,6 +182,7 @@ const getReviews = async () => {
       });
     });
   } catch {
+    isLoading.value=false;
     showErrorModal("잠시 후 다시 시도해주세요.")
   }
 }

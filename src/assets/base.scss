@@ -54,3 +54,17 @@ textarea {
   font-weight: 400;
   color: gray;
 }
+
+.loading-container {
+  z-index: 1000;
+  position: fixed;
+  top: 50%; /* 화면의 세로 중간 */
+  left: 50%; /* 화면의 가로 중간 */
+  transform: translate(-50%, -50%); /* 요소의 중앙을 기준으로 이동 */
+  background-color: rgba(0, 0, 0, 0.5); /* 어두운 오버레이 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}

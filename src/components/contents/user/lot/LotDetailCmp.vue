@@ -3,6 +3,12 @@
     작성자: 오지수 
     주차장 상세 메인페이지
   -->
+  <div v-if="isLoading" class="loading-container">
+    <div class="loading">
+      <Fade-loader />
+    </div>
+  </div>
+
   <div class="parking-detail">
     <!-- 이미지 슬라이더 -->
     <div v-if="images.length === 0">
@@ -72,12 +78,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Pagination, Navigation } from 'swiper/modules'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import { AuthStore } from '@/stores/store'
+import FadeLoader from 'vue-spinner/src/FadeLoader.vue'
 import 'swiper/css/bundle'
 
 const authStore = AuthStore()
@@ -91,11 +98,25 @@ const hasFavorite = ref(false)
 
 const modules = [Navigation, Pagination]
 
+const isLoading = ref(false);
+
+// 로딩 상태에 따른 body 스크롤 제어
+watch(isLoading, (newValue) => {
+  if (newValue) {
+    document.body.style.overflow = 'hidden';  // 스크롤 비활성화
+  } else {
+    document.body.style.overflow = 'auto';    // 스크롤 활성화
+  }
+});
+
 const getParkingLotDetails = async () => {
   try {
+    isLoading.value = true;
+    await new Promise(resolve => setTimeout(resolve, 5000));
     const response = await axios.get(
       `${import.meta.env.VITE_API_URL}/api/parkinglots/${parkinglotId}`
     )
+    isLoading.value = false;
     parkingLotDetail.value = response.data
     images.value = response.data.images
     getHasFavorite()

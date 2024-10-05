@@ -1,4 +1,10 @@
 <template>
+  <div v-if="isLoading" class="loading-container">
+    <div class="loading">
+      <Fade-loader />
+    </div>
+  </div>
+
   <div class="inquriy-container">
     <button class="inquiry-btn" @click="navigateToMakeInquiry">문의하기</button>
 
@@ -68,6 +74,7 @@
 import { ref, onMounted, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { AuthStore } from '@/stores/store';
+import FadeLoader from 'vue-spinner/src/FadeLoader.vue'
 import axios from 'axios';
 
 const route = useRoute();
@@ -83,6 +90,8 @@ const page = ref(0);
 const size = 5;
 const hasMoreReviews = ref(true);
 
+const isLoading = ref(false);
+
 //문의 작성하기
 const navigateToMakeInquiry = () => {
   router.push(`/lot/${parkinglotId}/make-inquiry`);
@@ -97,11 +106,16 @@ const handleInquiryEdit = (inquiryId, inquiryContent) => {
 
 // 문의 가져오기
 const getInquiries = async () => {
-  const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parkingLots/${parkinglotId}/inquiries?page=${page.value}&size=${size}`);
-  const newInquiries = response.data.inquiries;
-  inquiries.value = [...inquiries.value, ...newInquiries];
-  hasMoreReviews.value = response.data.nextPage;
-  console.log(response.data)
+  try {
+    isLoading.value=true;
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parkingLots/${parkinglotId}/inquiries?page=${page.value}&size=${size}`);
+    const newInquiries = response.data.inquiries;
+    inquiries.value = [...inquiries.value, ...newInquiries];
+    hasMoreReviews.value = response.data.nextPage;
+    isLoading.value = false;
+  } catch {
+    isLoading.value = false;
+  }
 }
 
 // 답변 보기
