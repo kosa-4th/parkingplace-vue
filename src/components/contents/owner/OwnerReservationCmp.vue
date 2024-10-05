@@ -412,7 +412,7 @@ export default {
     this.getReservationByConfirmed(this.getReservationStatus(), this.currentPage, this.pageSize)
   },
   watch(){
-    this.getReservationByConfirmed(this.getReservationStatus())
+    this.getReservationByConfirmed(this.getReservationStatus(), this.currentPage, this.pageSize)
   }
 }
 </script>

@@ -111,7 +111,7 @@
             :key="idx"
             :id="`image-${image.id}`"
             class="img-thumbnail"
-            src="@/assets/img/parkingLot.png"
+            :src="removeFileProtocol(image.path)"
             style="width: 100px"
             @click="addDeleteImgList(image.id)"
           />
@@ -521,6 +521,12 @@ export default {
         return '주말 마감 시간은 HH:MM 형식이어야 하며, 빈 값일 수 없습니다.'
       }
       return null
+    },
+    removeFileProtocol(path) {
+      if (path.startsWith('file:///')) {
+        return path.replace('file:///', '')
+      }
+      return path
     }
   },
   async mounted() {

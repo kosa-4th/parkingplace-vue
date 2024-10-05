@@ -30,5 +30,3 @@ app.mount('#app')
 
 const authStore = AuthStore()
 authStore.loadAuthData()
-
-
