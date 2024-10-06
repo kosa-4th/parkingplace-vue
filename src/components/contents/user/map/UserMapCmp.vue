@@ -513,11 +513,10 @@ hr {
 .move-icon {
   width: 40px;
   height: 40px;
-  /* border: 1px solid #ececec; */
-  border: 0;
+  border: 2px solid #9a64e8;
   border-radius: 20px;
   padding: 0;
-  background-color: #ae7af8;
+  background-color: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
