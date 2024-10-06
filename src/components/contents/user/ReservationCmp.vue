@@ -188,14 +188,16 @@
             요금 조회하기
           </button>
         </div>
+        <div v-if="isButtonDisabled===true">
+          <h6>주차 여부</h6>
+          <h5 v-if="totalFee>0" class="text-success small-text" style="color: #76D672">이용할 수 있습니다.</h5>
+          <h5 v-else class="text-danger small-text" style="color: #F93A41">이용할 수 없습니다.</h5>
+        </div>
         <!-- 가격 및 주차 여부 정보 -->
-        <div v-if="totalFee > 0">
+        <div v-if="totalFee >0">
           <h6 class="body-text">가격</h6>
           <h5 class="small-text">{{ totalFee }} 원</h5>
           <hr />
-          <h6 class="body-text">주차 여부</h6>
-          <h5 v-if="available" class="text-success small-text" style="color: #76D672">이용할 수 있습니다.</h5>
-          <h5 v-else class="text-danger small-text" style="color: #F93A41">이용할 수 없습니다.</h5>
         </div>
       </div>
       <button
@@ -311,6 +313,10 @@ export default {
     },
     getCheckingParkingAndTotalFee() {
       const url = `${import.meta.env.VITE_API_URL}/api/parkingLots/${this.parkingLotId}/reservation/parkingCheck`
+      if (!this.selectedCarNumber) {
+        showInfoModal('차량을 선택해 주세요.');
+        return;
+      }
       const requestAvailableDto = {
         plateNumber: this.selectedCarNumber,
         startTime: this.entranceDateTimeResult,
@@ -638,6 +644,9 @@ export default {
     }
   },
   watch: {
+    selectedCarNumber(){
+      this.enableButton()
+    },
     // 데이터 변경을 감지하고 totalFee를 0으로 변경
     totalTime() {
       this.resetTotalFee()

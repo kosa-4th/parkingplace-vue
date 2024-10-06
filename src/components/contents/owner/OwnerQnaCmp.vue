@@ -122,12 +122,19 @@
       />
 
     </div>
+
+    <div v-if="isLoading" class="loading-container">
+      <div class="loading">
+        <Fade-loader />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import OwnerQnaModal from './OwnerQnaModal.vue';
+import FadeLoader from 'vue-spinner/src/FadeLoader.vue'
 import axios from 'axios';
 
 
@@ -149,6 +156,8 @@ const paginationSize = 10
 
 const inquiryData = ref([]);
 
+const isLoading = ref(false);
+
 //모달 문의
 const isModalVisible = ref(false);
 const selectedInquiry = ref(null);
@@ -156,6 +165,7 @@ const selectedInquiry = ref(null);
 // 문의 가져오기
 const getParkingInquiries = async () => {
   try {
+    
     const params = {
       page: currentPage.value - 1,
       size: pageSize,
@@ -163,13 +173,14 @@ const getParkingInquiries = async () => {
       to: endDate.value,
       actionType: activeTab.value
     };
-    
+    isLoading.value = true;
     const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parking-manager/parkinglots/${props.selectedLotId}/inquiries/protected`, { params });
-    console.log(response.data);
+    isLoading.value = false;
     inquiryData.value = response.data.inquiries;
     totalPages.value = response.data.totalPages;
     currentPage.value = response.data.currentPage + 1;
   } catch (error) {
+    isLoading.value = false;
     console.error(error);
   }
 };
