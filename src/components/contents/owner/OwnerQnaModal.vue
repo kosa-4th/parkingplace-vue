@@ -126,7 +126,7 @@ const openConfirmCancelModal = () => {
   } else {
     word = '저장';
   }
-  showCCInfoModal(`입력하신 문의사항을 ${word}하시겠습니까?`);
+  showCCInfoModal(`입력하신 문의사항을<br/>${word}하시겠습니까?`);
 }
 
 
@@ -144,7 +144,7 @@ const confirmModalAction = async () => {
     });
 
     console.log(response.data);
-    showConfirmModal(`답변이 저장되었습니다.`);
+    showConfirmModal(`답변이<br/>저장되었습니다.`);
   } catch (error) {
     console.error(error);
     showInfoModal(error.response.data.message)

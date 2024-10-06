@@ -105,7 +105,10 @@ const props = defineProps({
 const reviewData = ref([]);
 const selectedReason = ref(null);
 const reportReasons = [
+  '욕설/비방을 포함하고 있습니다',
   '스팸홍보/도배글입니다.',
+  '개인정보가 유출었습니다',
+  '리뷰가 도배되었습니다',
   '음란물입니다.',
   '불법정보를 포함하고 있습니다.',
   '청소년에게 유해한 내용입니다.'
@@ -125,10 +128,10 @@ const getReviewDetails = async () => {
 const openConfirmCancelModal = () => {
   //신고 사유를 선택해주세요.
   if (!selectedReason.value) {
-    showInfoModal('신고 사유를 선택해주세요.');
+    showInfoModal('신고 사유를<br/>선택해주세요.');
     return;
   }
-  showCCInfoModal(`해당 리뷰를 신고처리 하시겠습니까?`);
+  showCCInfoModal(`해당 리뷰를<br/>신고처리 하시겠습니까?`);
 }
 
 
@@ -142,7 +145,7 @@ const confirmModalAction = async () => {
       complaintReason: selectedReason.value
     });
     await getReviewDetails();
-    showConfirmModal("신고처리 되었습니다.");
+    showConfirmModal("신고처리<br/>되었습니다.");
     reviewData.value.complaint = 'C';
   } catch (error) {
     showInfoModal(error.response.date.error);
