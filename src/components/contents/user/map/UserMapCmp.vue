@@ -71,7 +71,7 @@
     </div>
     <div id="map"></div>
     <div id="locationButtons">
-      <button @click="moveToMyPosition()">버튼</button>
+      <button @click="geofind()">버튼</button>
     </div>
     <lot-preview-cmp
       v-if="selectedLot"
@@ -85,15 +85,25 @@
       @close-modal="hideRecommSelect()"
     ></recommend-lots-cmp>
   </div>
+  <ConfirmModal
+    v-if="customModalState.isModalVisible"
+    :confirm="customModalState.confirm"
+    :error="customModalState.error"
+    :title="customModalState.modalTitle"
+    :message="customModalState.modalMessage"
+    :path="customModalState.modalPath"
+    @close="closeConfirmModal"
+  />
 </template>
 
 <script>
 import axios from 'axios'
 import LotPreviewCmp from './LotPreviewCmp.vue'
 import RecommendLotsCmp from './RecommendLotsCmp.vue'
+import ConfirmModal from '@/components/modal/ConfirmModal.vue'
 
 export default {
-  components: { LotPreviewCmp, RecommendLotsCmp },
+  components: { LotPreviewCmp, RecommendLotsCmp, ConfirmModal },
   data() {
     return {
       keyword: '',
@@ -101,6 +111,7 @@ export default {
       map: null,
       showResult: false,
       searchResultMarker: null,
+      myPositionMarker: null,
       searchResultName: null,
       searchResultLatLon: null,
       lots: [],
@@ -108,7 +119,19 @@ export default {
       lotsName: [],
       markerAndIdMap: null,
       selectedLot: null,
-      showRecommSelectModal: false
+      showRecommSelectModal: false,
+      customModalState: {
+        confirm: false,
+        error: false,
+        isModalVisible: false,
+        modalTitle: '제목',
+        modalMessage: '메시지',
+        modalPath: ''
+      },
+      myPosition: {
+        latitude: null,
+        longitude: null
+      }
     }
   },
   mounted() {
@@ -269,7 +292,7 @@ export default {
     },
     geofind() {
       if (!('geolocation' in navigator)) {
-        alert('Geolocation is not available.')
+        this.openConfirmModal('경고', '브라우저가 위치 측정을 지원하지 않습니다.', false, false)
         return
       }
       this.textContent = 'Locating...'
@@ -277,14 +300,47 @@ export default {
       // get position
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          this.latitude = pos.coords.latitude
-          this.longitude = pos.coords.longitude
-          alert('Your location data is ' + this.latitude + ', ' + this.longitude)
+          if (this.myPositionMarker != null) {
+            this.myPositionMarker.setMap(null)
+          }
+
+          const latitude = pos.coords.latitude
+          const longitude = pos.coords.longitude
+          const latLon = new kakao.maps.LatLng(latitude, longitude)
+          this.map.panTo(latLon)
+
+          const imageSrc = 'https://parple-s3-bucket.s3.ap-northeast-2.amazonaws.com/myLocation.png'
+          const imageSize = new kakao.maps.Size(40, 40)
+          const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
+
+          this.myPositionMarker = new kakao.maps.Marker({
+            position: latLon,
+            image: markerImage
+          })
+
+          //마커 출력
+          this.myPositionMarker.setMap(this.map)
         },
-        (err) => {
-          this.textContent = err.message
+        (error) => {
+          console.log(error)
+          this.openConfirmModal(
+            '경고',
+            '위치를 찾을 수 없습니다. <br> 위치 권한을 허용해주세요.',
+            false,
+            false
+          )
         }
       )
+    },
+    openConfirmModal(title, message, confirm, error) {
+      this.customModalState.modalTitle = title
+      this.customModalState.modalMessage = message
+      this.customModalState.confirm = confirm
+      this.customModalState.error = error
+      this.customModalState.isModalVisible = true
+    },
+    closeConfirmModal() {
+      this.customModalState.isModalVisible = false
     }
   }
 }
