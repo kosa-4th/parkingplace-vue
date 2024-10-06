@@ -194,7 +194,7 @@
   <OwnerLotSpaceModifyModal
     v-if="showModifyModal"
     @close-modal="closeModifyModal"
-    @refreshData="reloadPage"
+    @refreshData="reloadPage('주차 공간 수정', '주차 공간이 수정되었습니다.')"
     :parkingSpace="selectedParkingSpace"
     :selectedLotId="selectedLotId"
     :selectableCarTypes="selectableCarTypes"
@@ -202,7 +202,7 @@
   <OwnerLotSpaceAddModal
     v-if="showCreateModal"
     @close-modal="closeCreateModal"
-    @refreshData="reloadPage"
+    @refreshData="reloadPage('주차 공간 추가', '주차 공간이 추가되었습니다.')"
     :selectedLotId="selectedLotId"
     :selectableCarTypes="selectableCarTypes"
   />
@@ -213,6 +213,16 @@
     @close="handleCloseCCModal"
     @confirm="confirmModalAction()"
   />
+
+  <ConfirmModal
+    v-if="customModalState.isModalVisible"
+    :confirm="customModalState.confirm"
+    :error="customModalState.error"
+    :title="customModalState.modalTitle"
+    :message="customModalState.modalMessage"
+    :path="customModalState.modalPath"
+    @close="closeConfirmModal"
+  />
 </template>
 
 <script>
@@ -221,6 +231,7 @@ import { AuthStore } from '@/stores/store'
 import OwnerLotSpaceModifyModal from '@/components/contents/owner/OwnerLotSpaceModifyModal.vue'
 import OwnerLotSpaceAddModal from '@/components/contents/owner/OwnerLotSpaceAddModal.vue'
 import ConfirmCancelModal from '@/components/modal/ConfirmCancelModal.vue'
+import ConfirmModal from '@/components/modal/ConfirmModal.vue'
 import {
   confirmCancelModalState,
   handleColseCCModal,
@@ -231,11 +242,20 @@ export default {
   components: {
     OwnerLotSpaceAddModal,
     OwnerLotSpaceModifyModal,
-    ConfirmCancelModal
+    ConfirmCancelModal,
+    ConfirmModal
   },
   props: ['selectedLotId'],
   data() {
     return {
+      customModalState: {
+        confirm: false,
+        error: false,
+        isModalVisible: false,
+        modalTitle: '제목',
+        modalMessage: '메시지',
+        modalPath: ''
+      },
       confirmCancelModalState,
       showCreateModal: false, //주차장공간 생성 모달
       showModifyModal: false, //주차장공간 수정 모달
@@ -278,8 +298,9 @@ export default {
     }
   },
   methods: {
-    reloadPage() {
+    reloadPage(title, message) {
       this.getParkingLotDetail()
+      this.openConfirmModal(title, message, true, false)
     },
     openCreateModal() {
       this.showCreateModal = true
@@ -293,6 +314,16 @@ export default {
     },
     handleCloseCCModal() {
       handleColseCCModal()
+    },
+    openConfirmModal(title, message, confirm, error) {
+      this.customModalState.modalTitle = title
+      this.customModalState.modalMessage = message
+      this.customModalState.confirm = confirm
+      this.customModalState.error = error
+      this.customModalState.isModalVisible = true
+    },
+    closeConfirmModal() {
+      this.customModalState.isModalVisible = false
     },
     deleteParkingSpace(space) {
       this.selectedParkingSpaceId = space.id
@@ -321,8 +352,8 @@ export default {
           this.parkingLot = response.data
           this.originData = JSON.parse(JSON.stringify(this.parkingLot))
         })
-        .catch(function (e) {
-          alert(e)
+        .catch(function (error) {
+          this.openConfirmModal('주차장 조회', `오류가 발생했습니다. <br> ${error}`, false, true)
         })
     },
     confirmModalAction() {
@@ -337,12 +368,12 @@ export default {
           }
         })
         .then(() => {
-          alert('삭제되었습니다')
-          this.parkingLot.parkingSpaces.splice(1)
+          this.openConfirmModal('주차 공간 삭제', '주차 공간이 삭제되었습니다.', true, false)
+          this.getParkingLotDetail()
           this.handleCloseCCModal() // 성공 시 모달 닫기
         })
         .catch(function (error) {
-          alert(error)
+          this.openConfirmModal('주차 공간 삭제', `오류가 발생했습니다. <br> ${error}`, false, true)
         })
     },
     onFileChange(event) {
@@ -376,49 +407,48 @@ export default {
       this.deleteImageIds = []
       this.clearFileInput()
     },
-
     modifyComplete() {
-      if (confirm('수정하시겠습니까?')) {
-        const validateResult = this.validateParkingLot(this.parkingLot)
-        if (validateResult !== null) {
-          alert(validateResult)
-          return
-        }
-
-        const formData = new FormData()
-        formData.append('name', this.parkingLot.name)
-        formData.append('tel', this.parkingLot.tel)
-        formData.append('weekdaysOpenTime', this.parkingLot.weekdaysOpenTime)
-        formData.append('weekdaysCloseTime', this.parkingLot.weekdaysCloseTime)
-        formData.append('weekendOpenTime', this.parkingLot.weekendOpenTime)
-        formData.append('weekendCloseTime', this.parkingLot.weekendCloseTime)
-        formData.append('deleteImageIds', this.deleteImageIds)
-
-        const files = this.$refs.fileInput.files
-        for (let i = 0; i < files.length; i++) {
-          formData.append('images', files[i])
-        }
-
-        axios
-          .put(`/api/parkinglots/${this.selectedLotId}/owner/protected`, formData, {
-            headers: {
-              Authorization: `Bearer ${this.authStore.token}`,
-              'Content-Type': 'multipart/form-data'
-            }
-          })
-          .then((response) => {
-            this.parkingLot = response.data
-            this.originData = JSON.parse(JSON.stringify(this.parkingLot))
-            this.modifying = false
-
-            this.removeDarker()
-
-            this.clearFileInput()
-          })
-          .catch(function (error) {
-            alert(error)
-          })
+      const validateResult = this.validateParkingLot(this.parkingLot)
+      if (validateResult !== null) {
+        this.openConfirmModal('주차장 수정', validateResult, false, false)
+        return
       }
+
+      const formData = new FormData()
+      formData.append('name', this.parkingLot.name)
+      formData.append('tel', this.parkingLot.tel)
+      formData.append('weekdaysOpenTime', this.parkingLot.weekdaysOpenTime)
+      formData.append('weekdaysCloseTime', this.parkingLot.weekdaysCloseTime)
+      formData.append('weekendOpenTime', this.parkingLot.weekendOpenTime)
+      formData.append('weekendCloseTime', this.parkingLot.weekendCloseTime)
+      formData.append('deleteImageIds', this.deleteImageIds)
+
+      const files = this.$refs.fileInput.files
+      for (let i = 0; i < files.length; i++) {
+        formData.append('images', files[i])
+      }
+
+      axios
+        .put(`/api/parkinglots/${this.selectedLotId}/owner/protected`, formData, {
+          headers: {
+            Authorization: `Bearer ${this.authStore.token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        .then((response) => {
+          this.parkingLot = response.data
+          this.originData = JSON.parse(JSON.stringify(this.parkingLot))
+          this.modifying = false
+
+          this.removeDarker()
+          this.clearFileInput()
+        })
+        .then(() => {
+          this.openConfirmModal('주차장 수정', '주차장 수정이 완료되었습니다', true, false)
+        })
+        .catch(function (error) {
+          this.openConfirmModal('주차장 수정', `오류가 발생했습니다 <br> ${error}`, false, true)
+        })
     },
     clearFileInput() {
       this.files = []
@@ -470,8 +500,8 @@ export default {
         .then((response) => {
           this.selectableCarTypes = response.data.carTypes
         })
-        .catch(function (e) {
-          alert(e)
+        .catch(function (error) {
+          this.openConfirmModal('차종 목록 조회', `오류가 발생했습니다.<br> ${error}`, false, true)
         })
     },
     formatTimeWithSeconds(time) {
@@ -527,6 +557,12 @@ export default {
         return path.replace('file:///', '')
       }
       return path
+    },
+    handleSpaceModifySucceed() {
+      this.openConfirmModal('주차 공간 수정', '주차 공간이 수정되었습니다.', true, false)
+    },
+    handleSpaceAddSucceed() {
+      this.openConfirmModal('주차 공간 추가', '주차 공간이 추가되었습니다.', true, false)
     }
   },
   async mounted() {

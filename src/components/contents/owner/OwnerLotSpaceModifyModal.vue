@@ -4,103 +4,172 @@
  OwnerLotCmp -> 모달로 분리
 -->
 <template>
-    <div class="modal-overlay">
-      <div class="modal">
-        <div class="modal-header">
-          <h5>주차 구역 수정</h5>
-          <button type="button" class="close" @click="$emit('close-modal')">×</button>
+  <div class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h5>주차 구역 수정</h5>
+        <button type="button" class="close" @click="$emit('close-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="input-container">
+          <label>구역명</label>
+          <input v-model="editParkingSpace.spaceName" type="text" class="form-control" />
         </div>
-        <div class="modal-body">
-          <div class="input-container">
-            <label>구역명</label>
-            <input v-model="editParkingSpace.spaceName" type="text" class="form-control" />
-          </div>
-          <div class="input-container">
-            <label>주차 공간 수</label>
-            <input v-model.number="editParkingSpace.availableSpaceNum" @input="filterInput" placeholder="숫자만 입력" class="form-control" />
-          </div>
-          <div class="input-container">
-            <label>허용되는 차량 유형</label>
-            <select v-model="editParkingSpace.carTypeId" class="form-control" style="appearance: auto">
-              <option disabled value="">-- 차량종류 선택 --</option>
+        <div class="input-container">
+          <label>주차 공간 수</label>
+          <input
+            v-model.number="editParkingSpace.availableSpaceNum"
+            @input="filterInput"
+            placeholder="숫자만 입력"
+            class="form-control"
+          />
+        </div>
+        <div class="input-container">
+          <label>허용되는 차량 유형</label>
+          <select
+            v-model="editParkingSpace.carTypeId"
+            class="form-control"
+            style="appearance: auto"
+          >
+            <option disabled value="">-- 차량종류 선택 --</option>
 
-              <option v-for="(carType, index) in selectableCarTypes" :key="index" :value="carType.id">
-                {{ carType.carTypeKor }}
-              </option>
-            </select>
-          </div>
-          <div class="input-container">
-            <label>평일 가격</label>
-            <input v-model.number="editParkingSpace.weekdaysPrice" @input="filterInput" placeholder="숫자만 입력" class="form-control" />
-          </div>
-          <div class="input-container">
-            <label>평일 최대 가격</label>
-            <input v-model.number="editParkingSpace.weekAllDayPrice" @input="filterInput" placeholder="숫자만 입력" class="form-control" />
-          </div>
-          <div class="input-container">
-            <label>주말 가격</label>
-            <input v-model.number="editParkingSpace.weekendPrice" @input="filterInput" placeholder="숫자만 입력" class="form-control" />
-          </div>
-          <div class="input-container">
-            <label>주말 최대 가격</label>
-            <input v-model.number="editParkingSpace.weekendAllDayPrice" @input="filterInput" placeholder="숫자만 입력" class="form-control" />
-          </div>
-          <div class="input-container">
-            <label>부가 서비스 :</label>
-            <div class="additional-services">
-              <!-- 세차 서비스 -->
-              <div class="service-container">
-                <div class="service-row">
-                  <input id="washService" v-model="editParkingSpace.washService" type="checkbox" class="" />
-                  <label for="washService" class="service-label">세차</label>
-                </div>
-                <div v-if="editParkingSpace.washService" class="input-below">
-                  <input v-model="editParkingSpace.washPrice" @input="filterInput" placeholder="세차 가격 입력" class="form-control price-input" />
-                </div>
+            <option v-for="(carType, index) in selectableCarTypes" :key="index" :value="carType.id">
+              {{ carType.carTypeKor }}
+            </option>
+          </select>
+        </div>
+        <div class="input-container">
+          <label>평일 가격</label>
+          <input
+            v-model.number="editParkingSpace.weekdaysPrice"
+            @input="filterInput"
+            placeholder="숫자만 입력"
+            class="form-control"
+          />
+        </div>
+        <div class="input-container">
+          <label>평일 최대 가격</label>
+          <input
+            v-model.number="editParkingSpace.weekAllDayPrice"
+            @input="filterInput"
+            placeholder="숫자만 입력"
+            class="form-control"
+          />
+        </div>
+        <div class="input-container">
+          <label>주말 가격</label>
+          <input
+            v-model.number="editParkingSpace.weekendPrice"
+            @input="filterInput"
+            placeholder="숫자만 입력"
+            class="form-control"
+          />
+        </div>
+        <div class="input-container">
+          <label>주말 최대 가격</label>
+          <input
+            v-model.number="editParkingSpace.weekendAllDayPrice"
+            @input="filterInput"
+            placeholder="숫자만 입력"
+            class="form-control"
+          />
+        </div>
+        <div class="input-container">
+          <label>부가 서비스 :</label>
+          <div class="additional-services">
+            <!-- 세차 서비스 -->
+            <div class="service-container">
+              <div class="service-row">
+                <input
+                  id="washService"
+                  v-model="editParkingSpace.washService"
+                  type="checkbox"
+                  class=""
+                />
+                <label for="washService" class="service-label">세차</label>
               </div>
+              <div v-if="editParkingSpace.washService" class="input-below">
+                <input
+                  v-model="editParkingSpace.washPrice"
+                  @input="filterInput"
+                  placeholder="세차 가격 입력"
+                  class="form-control price-input"
+                />
+              </div>
+            </div>
 
-              <!-- 차량 정비 서비스 -->
-              <div class="service-container">
-                <div class="service-row">
-                  <input id="maintenanceService" v-model="editParkingSpace.maintenanceService" type="checkbox" class="" />
-                  <label for="maintenanceService" class="service-label">차량정비</label>
-                </div>
-                <div v-if="editParkingSpace.maintenanceService" class="input-below">
-                  <input v-model="editParkingSpace.maintenancePrice" @input="filterInput" placeholder="정비 가격 입력" class="form-control price-input" />
-                </div>
+            <!-- 차량 정비 서비스 -->
+            <div class="service-container">
+              <div class="service-row">
+                <input
+                  id="maintenanceService"
+                  v-model="editParkingSpace.maintenanceService"
+                  type="checkbox"
+                  class=""
+                />
+                <label for="maintenanceService" class="service-label">차량정비</label>
+              </div>
+              <div v-if="editParkingSpace.maintenanceService" class="input-below">
+                <input
+                  v-model="editParkingSpace.maintenancePrice"
+                  @input="filterInput"
+                  placeholder="정비 가격 입력"
+                  class="form-control price-input"
+                />
               </div>
             </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-sm bg-green" @click="updateParkingSpace()">수정</button>
-          <button class="btn btn-sm bg-light" @click="$emit('close-modal')">닫기</button>
-        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-sm bg-green" @click="updateParkingSpace()">수정</button>
+        <button class="btn btn-sm bg-light" @click="$emit('close-modal')">닫기</button>
       </div>
     </div>
+    <ConfirmModal
+      v-if="customModalState.isModalVisible"
+      :confirm="customModalState.confirm"
+      :error="customModalState.error"
+      :title="customModalState.modalTitle"
+      :message="customModalState.modalMessage"
+      :path="customModalState.modalPath"
+      @close="closeConfirmModal"
+    />
+  </div>
 </template>
 <script>
-
 import axios from 'axios'
+import ConfirmModal from '@/components/modal/ConfirmModal.vue'
 
 export default {
   props: ['parkingSpace', 'selectableCarTypes'], // 부모로부터 주차 공간 데이터와 차량 유형 전달
+  components: {
+    ConfirmModal
+  },
   data() {
     return {
-      editParkingSpace: { ...this.parkingSpace } // 주차 공간 데이터를 복사해 편집
+      editParkingSpace: { ...this.parkingSpace }, // 주차 공간 데이터를 복사해 편집
+      customModalState: {
+        confirm: false,
+        error: false,
+        isModalVisible: false,
+        modalTitle: '제목',
+        modalMessage: '메시지',
+        modalPath: ''
+      }
     }
   },
   methods: {
     // 숫자 입력 필터링 함수
     filterInput(field) {
-      this.editParkingSpace[field] = this.editParkingSpace[field].replace(/\D/g, ''); // 숫자가 아닌 것은 제거
+      this.editParkingSpace[field] = this.editParkingSpace[field].replace(/\D/g, '') // 숫자가 아닌 것은 제거
     },
 
     // 주차 구역 수정 메서드
     async updateParkingSpace() {
       const validateResult = this.validateParkingSpaceValues(this.editParkingSpace)
       if (validateResult !== null) {
-        alert(validateResult)
+        this.openConfirmModal('주차 공간 수정', validateResult, false, false)
         return
       }
       const parkingSpaceData = {
@@ -116,20 +185,19 @@ export default {
         washPrice: this.editParkingSpace.washPrice,
         maintenanceService: this.editParkingSpace.maintenanceService,
         maintenancePrice: this.editParkingSpace.maintenancePrice
-      };
+      }
       try {
-        await axios.put(`${import.meta.env.VITE_API_URL}/api/parking-manager/info/parkingArea/protected`, parkingSpaceData);
-        alert('주차 구역이 성공적으로 수정되었습니다.');
-
+        await axios.put(
+          `${import.meta.env.VITE_API_URL}/api/parking-manager/info/parkingArea/protected`,
+          parkingSpaceData
+        )
         // 부모 컴포넌트로 이벤트 발행: 데이터 새로고침
-        this.$emit('refreshData');
+        this.$emit('refreshData')
 
         // 부모 컴포넌트로 이벤트 발행: 모달 닫기
-        this.$emit('close-modal');
-      } catch (e) {
-        // 에러 처리
-        console.error(e);
-        alert('수정 중 오류가 발생했습니다.');
+        this.$emit('close-modal')
+      } catch (error) {
+        this.openConfirmModal('주차 공간 수정', `오류가 발생했습니다. <br> ${error}`, false, true)
       }
     },
 
@@ -181,13 +249,23 @@ export default {
 
       return null
     },
+    openConfirmModal(title, message, confirm, error) {
+      this.customModalState.modalTitle = title
+      this.customModalState.modalMessage = message
+      this.customModalState.confirm = confirm
+      this.customModalState.error = error
+      this.customModalState.isModalVisible = true
+    },
+    closeConfirmModal() {
+      this.customModalState.isModalVisible = false
+    }
   },
   mounted() {
     // 컴포넌트가 마운트되었을 때 부모로부터 받은 값이 정상적으로 로드됐는지 확인
     if (!this.editParkingSpace.carTypeId) {
-      this.editParkingSpace.carTypeId = ""; // 선택 안된 경우 기본값 설정
+      this.editParkingSpace.carTypeId = '' // 선택 안된 경우 기본값 설정
     }
-  },
+  }
 }
 </script>
 <style scoped>
@@ -273,12 +351,12 @@ export default {
 }
 
 .bg-green {
-  background-color: #76D672;
+  background-color: #76d672;
   color: white;
 }
 
 .bg-green:hover {
-  background-color: #6CC76B;
+  background-color: #6cc76b;
 }
 
 .bg-light {
@@ -336,7 +414,7 @@ export default {
 
 /* 보라색 버튼 */
 .bg-purple {
-  background-color: #9A64E8;
+  background-color: #9a64e8;
   color: white;
 }
 
@@ -346,7 +424,7 @@ export default {
 
 /* 초록색 버튼 */
 .bg-green {
-  background-color: #76D672;
+  background-color: #76d672;
   color: white;
 }
 
@@ -356,7 +434,7 @@ export default {
 
 /* 빨간색 버튼 */
 .bg-red {
-  background-color: #F93A41;
+  background-color: #f93a41;
   color: white;
 }
 
@@ -366,7 +444,7 @@ export default {
 
 /* 연보라색 버튼 */
 .bg-light-purple {
-  background-color: #F0E5FF;
+  background-color: #f0e5ff;
   color: black;
 }
 
