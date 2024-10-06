@@ -13,7 +13,10 @@ import { ref } from 'vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [...mainRoute]
+  routes: [...mainRoute],
+  scrollBehavior() {
+    return {top : 0}
+  }
 })
 
 const previousRoute = ref(null);

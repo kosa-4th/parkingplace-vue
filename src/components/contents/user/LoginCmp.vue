@@ -27,11 +27,11 @@
       </div>
       <button type="submit" class="login-button">로그인</button>
       <div class="options-group">
-        <div>
+        <!-- <div>
           <input type="checkbox" id="auto-login">
           <label for="auto-login">자동 로그인</label>
         </div>
-        <a href="#" class="find-password">비밀번호 찾기</a>
+        <a href="#" class="find-password">비밀번호 찾기</a> -->
       </div>
     </form>
 
