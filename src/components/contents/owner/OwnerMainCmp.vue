@@ -270,12 +270,19 @@
         </nav>
       </div>
     </div>
+
+    <div v-if="isLoading" class="loading-container">
+      <div class="loading">
+        <Fade-loader />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 
 import axios from 'axios'
+import FadeLoader from 'vue-spinner/src/FadeLoader.vue'
 
 export default {
   props: ['selectedLotId'],
@@ -297,20 +304,23 @@ export default {
       pageSize: 5,
       formattedToday: formattedToday,
       parkingLotName: null,
-      currentTime: new Date().toLocaleTimeString()  // 현재 시간을 초기화
-
+      currentTime: new Date().toLocaleTimeString(),  // 현재 시간을 초기화
+      isLoading: false
     }
   },
   methods: {
     async getLotName() {
       try {
+        this.isLoading = true;
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parking-manager/parkingLotName`, {
           params: {
             parkingLotId: this.selectedLotId
           }
         })
+        this.isLoading = false;
         this.parkingLotName = response.data.parkingLotName
       } catch (error) {
+        this.isLoading = false;
         alert('잘못된 접근입니다.', error)
       }
     },

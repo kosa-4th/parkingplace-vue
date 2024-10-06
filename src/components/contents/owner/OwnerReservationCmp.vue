@@ -275,13 +275,22 @@
         </nav>
       </div>
     </div>
+    
+
+    <div v-if="isLoading" class="loading-container">
+      <div class="loading">
+        <Fade-loader />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
+import FadeLoader from 'vue-spinner/src/FadeLoader.vue'
 
 export default {
+  components: [FadeLoader],
   props: ['selectedLotId'],
 
   data() {
@@ -298,17 +307,19 @@ export default {
       totalPages: 0,
       pageSize: 5,
       startDate: startDate,
-      endDate: formattedEndDate
+      endDate: formattedEndDate,
+      isLoading: false
     }
   },
   methods: {
     async ignoreReservation(reservationId, reservationUid) {
       try {
+        this.isLoading = true;
         const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/parking-manager/reservation/cancel/${reservationId}/protected`, {
           merchantUid: reservationUid,
           reason: '주차장업주 환불'
         })
-
+        this.isLoading = false;
         // 요청 성공 시 처리할 작업
         if (response.status === 200) {
           alert('예약 환불이 되었습니다..')
@@ -350,6 +361,7 @@ export default {
         }
 
         // Axios 요청
+        this.isLoading = true;
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parking-manager/reservation`, {
           params: {
             ...requestData, // 필터 조건 추가
@@ -357,7 +369,7 @@ export default {
             size: size
           }
         })
-
+        this.isLoading = false;
         if (response.status === 200) {
           this.reservationsData = response.data.content // 받은 데이터 설정
           this.totalPages = response.data.totalPages // 전체 페이지 수 업데이트
@@ -366,6 +378,7 @@ export default {
           this.reservationsData = [] // 데이터가 없으면 빈 배열로 설정
         }
       } catch (error) {
+        this.isLoading = false;
         console.error('오류 발생:', error)
       }
     },

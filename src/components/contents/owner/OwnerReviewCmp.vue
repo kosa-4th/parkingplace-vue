@@ -92,12 +92,19 @@
 
 
     </div>
+
+    <div v-if="isLoading" class="loading-container">
+      <div class="loading">
+        <Fade-loader />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import OwnerReviewComplaintModal from './OwnerReviewComplaintModal.vue';
+import FadeLoader from 'vue-spinner/src/FadeLoader.vue'
 import axios from 'axios';
 
 const props = defineProps({
@@ -122,6 +129,8 @@ const reviewData = ref([]);
 const isModalVisible = ref(false);
 const selectedReview = ref(null);
 
+const isLoading = ref(false);
+
 // 문의 가져오기
 const getParkingReviews = async () => {
   try {
@@ -132,13 +141,15 @@ const getParkingReviews = async () => {
       to: endDate.value,
       // actionType: activeTab.value
     };
-    
+
+    isLoading.value = true;
     const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/parking-manager/parkinglots/${props.selectedLotId}/reviews/protected`, { params });
-    console.log(response.data);
+    isLoading.value = false;
     reviewData.value = response.data.parkingReviews;
     totalPages.value = response.data.totalPages;
     currentPage.value = response.data.currentPage + 1;
   } catch (error) {
+    isLoading.value = false;
     console.error(error);
   }
 };

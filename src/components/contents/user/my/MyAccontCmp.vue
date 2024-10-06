@@ -14,16 +14,16 @@
       <div class="user-info">{{ authStore.getEmail }}</div>
     </div>
 
-    <div class="form-group">
+    <!-- <div class="form-group">
       <label for="phone">전화번호</label>
       <input type="text"
               id="phone"
               v-model="phone"
               placeholder="-"
               disabled
-              />
+              /> -->
       <!-- <div class="user-info"></div> -->
-    </div>
+    <!-- </div> -->
 
     <div class="form-group">
       <label for="current-password">현재 비밀번호</label>
