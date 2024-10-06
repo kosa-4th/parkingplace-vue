@@ -266,6 +266,25 @@ export default {
     },
     hideRecommSelect() {
       this.showRecommSelectModal = false // 모달 상태 변경
+    },
+    geofind() {
+      if (!('geolocation' in navigator)) {
+        alert('Geolocation is not available.')
+        return
+      }
+      this.textContent = 'Locating...'
+
+      // get position
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          this.latitude = pos.coords.latitude
+          this.longitude = pos.coords.longitude
+          alert('Your location data is ' + this.latitude + ', ' + this.longitude)
+        },
+        (err) => {
+          this.textContent = err.message
+        }
+      )
     }
   }
 }
