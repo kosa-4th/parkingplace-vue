@@ -28,7 +28,7 @@
             <span class="font-small">{{ formatDate(notification.createdAt) }}</span>
             <button
               class="no-decoration align-right font-small"
-              @click="deleteOne(notification.notificationId)"
+              @click="[deleteOne(notification.notificationId), $emit('notificationChanged')]"
             >
               <svg
                 class="x-icon"
@@ -72,7 +72,7 @@
 import axios from 'axios'
 import { AuthStore } from '@/stores/store'
 import { InfiniteLoading } from 'infinite-loading-vue3-ts'
-import {router} from '@/router'
+import { router } from '@/router'
 
 export default {
   components: {
@@ -132,6 +132,7 @@ export default {
             'Content-Type': 'application/json'
           }
         })
+        this.$emit('notificationChanged')
         // 요청 성공 시 모든 알림의 checked 값을 true로 변경
         this.notifications.forEach((notification) => {
           notification.checked = true
@@ -151,8 +152,8 @@ export default {
             'Content-Type': 'application/json'
           }
         })
+        this.$emit('notificationChanged')
         this.notifications = []
-        console.log('모든 알림이 삭제되었습니다.')
       } catch (e) {
         console.error(e)
       }
@@ -167,7 +168,7 @@ export default {
             'Content-Type': 'application/json'
           }
         })
-        // 요청 성공 시 해당 알림의 checked 값을 true로 변경
+        this.$emit('notificationChanged')
         const notification = this.notifications.find(
           (notification) => notification.notificationId === notificationId
         )
@@ -189,7 +190,7 @@ export default {
             'Content-Type': 'application/json'
           }
         })
-        // 요청 성공 시 notifications 배열에서 해당 알림 제거
+        this.$emit('notificationChanged')
         this.notifications = this.notifications.filter(
           (notification) => notification.notificationId !== notificationId
         )
