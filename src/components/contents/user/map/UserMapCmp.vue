@@ -46,7 +46,12 @@
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
-        <button id="search-btn" type="button" @click="showRecommSelect()" v-if="searchResultMarker">
+        <button
+          id="search-btn"
+          type="button"
+          @click="showRecommSelect()"
+          v-if="positionStore.searchResultMarker"
+        >
           <img src="@/assets/img/recommend.png" class="recommend-image" />
         </button>
       </div>
@@ -69,9 +74,19 @@
         </div>
       </div>
     </div>
-    <div id="map"></div>
-    <div id="locationButtons">
-      <button @click="geofind()">버튼</button>
+    <div id="map-wrapper">
+      <div id="map"></div>
+      <button id="pos-btn" @click="moveTomyPosition" class="move-icon">
+        <img src="https://parple-s3-bucket.s3.ap-northeast-2.amazonaws.com/icon_pos.png" />
+      </button>
+      <button
+        id="res-btn"
+        @click="moveToSearchResult"
+        v-if="positionStore.searchResultMarker"
+        class="move-icon"
+      >
+        <img src="https://parple-s3-bucket.s3.ap-northeast-2.amazonaws.com/icon_dest.png" />
+      </button>
     </div>
     <lot-preview-cmp
       v-if="selectedLot"
@@ -101,18 +116,20 @@ import axios from 'axios'
 import LotPreviewCmp from './LotPreviewCmp.vue'
 import RecommendLotsCmp from './RecommendLotsCmp.vue'
 import ConfirmModal from '@/components/modal/ConfirmModal.vue'
+import { positionStore } from '@/stores/positions'
 
 export default {
   components: { LotPreviewCmp, RecommendLotsCmp, ConfirmModal },
   data() {
     return {
+      positionStore: positionStore(),
       keyword: '',
       placeArray: [],
       map: null,
       showResult: false,
-      searchResultMarker: null,
-      myPositionMarker: null,
-      searchResultName: null,
+      // searchResultMarker: null,
+      // myPositionMarker: null,
+      // searchResultName: null,
       searchResultLatLon: null,
       lots: [],
       lotsMarker: [],
@@ -136,14 +153,45 @@ export default {
   },
   mounted() {
     kakao.maps.load(() => {
+      let latitude = 37.583422
+      let longitude = 126.999828
+
+      if (
+        this.positionStore.searchResultMarker !== null &&
+        this.positionStore.searchResultMarker !== undefined
+      ) {
+        latitude = this.positionStore.searchResultMarker.getPosition().getLat()
+        longitude = this.positionStore.searchResultMarker.getPosition().getLng()
+      } else if (
+        this.positionStore.myPositionMarker !== null &&
+        this.positionStore.myPositionMarker !== undefined
+      ) {
+        console.log(this.positionStore.myPositionMarker.getPosition())
+        latitude = this.positionStore.myPositionMarker.getPosition().getLat()
+        longitude = this.positionStore.myPositionMarker.getPosition().getLng()
+      }
+
       var container = document.getElementById('map')
       var options = {
-        center: new kakao.maps.LatLng(37.583422, 126.999828),
+        center: new kakao.maps.LatLng(latitude, longitude),
         level: 3
       }
 
       this.map = new kakao.maps.Map(container, options)
       this.map.setMaxLevel(4)
+
+      if (
+        this.positionStore.searchResultMarker !== null &&
+        this.positionStore.searchResultMarker !== undefined
+      ) {
+        this.positionStore.searchResultMarker.setMap(this.map)
+        this.positionStore.searchResultName.setMap(this.map)
+      } else if (
+        this.positionStore.myPositionMarker !== null &&
+        this.positionStore.myPositionMarker !== undefined
+      ) {
+        this.positionStore.myPositionMarker.setMap(this.map)
+      }
 
       //드래그 이벤트 등록
       kakao.maps.event.addListener(this.map, 'dragend', () => {
@@ -180,9 +228,9 @@ export default {
     },
     setLocation: function (item) {
       //기존 마커 삭제
-      if (this.searchResultMarker != null) {
-        this.searchResultMarker.setMap(null)
-        this.searchResultName.setMap(null)
+      if (this.positionStore.searchResultMarker != null) {
+        this.positionStore.searchResultMarker.setMap(null)
+        this.positionStore.searchResultName.setMap(null)
       }
 
       //위치, 지도 정보 설정
@@ -194,16 +242,16 @@ export default {
       this.map.setLevel(2)
 
       //마커 생성
-      this.searchResultMarker = new kakao.maps.Marker({ position: moveLatLon })
+      this.positionStore.searchResultMarker = new kakao.maps.Marker({ position: moveLatLon })
       const overlay = `<div class='overlay' style='border: 1.5px solid gray'>${item.place_name}</div>`
-      this.searchResultName = new kakao.maps.CustomOverlay({
+      this.positionStore.searchResultName = new kakao.maps.CustomOverlay({
         position: moveLatLon,
         content: overlay
       })
 
       //마커 출력
-      this.searchResultName.setMap(this.map)
-      this.searchResultMarker.setMap(this.map)
+      this.positionStore.searchResultName.setMap(this.map)
+      this.positionStore.searchResultMarker.setMap(this.map)
 
       //해당 위치로 이동
       this.map.panTo(moveLatLon)
@@ -290,7 +338,7 @@ export default {
     hideRecommSelect() {
       this.showRecommSelectModal = false // 모달 상태 변경
     },
-    geofind() {
+    moveTomyPosition() {
       if (!('geolocation' in navigator)) {
         this.openConfirmModal('경고', '브라우저가 위치 측정을 지원하지 않습니다.', false, false)
         return
@@ -300,8 +348,8 @@ export default {
       // get position
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          if (this.myPositionMarker != null) {
-            this.myPositionMarker.setMap(null)
+          if (this.positionStore.myPositionMarker != null) {
+            this.positionStore.myPositionMarker.setMap(null)
           }
 
           const latitude = pos.coords.latitude
@@ -313,13 +361,13 @@ export default {
           const imageSize = new kakao.maps.Size(40, 40)
           const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
 
-          this.myPositionMarker = new kakao.maps.Marker({
+          this.positionStore.myPositionMarker = new kakao.maps.Marker({
             position: latLon,
             image: markerImage
           })
 
           //마커 출력
-          this.myPositionMarker.setMap(this.map)
+          this.positionStore.myPositionMarker.setMap(this.map)
         },
         (error) => {
           console.log(error)
@@ -331,6 +379,18 @@ export default {
           )
         }
       )
+    },
+    moveToSearchResult() {
+      if (
+        this.positionStore.searchResultMarker !== null &&
+        this.positionStore.searchResultMarker !== undefined
+      ) {
+        var latLon = new kakao.maps.LatLng(
+          this.positionStore.searchResultMarker.getPosition().getLat(),
+          this.positionStore.searchResultMarker.getPosition().getLng()
+        )
+        this.map.panTo(latLon)
+      }
     },
     openConfirmModal(title, message, confirm, error) {
       this.customModalState.modalTitle = title
@@ -448,5 +508,40 @@ hr {
 .recommend-image {
   width: 22px;
   height: 22px;
+}
+
+.move-icon {
+  width: 40px;
+  height: 40px;
+  /* border: 1px solid #ececec; */
+  border: 0;
+  border-radius: 20px;
+  padding: 0;
+  background-color: #ae7af8;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.move-icon img {
+  width: 32px;
+  height: 32px;
+  margin: auto;
+}
+
+#map-wrapper {
+  position: relative;
+}
+
+#pos-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+#res-btn {
+  position: absolute;
+  bottom: 70px;
+  right: 20px;
+  z-index: 100;
 }
 </style>
