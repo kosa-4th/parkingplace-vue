@@ -17,8 +17,12 @@
         </div>
         <div class="input-container">
           <label>주차 공간 수</label>
-          <input v-model.number="newParkingSpace.availableSpaceNum" @input="filterInput" placeholder="숫자만 입력"
-                 class="form-control" />
+          <input
+            v-model.number="newParkingSpace.availableSpaceNum"
+            @input="filterInput"
+            placeholder="숫자만 입력"
+            class="form-control"
+          />
         </div>
         <div class="input-container">
           <label>허용되는 차량 유형</label>
@@ -32,23 +36,39 @@
         </div>
         <div class="input-container">
           <label>평일 가격</label>
-          <input v-model.number="newParkingSpace.weekdaysPrice" @input="filterInput" placeholder="숫자만 입력"
-                 class="form-control" />
+          <input
+            v-model.number="newParkingSpace.weekdaysPrice"
+            @input="filterInput"
+            placeholder="숫자만 입력"
+            class="form-control"
+          />
         </div>
         <div class="input-container">
           <label>평일 최대 가격</label>
-          <input v-model.number="newParkingSpace.weekAllDayPrice" @input="filterInput" placeholder="숫자만 입력"
-                 class="form-control" />
+          <input
+            v-model.number="newParkingSpace.weekAllDayPrice"
+            @input="filterInput"
+            placeholder="숫자만 입력"
+            class="form-control"
+          />
         </div>
         <div class="input-container">
           <label>주말 가격</label>
-          <input v-model.number="newParkingSpace.weekendPrice" @input="filterInput" placeholder="숫자만 입력"
-                 class="form-control" />
+          <input
+            v-model.number="newParkingSpace.weekendPrice"
+            @input="filterInput"
+            placeholder="숫자만 입력"
+            class="form-control"
+          />
         </div>
         <div class="input-container">
           <label>주말 최대 가격</label>
-          <input v-model.number="newParkingSpace.weekendAllDayPrice" @input="filterInput" placeholder="숫자만 입력"
-                 class="form-control" />
+          <input
+            v-model.number="newParkingSpace.weekendAllDayPrice"
+            @input="filterInput"
+            placeholder="숫자만 입력"
+            class="form-control"
+          />
         </div>
         <div class="input-container">
           <label>부가 서비스 :</label>
@@ -99,23 +119,36 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-sm bg-green" @click="addParkingSpace()">등록</button>
-        <button class="btn btn-sm bg-light " @click="$emit('close-modal')">닫기</button>
+        <button class="btn btn-sm bg-light" @click="$emit('close-modal')">닫기</button>
       </div>
     </div>
+    <ConfirmModal
+      v-if="customModalState.isModalVisible"
+      :confirm="customModalState.confirm"
+      :error="customModalState.error"
+      :title="customModalState.modalTitle"
+      :message="customModalState.modalMessage"
+      :path="customModalState.modalPath"
+      @close="closeConfirmModal"
+    />
   </div>
 </template>
 <script>
 import axios from 'axios'
+import ConfirmModal from '@/components/modal/ConfirmModal.vue'
 
 export default {
   props: ['selectedLotId', 'selectableCarTypes'], // 부모로부터 받은 props
+  components: {
+    ConfirmModal
+  },
   data() {
     return {
       newParkingSpace: {
         parkingLotId: this.selectedLotId,
         spaceName: '',
         availableSpaceNum: 0,
-        carTypeId: "",
+        carTypeId: '',
         weekdaysPrice: 0,
         weekAllDayPrice: 0,
         weekendPrice: 0,
@@ -124,6 +157,14 @@ export default {
         washPrice: null,
         maintenanceService: false,
         maintenancePrice: null
+      },
+      customModalState: {
+        confirm: false,
+        error: false,
+        isModalVisible: false,
+        modalTitle: '제목',
+        modalMessage: '메시지',
+        modalPath: ''
       }
     }
   },
@@ -135,18 +176,19 @@ export default {
     async addParkingSpace() {
       const validateResult = this.validateInsertParkingSpace(this.newParkingSpace)
       if (validateResult !== null) {
-        alert(validateResult)
+        this.openConfirmModal('주차 공간 추가', validateResult, false, false)
         return
       }
       try {
         console.log(this.newParkingSpace)
-        await axios.post(`${import.meta.env.VITE_API_URL}/api/parking-manager/info/parkingArea/protected`, this.newParkingSpace)
-        alert('주차구역이 추가되었습니다.')
-        alert('새로운 주차장이 성공적으로 등록되었습니다.')
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/parking-manager/info/parkingArea/protected`,
+          this.newParkingSpace
+        )
         this.$emit('refreshData')
         this.$emit('close-modal')
-      } catch (e) {
-        alert(e)
+      } catch (error) {
+        this.openConfirmModal('주차 공간 추가', `오류가 발생했습니다. <br> ${error}`, false, true)
       }
     },
     validateInsertParkingSpace(newParkingSpace) {
@@ -202,11 +244,12 @@ export default {
         return '주말 종일 요금을 올바르게 작성해주세요'
       }
 
-      if (newParkingSpace.washService === null || typeof newParkingSpace.washService !== 'boolean') {
+      if (
+        newParkingSpace.washService === null ||
+        typeof newParkingSpace.washService !== 'boolean'
+      ) {
         return '세차 서비스 지원 여부를 선택해주세요'
       }
-
-
 
       if (
         newParkingSpace.maintenanceService === null ||
@@ -219,11 +262,9 @@ export default {
     }
   }
 }
-
 </script>
 
 <style scoped>
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -260,7 +301,6 @@ export default {
   border-bottom: 1px solid #dee2e6;
   padding-bottom: 10px;
 }
-
 
 .modal-body {
   padding: 20px 0;
@@ -304,7 +344,8 @@ export default {
   background-color: #5a6268;
 }
 
-.input-container, .checkbox-container {
+.input-container,
+.checkbox-container {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
@@ -347,46 +388,45 @@ export default {
 }
 /* 보라색 버튼 */
 .bg-purple {
-  background-color: #9A64E8; /* 기본 보라색 */
+  background-color: #9a64e8; /* 기본 보라색 */
   color: white;
 }
 
 .bg-purple:hover {
-  background-color: #9A64E8; /* hover 상태에서도 기본 색상 유지 */
+  background-color: #9a64e8; /* hover 상태에서도 기본 색상 유지 */
   color: white; /* hover 상태에서 텍스트 색상 유지 */
 }
 
 /* 초록색 버튼 */
 .bg-green {
-  background-color: #76D672; /* 기본 초록색 */
+  background-color: #76d672; /* 기본 초록색 */
   color: white;
 }
 
 .bg-green:hover {
-  background-color: #76D672; /* hover 상태에서도 기본 색상 유지 */
+  background-color: #76d672; /* hover 상태에서도 기본 색상 유지 */
   color: white; /* hover 상태에서 텍스트 색상 유지 */
 }
 
 /* 빨간색 버튼 */
 .bg-red {
-  background-color: #F93A41; /* 기본 빨간색 */
+  background-color: #f93a41; /* 기본 빨간색 */
   color: white;
 }
 
 .bg-red:hover {
-  background-color: #F93A41; /* hover 상태에서도 기본 색상 유지 */
+  background-color: #f93a41; /* hover 상태에서도 기본 색상 유지 */
   color: white; /* hover 상태에서 텍스트 색상 유지 */
 }
 
 /* 연보라색 버튼 */
 .bg-light-purple {
-  background-color: #F0E5FF; /* 기본 연보라색 */
+  background-color: #f0e5ff; /* 기본 연보라색 */
   color: black;
 }
 
 .bg-light-purple:hover {
-  background-color: #F0E5FF; /* hover 상태에서도 기본 색상 유지 */
+  background-color: #f0e5ff; /* hover 상태에서도 기본 색상 유지 */
   color: black; /* hover 상태에서 텍스트 색상 유지 */
 }
-
 </style>
