@@ -1,4 +1,5 @@
 # ParkingPlace - FrontEnd 안내
+##### 한국소프트웨어산업협회 MSA 기반 풀스택 양성 과정 - 최종 프로젝트
 <a href="https://www.parkingplace.store">
     <img src="https://github.com/user-attachments/assets/51528759-ad11-4c4d-a592-02ade9057956" alt="ParkingPlace - FrontEnd 안내" />
 </a>
@@ -10,13 +11,33 @@
 ### 개발 인원 : 총 3명(FullStack)
 | **팀원**      | **역할**                                     |
 |---------------|----------------------------------------------|
-| **⭐️양건모** [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/rjsah09)   | 팀장, 주차창 마커 생성 및 위치 표시, 주차장 추천 및 알림, 즐겨찾기, 배포 |
-| **🙋‍♂️김경민** [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/gaengmin)   | 주차장 예약, 결제시스템 예약 및 취소, 시스템 관리자 페이지, 주차장 관리자 예약 관리|
-| **🙋‍♀️오지수** [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/Wildturkeyy)   | Spring Security, JWT, 회원 관리 시스템, 주차장 상세 페이지, 리뷰 및 문의 |
+| **⭐️양건모** <br> [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/rjsah09)   | 팀장, 주차창 마커 생성 및 위치 표시, 주차장 추천 및 알림, 즐겨찾기, 배포 |
+| **🙋‍♂️김경민** <br> [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/gaengmin)   | 주차장 예약, 결제시스템 예약 및 취소, 시스템 관리자 페이지, 주차장 관리자 예약 관리|
+| **🙋‍♀️오지수** <br> [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/Wildturkeyy)   | Spring Security, JWT, 회원 관리 시스템, 주차장 상세 페이지, 리뷰 및 문의 |
 
 ---
 
 ### 개발 일정 : 2024년 08월 26일 - 2024년 10월 07일
+
+| **단계**                | **내용**                                      | **기간**                |
+|-------------------------|-----------------------------------------------|-------------------------|
+| **1. 주제 선정**        | 주제 아이디어 구상 및 확정                    | 24.08.26 - 24.08.27     |
+| **2. 웹개발 명세서 작성** | 웹 개발을 위한 상세 명세서 작성                 | 24.08.27 - 24.08.30     |
+|                         | - ERD 설계                                    |                         |
+|                         | - 피그마 설계                                  |                         |
+|                         | - API 명세서 설계                              |                         |
+| **3. 개발 환경 설정**    | 프로젝트 개발 환경 구축                       | 24.08.30                |
+| **4. 프로젝트 개발**     | 기능 개발 및 구현                             | 24.09.02 - 24.09.24     |
+| **5. 버그 수정**         | 발견된 버그 수정 및 안정화 작업               | 24.09.24 - 24.10.04     |
+| **6. 발표자료 작성 및 제출** | 발표 자료 준비 및 제출                        | 24.09.24 - 24.09.27     |
+| **7. AWS 서버 및 GITHUB CI/CD 설정** | 서버 배포 및 지속적 통합/배포 환경 구축 | 24.09.26 - 24.10.01     |
+| **8. 프로젝트 정리 및 발표 준비** | 프로젝트 점검 및 발표 준비                  | 24.10.01 - 24.10.04     |
+|                         | - 데이터 체크                                 |                         |
+|                         | - 프로젝트 테스트                              |                         |
+|                         | - 발표 리허설                                  |                         |
+| **9. 최종 발표**         | 최종 프로젝트 발표                           | 24.10.07                |
+
+---
 
 ### 프로젝트 개요
 ParkingPlace는 여러 주차 공간을 비교해 예약할 수 있는 주차 예약 플랫폼입니다. 사용자는 목적지를 기준으로 최적의 주차장을 추천받을 수 있으며, 주차장 사업자는 자신의 주차 공간을 예약 및 관리할 수 있는 시스템을 제공합니다.
