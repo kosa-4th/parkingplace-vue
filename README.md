@@ -1,4 +1,54 @@
-# ParkingPlace -FrontEnd 안내
+# ParkingPlace - FrontEnd 안내
+<a href="https://www.parkingplace.store">
+    <img src="https://github.com/user-attachments/assets/51528759-ad11-4c4d-a592-02ade9057956" alt="ParkingPlace - FrontEnd 안내" />
+</a>
+
+## 배포 사이트 : https://www.parkingplace.store
+
+---
+
+### 개발 인원 : 총 3명(FullStack)
+| **팀원**      | **역할**                                     |
+|---------------|----------------------------------------------|
+| **⭐️양건모** [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/rjsah09)   | 팀장, 주차창 마커 생성 및 위치 표시, 주차장 추천 및 알림, 즐겨찾기, 배포 |
+| **🙋‍♂️김경민** [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/gaengmin)   | 주차장 예약, 결제시스템 예약 및 취소, 시스템 관리자 페이지, 주차장 관리자 예약 관리|
+| **🙋‍♀️오지수** [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/Wildturkeyy)   | Spring Security, JWT, 회원 관리 시스템, 주차장 상세 페이지, 리뷰 및 문의 |
+
+---
+
+### 개발 일정 : 2024년 08월 26일 - 2024년 10월 07일
+
+### 프로젝트 개요
+ParkingPlace는 여러 주차 공간을 비교해 예약할 수 있는 주차 예약 플랫폼입니다. 사용자는 목적지를 기준으로 최적의 주차장을 추천받을 수 있으며, 주차장 사업자는 자신의 주차 공간을 예약 및 관리할 수 있는 시스템을 제공합니다.
+
+---
+
+### 주요 기능
+- **주차장 예약 및 비교**: 사용자가 다양한 주차 공간을 비교하고 예약할 수 있도록 지원
+- **목적지 기반 추천**: 목적지 주변의 최적 주차장을 추천
+- **주차 공간 관리**: 사업자가 주차 공간을 예약 및 관리할 수 있는 시스템 구축
+
+---
+
+### 시스템 아키텍처
+<img src="https://github.com/user-attachments/assets/a1eb4fcc-9d4c-4ed7-940a-4987b221b8e0" alt="ParkingPlace 시스템 아키텍처" width="700" />
+
+---
+
+### 기술 스택
+<img src="https://github.com/user-attachments/assets/7d755b1d-8ce6-4043-b7c8-0d5eb01b553a" alt="ParkingPlace 기술 스택" width="800" />
+
+---
+
+### 데이터베이스 구조 (ERD)
+<img src="https://github.com/user-attachments/assets/12adba31-7f9a-4961-981d-336cd7494b4e" alt="ParkingPlace ERD" width="700" />
+
+---
+
+### 컴포넌트 구조도
+<img src="https://github.com/user-attachments/assets/a96967ce-8d80-4045-9434-f6d04d766f30" alt="ParkingPlace Component Tree" width="700" />
+
+---
 
 ## Project Setup
 
@@ -41,9 +91,4 @@
 | **vite**                           | ^5.3.1      | 프론트엔드 빌드 도구                     |
 | **vite-plugin-vue-devtools**       | ^7.3.1      | Vite용 Vue 개발 도구 플러그인            |
 
-## Project Skill Stakcs
-![image](https://github.com/user-attachments/assets/8217225d-6a85-4796-aba9-2ed0cb7f7a1f)
 
-
-## Component Tree
-![4차 컴포넌트 트리 drawio](https://github.com/user-attachments/assets/51454951-bd85-4686-980c-7176a3fa8ac2)
